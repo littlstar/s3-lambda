@@ -8,8 +8,12 @@ A powerful S3 toolbelt that gives you access to batch operations like forEach, m
 - Many more...
 
 ## Getting started
+Install S3renity  
+```npm install s3renity --save```
+
+In your code:
 ```javascript
-var S3renity = require('S3renity');
+var S3renity = require('s3renity');
 
 var s3renity = new S3renity({
   access_key_id: 'your access key',
@@ -28,7 +32,7 @@ s3renity
 
 ## Instructions
 S3renity has the concept of a working context, which defines the files or log entries you are working with.  The working context is set by ```S3renity.context()```.  By calling that on a valid s3 path, the working context is set to all the files with that key prefix (in that directory).  From there, you can perform batch operations.  For example:  
-```
+```javascript
 S3renity
   .context(dir)
   .forEach(body => console.log('do something with file body')
@@ -37,7 +41,7 @@ S3renity
 ```
 
 It is also possible for the working context to set to the lines in the files by calling ```split()```.  Suppose you wanted to iterate over every line in every file in a S3 directory.  You could do something like:  
-```
+```javascrpit
 S3renity
   .context(dir)
   .split('\n')
