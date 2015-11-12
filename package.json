@@ -1,7 +1,7 @@
 {
   "name": "s3renity",
   "version": "0.0.2",
-  "description": "Do bulk operations/parsing of S3 files. Handles sync and async function arguments. Particularly useful for operating over thousands of files in S3.",
+  "description": "Promise-based S3 api wrapper with batch operations (forEach, map, reduce, filter)",
   "main": "s3renity.js",
   "author": "Wells Johnston",
   "license": "MIT",
