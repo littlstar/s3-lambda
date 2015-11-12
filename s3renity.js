@@ -12,24 +12,24 @@ var s3;
  * wrapper around the s3 api.
  *
  * @author Wells Johnston <wells@littlstar.com>
- * @exports Nice
+ * @exports S3renity
  */
 
-module.exports = Nice;
+module.exports = S3renity;
 
 /**
- * Nice access to files in S3.
+ * S3renity access to files in S3.
  *
- * @class Nice
+ * @class S3renity
  * @constructor
  * @param {object} aws your aws credentials. this object contains two keys
  * access_key_id and secred_access_key
  */
 
-function Nice(conf) {
+function S3renity(conf) {
 
-  if (!(this instanceof Nice)) {
-    return new Nice();
+  if (!(this instanceof S3renity)) {
+    return new S3renity();
   }
 
   if (conf.key) {
@@ -51,10 +51,10 @@ function Nice(conf) {
  *
  * @public
  * @param {string} key a key in the form: "s3://<your-bucket>/path/to/folder/"
- * @returns {Nice} `this`
+ * @returns {S3renity} `this`
  */
 
-Nice.prototype.context = function(key) {
+S3renity.prototype.context = function(key) {
   var target = resolveKey(key);
   if (target.type != TYPE_S3) {
     throw new Error(
@@ -71,10 +71,10 @@ Nice.prototype.context = function(key) {
  *
  * @public
  * @param {string} encoding The type of encoding to use with S3 objects. Default is "utf8".
- * @return {Nice} `this`
+ * @return {S3renity} `this`
  */
 
-Nice.prototype.encode = function(encoding) {
+S3renity.prototype.encode = function(encoding) {
   this.encoding = encoding;
   return this;
 };
@@ -86,7 +86,7 @@ Nice.prototype.encode = function(encoding) {
  * @return {promise} Fulfilled when all the keys are retrieved from s3.
  */
 
-Nice.prototype.keys = function() {
+S3renity.prototype.keys = function() {
 
   const _keys = (allKeys, marker, success, fail) => {
     this.list(this.bucket, this.prefix, marker).then(keys => {
@@ -114,10 +114,10 @@ Nice.prototype.keys = function() {
  * @public
  * @param {string} delimiter The character to split the document objects by.
  * Default is "\n"
- * @return {Nice} `this`
+ * @return {S3renity} `this`
  */
 
-Nice.prototype.split = function(delimiter) {
+S3renity.prototype.split = function(delimiter) {
   this.delimiter = delimiter || '\n';
   return this;
 };
@@ -132,7 +132,7 @@ Nice.prototype.split = function(delimiter) {
  * @return {promise} Returns the body and `this` on success.
  */
 
-Nice.prototype.join = function(delimiter) {
+S3renity.prototype.join = function(delimiter) {
 
   if (delimiter == null) delimiter = '\n';
 
@@ -164,7 +164,7 @@ Nice.prototype.join = function(delimiter) {
  * list of keys that were operated over.
  */
 
-Nice.prototype.forEach = function(func, isAsync) {
+S3renity.prototype.forEach = function(func, isAsync) {
 
   if (typeof func != 'function') {
     throw new TypeError('func must be a function');
@@ -267,7 +267,7 @@ Nice.prototype.forEach = function(func, isAsync) {
  * @return {promise} Fulfilled when map is complete.
  */
 
-Nice.prototype.map = function(func, isAsync) {
+S3renity.prototype.map = function(func, isAsync) {
 
   if (typeof func != 'function') {
     throw new TypeError('func must be a function');
@@ -382,7 +382,7 @@ Nice.prototype.map = function(func, isAsync) {
  * @return {promise} Returns the reduced result.
  */
 
-Nice.prototype.reduce = function(func, initialValue, isAsync) {
+S3renity.prototype.reduce = function(func, initialValue, isAsync) {
 
   if (typeof func != 'function') {
     throw new TypeError('func must be a function');
@@ -485,7 +485,7 @@ Nice.prototype.reduce = function(func, initialValue, isAsync) {
  * indicates that func returns a promise.
  */
 
-Nice.prototype.filter = function(func, isAsync) {
+S3renity.prototype.filter = function(func, isAsync) {
 
   if (typeof func != 'function') {
     throw new TypeError('func must be a function');
@@ -605,7 +605,7 @@ Nice.prototype.filter = function(func, isAsync) {
  * @return {promise} Purges empty files.
  */
 
-Nice.prototype.clean = function() {
+S3renity.prototype.clean = function() {
   return this.filter(body => body.length > 0);
 };
 
@@ -619,7 +619,7 @@ Nice.prototype.clean = function() {
  * response either from `fs` or s3.
  */
 
-Nice.prototype.write = function(body, targets) {
+S3renity.prototype.write = function(body, targets) {
   return new Promise((success, fail) => {
     if (typeof targets == 'string') {
       targets = [targets];
@@ -658,7 +658,7 @@ Nice.prototype.write = function(body, targets) {
  * @return {promise} Returns an array that is the split of the object.
  */
 
-Nice.prototype.splitObject = function(bucket, key, delimiter, encoding) {
+S3renity.prototype.splitObject = function(bucket, key, delimiter, encoding) {
   return new Promise((success, fail) => {
     if (delimiter == null) delimiter = '\n';
     if (encoding == null) encoding = 'utf8';
@@ -681,7 +681,7 @@ Nice.prototype.splitObject = function(bucket, key, delimiter, encoding) {
  * @return {promise} Fulfilled when object is retrieved.
  */
 
-Nice.prototype.get = function(arg1, arg2) {
+S3renity.prototype.get = function(arg1, arg2) {
   var target = resolveKey(arg1),
     bucket, key;
   if (target.type == TYPE_S3) {
@@ -720,7 +720,7 @@ Nice.prototype.get = function(arg1, arg2) {
  * response from s3.
  */
 
-Nice.prototype.put = function(bucket, key, body) {
+S3renity.prototype.put = function(bucket, key, body) {
   return new Promise((success, fail) => {
     s3.putObject({
       Bucket: bucket,
@@ -746,7 +746,7 @@ Nice.prototype.put = function(bucket, key, body) {
  * @return {promise} Fulfilled when the object deleted. Returns `this`.
  */
 
-Nice.prototype.delete = (bucket, key) => {
+S3renity.prototype.delete = (bucket, key) => {
   if (typeof key == 'object') {
     return deleteObjects(bucket, key);
   }
@@ -774,7 +774,7 @@ Nice.prototype.delete = (bucket, key) => {
  * @return {promise} Fulfilled when the keys are retrieved from s3.
  */
 
-Nice.prototype.list = (bucket, prefix, marker) => new Promise(
+S3renity.prototype.list = (bucket, prefix, marker) => new Promise(
   (success, fail) => {
     if (prefix[prefix.length - 1] != '/') prefix += '/';
     s3.listObjects({
