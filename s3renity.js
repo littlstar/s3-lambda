@@ -32,16 +32,20 @@ function S3renity(conf) {
     return new S3renity();
   }
 
+  if (!conf) conf = {};
+
   if (conf.key) {
     this.context(conf.key);
   }
 
   this.encoding = conf.encoding || 'utf8';
 
-  aws.config.update({
-    accessKeyId: conf.access_key_id,
-    secretAccessKey: conf.secret_access_key
-  });
+  if (conf.access_key_id && conf.secred_access_key) {
+    aws.config.update({
+      accessKeyId: conf.access_key_id,
+      secretAccessKey: conf.secret_access_key
+    });
+  }
 
   s3 = new aws.S3();
 }
