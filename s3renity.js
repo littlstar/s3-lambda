@@ -84,7 +84,7 @@ S3renity.prototype.encode = function(encoding) {
 };
 
 /**
- * Returns a promise that gets all the keys in the given context.
+ * Returns all the keys in the working context.
  *
  * @public
  * @return {promise} Fulfilled when all the keys are retrieved from s3.
@@ -243,7 +243,7 @@ S3renity.prototype.forEach = function(func, isAsync) {
           if (err) {
             fail(err);
           } else {
-            success(keys);
+            success();
           }
         });
       } else {
@@ -251,9 +251,9 @@ S3renity.prototype.forEach = function(func, isAsync) {
           if (err) {
             fail(err);
           } else {
-            success(keys);
+            success();
           }
-        })
+        });
       }
     }).catch(fail);
   });
@@ -372,7 +372,7 @@ S3renity.prototype.map = function(func, isAsync) {
  * Reduce the objects in the working context to a single value.
  *
  * @param {function} func Function to execute on each value in the array, taking
- * four arguments:
+ * three arguments:
  *   previousValue - The value previously returned in the last invocation of
  *   func
  *   currentValue  - The current entry being processed
