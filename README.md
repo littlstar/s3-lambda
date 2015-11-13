@@ -96,7 +96,7 @@ s3renity
   .catch(e)
 ```
 
-**reduce(func[, isAsync])**
+**reduce(func[, initialValue, isAsync])**
 Reduce the working context to a single value with ```func```. ```func``` takes three arguments: ```previousValue```, ```currentValue```, and ```key``` (the key of the current S3 object), and returns the updated object.
 
 ```javascript
