@@ -5,7 +5,6 @@ var aws = require('aws-sdk'),
 
 const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
-var s3;
 
 /**
  * Give access to batch operations over s3 files, as well as a promised base
@@ -47,7 +46,8 @@ function S3renity(conf) {
     });
   }
 
-  s3 = new aws.S3();
+  const s3 = new aws.S3();
+  this.s3 = s3;
 }
 
 /**
@@ -696,7 +696,7 @@ S3renity.prototype.get = function(arg1, arg2) {
     key = arg2;
   }
   return new Promise((success, fail) => {
-    s3.getObject({
+    this.s3.getObject({
       Bucket: bucket,
       Key: key
     }, (err, object) => {
@@ -726,7 +726,7 @@ S3renity.prototype.get = function(arg1, arg2) {
 
 S3renity.prototype.put = function(bucket, key, body) {
   return new Promise((success, fail) => {
-    s3.putObject({
+    this.s3.putObject({
       Bucket: bucket,
       Key: key,
       Body: body
@@ -750,12 +750,12 @@ S3renity.prototype.put = function(bucket, key, body) {
  * @return {promise} Fulfilled when the object deleted. Returns `this`.
  */
 
-S3renity.prototype.delete = (bucket, key) => {
+S3renity.prototype.delete = function(bucket, key) {
   if (typeof key == 'object') {
-    return deleteObjects(bucket, key);
+    return this.deleteObjects(bucket, key);
   }
   return new Promise((success, fail) => {
-    s3.deleteObject({
+    this.s3.deleteObject({
       Bucket: bucket,
       Key: key
     }, (err, res) => {
@@ -778,10 +778,10 @@ S3renity.prototype.delete = (bucket, key) => {
  * @return {promise} Fulfilled when the keys are retrieved from s3.
  */
 
-S3renity.prototype.list = (bucket, prefix, marker) => new Promise(
-  (success, fail) => {
+S3renity.prototype.list = function(bucket, prefix, marker) {
+  return new Promise((success, fail) => {
     if (prefix[prefix.length - 1] != '/') prefix += '/';
-    s3.listObjects({
+    this.s3.listObjects({
       Bucket: bucket,
       Prefix: prefix,
       Marker: marker
@@ -796,8 +796,8 @@ S3renity.prototype.list = (bucket, prefix, marker) => new Promise(
         success(keys);
       }
     });
-  }
-);
+  });
+};
 
 /**
  * Deletes a list of objects in S3.
@@ -808,25 +808,27 @@ S3renity.prototype.list = (bucket, prefix, marker) => new Promise(
  * @return {promise} Fulfilled when objects are deleted. Returns response.
  */
 
-const deleteObjects = (bucket, keys) => new Promise((success, fail) => {
-  keys.map((key, i, arr) => {
-    arr[i] = {
-      Key: key
-    };
+S3renity.prototype.deleteObjects = function(bucket, keys) {
+  return new Promise((success, fail) => {
+    keys.map((key, i, arr) => {
+      arr[i] = {
+        Key: key
+      };
+    });
+    this.s3.deleteObjects({
+      Bucket: bucket,
+      Delete: {
+        Objects: keys
+      }
+    }, (err, res) => {
+      if (err) {
+        fail(err);
+      } else {
+        success(res);
+      }
+    });
   });
-  s3.deleteObjects({
-    Bucket: bucket,
-    Delete: {
-      Objects: keys
-    }
-  }, (err, res) => {
-    if (err) {
-      fail(err);
-    } else {
-      success(res);
-    }
-  });
-});
+};
 
 /**
  * Take a path or s3 key and resolve it.
