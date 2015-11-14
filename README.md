@@ -26,18 +26,18 @@ var folder = 's3://<bucket>/path/to/folder/';
 
 var fn = s3object => console.log('this is an s3 object!', s3object);
 
-// map func over every line separated string
+// Ex: Print the contents of every file in a S3 path 
 s3renity
   .encode('utf8')  // (optional) this is default
-  .context(folder) // sets the directory in s3
+  .context(folder) // sets the directory in S3
   .split('\n')     // (optional) split each object by a delimiter
-  .forEach(fn)     // function to perform over each s3 object (or line if split is used)
-  .then(result => ...do stuff...)
-  .catch(e)
+  .forEach(fn)     // function to perform over each s3 object
+  .then(_ => console.log('done!'))
+  .catch(e => console.log(e))
 ```
 
 ## Instructions
-S3renity has the concept of a working context, which defines the files or log entries you are working with.  The working context is set by ```s3renity.context()```.  By calling that on a valid s3 path, the working context is set to all the files with that key prefix (in that directory).  From there, you can perform batch operations.  For example:  
+S3renity has the concept of a working context, which defines the files or content that you are working with.  The working context is set by ```s3renity.context()```.  By calling that on a valid S3 path, the working context is set to all the files with that key prefix (in that directory).  From there, you can perform batch operations.  For example:  
 ```javascript
 s3renity
   .context(dir)
@@ -46,14 +46,14 @@ s3renity
   .catch(e => ...handle error...);
 ```
 
-It is also possible for the working context to set to the lines in the files by calling ```split()```.  Suppose you wanted to iterate over every line in every file in a S3 directory.  You could do something like:  
+It is also possible for the working context to to be set to the content within in the files by calling ```split()```.  Suppose you wanted to map a function that adds a period to the end of every line (of every file in the S3 path).  You could do something like:  
 ```javascrpit
 s3renity
   .context(dir)
   .split('\n')
-  .forEach(line => console.log('do something with line'))
-  .then(s => ...do something else...)
-  .catch(e => ...handle error);
+  .map(line => line + '.')
+  .then(_ => console.log('done!')
+  .catch(e => console.log(e));
 ```
 
 ## Batch Functions
