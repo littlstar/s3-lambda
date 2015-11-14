@@ -1,5 +1,5 @@
 # S3renity.js
-A powerful S3 toolbelt that gives you access to batch operations like forEach, map, reduce, filter, and more...
+A powerful S3 toolbelt that gives you access to batch operations like forEach, map, reduce, filter, as well as a promise-based wrapper around the S3 api.
 
 ## Use Cases
 - Quickly prototype MapReduce jobs
@@ -132,8 +132,16 @@ s3renity
 ```
 
 ## Extra Functionality
+- keys
+- get
+- put
+- delete
+- join
+- clean
+- write
+- splitObject
 
-**keys()**
+**keys()**  
 Get all the object keys in the working context.
 ```javascript
 s3renity
@@ -143,7 +151,7 @@ s3renity
   .catch(e => ...)
 ```
 
-**get(arg1[, arg2])**
+**get(arg1[, arg2])**  
 Get an object from S3 either by specifying a valid key, or separate them into two arguments key and bucket.
 ```javascript
 s3renity
@@ -157,7 +165,7 @@ s3renity
   .catch(e => ...)
 ```
 
-**put(bucket, key, body)**
+**put(bucket, key, body)**  
 Put an object in S3.
 ```javascript
 s3renity
@@ -166,7 +174,7 @@ s3renity
   .catch(e => ...)
 ```
 
-**delete(bucket, key)**
+**delete(bucket, key)**  
 Delete an object or list of objects from S3.  Key can be a string key, the object to delete, or an array of keys to delete.
 ```javascript
 s3renity.delete('bucket', 'path/to/file.txt')
@@ -190,7 +198,7 @@ s3renity
   .then()
 ```
 
-**clean()**
+**clean()**  
 Removes empty files in the working context
 ```javascript
 s3renity
@@ -200,14 +208,14 @@ s3renity
   .catch(e => ...)
 ```
 
-**write(body, targets)**
+**write(body, targets)**  
 Output the working context to a file or location in s3. Targets can be a string (single target) or an array of targets.  Targets can be local files or valid S3 paths.
 ```javascript
 var text = 'blah';
 s3renity.write(text, ['s3://bucket/path/to/file.txt', 'localfile.txt']);
 ```
 
-**splitObject(bucket, key[, delimiter, encoding])**
+**splitObject(bucket, key[, delimiter, encoding])**  
 Split a single (text) object in S3 by a delimiter. Default delimiter is \n and encoding is utf8.
 ```javascript
 s3renity
