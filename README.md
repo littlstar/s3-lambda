@@ -141,12 +141,12 @@ s3renity
 - write
 - splitObject
 
-**keys()**  
-Get all the object keys in the working context.
+**list()**
+Get all the keys in the working context.
 ```javascript
 s3renity
   .context(path)
-  .keys()
+  .list()
   .then(keys => ...)
   .catch(e => ...)
 ```

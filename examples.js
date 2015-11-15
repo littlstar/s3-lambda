@@ -14,7 +14,7 @@ var s3dir = 's3://<bucket>/path/to/folder/';
 // list keys
 s3renity
   .context(s3dir)
-  .keys()
+  .list()
   .then(keys => {
     console.log(keys);
   });

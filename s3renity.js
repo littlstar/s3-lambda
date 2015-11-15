@@ -90,7 +90,7 @@ S3renity.prototype.encode = function(encoding) {
  * @return {promise} Fulfilled when all the keys are retrieved from s3.
  */
 
-S3renity.prototype.keys = function() {
+S3renity.prototype.list = function() {
 
   const _keys = (allKeys, marker, success, fail) => {
     this.list(this.bucket, this.prefix, marker).then(keys => {
@@ -141,7 +141,7 @@ S3renity.prototype.join = function(delimiter) {
   if (delimiter == null) delimiter = '\n';
 
   return new Promise((success, fail) => {
-    this.keys().then(keys => {
+    this.list().then(keys => {
       var getPromises = [];
       keys.forEach(key => {
         getPromises.push(this.get(this.bucket, key));
@@ -237,7 +237,7 @@ S3renity.prototype.forEach = function(func, isAsync) {
   };
 
   return new Promise((success, fail) => {
-    this.keys().then(keys => {
+    this.list().then(keys => {
       if (this.delimiter == null) {
         _eachObject(keys, err => {
           if (err) {
@@ -346,7 +346,7 @@ S3renity.prototype.map = function(func, isAsync) {
   };
 
   return new Promise((success, fail) => {
-    this.keys().then(keys => {
+    this.list().then(keys => {
       if (this.delimiter == null) {
         _mapObject(keys, err => {
           if (err) {
@@ -458,7 +458,7 @@ S3renity.prototype.reduce = function(func, initialValue, isAsync) {
   };
 
   return new Promise((success, fail) => {
-    this.keys().then(keys => {
+    this.list().then(keys => {
       if (this.delimiter == null) {
         _reduceObjects(keys, (err, result) => {
           if (err) {
@@ -583,7 +583,7 @@ S3renity.prototype.filter = function(func, isAsync) {
   });
 
   return new Promise((success, fail) => {
-    this.keys().then(keys => {
+    this.list().then(keys => {
       if (this.delimiter == null) {
         _filterObjects(keys, err => {
           if (err) {
