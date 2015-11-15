@@ -5,6 +5,8 @@ var aws = require('aws-sdk'),
 
 const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
+const S3_PATH_ERROR = 'Context needs to be a valid s3 path. Ex: "s3://<bucket>/path/to/folder[/object]."';
+const INPUT_FUNCTION_ERROR = '"func" must be a function.';
 
 /**
  * Give access to batch operations over s3 files, as well as a promised base
@@ -61,9 +63,7 @@ function S3renity(conf) {
 S3renity.prototype.context = function(key) {
   var target = resolveKey(key);
   if (target.type != TYPE_S3) {
-    throw new Error(
-      'Context needs to be a valid s3 path. Ex: "s3://<bucket>/path/to/folder/"'
-    );
+    throw new Error(S3_PATH_ERROR);
   }
   this.bucket = target.bucket;
   this.prefix = target.prefix;
@@ -74,7 +74,7 @@ S3renity.prototype.context = function(key) {
  * @alias ctx shorthand for context.
  */
 
-S3renity.prototype.ctx = S3renity.context;
+S3renity.prototype.ctx = S3renity.prototype.context;
 
 /**
  * Sets the working context encoding.
@@ -114,7 +114,7 @@ S3renity.prototype.target = function(target) {
 S3renity.prototype.list = function() {
 
   const _keys = (allKeys, marker, success, fail) => {
-    this.list(this.bucket, this.prefix, marker).then(keys => {
+    this.listObjects(this.bucket, this.prefix, marker).then(keys => {
       if (keys.length == 0) {
         success(allKeys);
         return;
@@ -192,7 +192,7 @@ S3renity.prototype.join = function(delimiter) {
 S3renity.prototype.forEach = function(func, isAsync) {
 
   if (typeof func != 'function') {
-    throw new TypeError('func must be a function');
+    throw new TypeError(INPUT_FUNCTION_ERROR);
   }
 
   if (isAsync == null) {
@@ -295,7 +295,7 @@ S3renity.prototype.forEach = function(func, isAsync) {
 S3renity.prototype.map = function(func, isAsync) {
 
   if (typeof func != 'function') {
-    throw new TypeError('func must be a function');
+    throw new TypeError(INPUT_FUNCTION_ERROR);
   }
 
   if (isAsync == null) {
@@ -410,7 +410,7 @@ S3renity.prototype.map = function(func, isAsync) {
 S3renity.prototype.reduce = function(func, initialValue, isAsync) {
 
   if (typeof func != 'function') {
-    throw new TypeError('func must be a function');
+    throw new TypeError(INPUT_FUNCTION_ERROR);
   }
 
   if (isAsync == null) {
@@ -516,7 +516,7 @@ S3renity.prototype.reduce = function(func, initialValue, isAsync) {
 S3renity.prototype.filter = function(func, isAsync) {
 
   if (typeof func != 'function') {
-    throw new TypeError('func must be a function');
+    throw new TypeError(INPUT_FUNCTION_ERROR);
   }
 
   if (isAsync == null) {
@@ -806,7 +806,7 @@ S3renity.prototype.delete = function(bucket, key) {
  * @return {promise} Fulfilled when the keys are retrieved from s3.
  */
 
-S3renity.prototype.list = function(bucket, prefix, marker) {
+S3renity.prototype.listObjects = function(bucket, prefix, marker) {
   return new Promise((success, fail) => {
     if (prefix[prefix.length - 1] != '/') prefix += '/';
     this.s3.listObjects({
@@ -818,8 +818,8 @@ S3renity.prototype.list = function(bucket, prefix, marker) {
         fail(err);
       } else {
         keys = keys.Contents;
-        if (keys.length && keys[0] == prefix) {
-          delete keys[0];
+        if (keys.length && keys[0].Key == prefix) {
+          keys.shift();
         }
         success(keys);
       }

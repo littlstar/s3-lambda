@@ -22,16 +22,14 @@ var s3renity = new S3renity({
   secret_access_key: 'your secret key'
 });
 
+// Ex: Print out every file in an S3 directory
 var folder = 's3://<bucket>/path/to/folder/';
+var print = body => console.log('this is a s3 object:', body);
 
-var fn = s3object => console.log('this is an s3 object!', s3object);
-
-// Ex: Print the contents of every file in a S3 path 
 s3renity
   .encode('utf8')  // (optional) this is default
-  .context(folder) // sets the directory in S3
-  .split('\n')     // (optional) split each object by a delimiter
-  .forEach(fn)     // function to perform over each s3 object
+  .ctx(folder) // sets the directory in S3
+  .forEach(print)  // function to perform over each s3 object
   .then(_ => console.log('done!'))
   .catch(e => console.log(e))
 ```
