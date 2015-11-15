@@ -421,11 +421,16 @@ S3renity.prototype.reduce = function(func, initialValue, isAsync) {
   const _splitAndReduceObjects = (keys, callback) => {
     if (keys.length == 0) {
       callback(null, value);
+      return;
     }
     key = keys.shift();
     this.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
       entries => {
-        _reduceSplitEntries(key, entries, _ => {
+        _reduceSplitEntries(key, entries, err => {
+          if (err) {
+            callback(err, null);
+            return;
+          }
           _splitAndReduceObjects(keys, callback);
         });
       }).catch(e => callback(e, null));
@@ -441,15 +446,13 @@ S3renity.prototype.reduce = function(func, initialValue, isAsync) {
       func(value, entry, key).then(newValue => {
         value = newValue;
         _reduceSplitEntries(key, entries, done);
-      }).catch(e => {
-        callback(e, null);
-      });
+      }).catch(done);
     } else {
       try {
         value = func(value, entry, key);
         _reduceSplitEntries(key, entries, done);
       } catch (e) {
-        callback(e, null);
+        done(e);
       }
     }
   };
@@ -667,10 +670,14 @@ S3renity.prototype.splitObject = function(bucket, key, delimiter, encoding) {
     if (delimiter == null) delimiter = '\n';
     if (encoding == null) encoding = 'utf8';
     this.get(bucket, key).then(body => {
-      try {
-        success(body.split(delimiter));
-      } catch (err) {
-        fail(err);
+      if (body == '') {
+        success([]);
+      } else {
+        try {
+          success(body.split(delimiter));
+        } catch (err) {
+          fail(err);
+        }
       }
     }).catch(fail);
   });

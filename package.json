@@ -6,6 +6,6 @@
   "author": "Wells Johnston",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.2.9"
+    "aws-sdk": "^2.2.17"
   }
 }
