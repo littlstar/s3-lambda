@@ -71,6 +71,12 @@ S3renity.prototype.context = function(key) {
 };
 
 /**
+ * @alias ctx shorthand for context.
+ */
+
+S3renity.prototype.ctx = S3renity.context;
+
+/**
  * Sets the working context encoding.
  *
  * @public
@@ -82,6 +88,21 @@ S3renity.prototype.encode = function(encoding) {
   this.encoding = encoding;
   return this;
 };
+
+/**
+ * Sets the output directory for map or filter.  If a target is set, map and
+ * filter write to that location instead of changing the original objects
+ * themselves.
+ *
+ * @public
+ * @param {string} target The location to send the output of map or filter.
+ * @return {S3renity} `this`
+ */
+
+S3renity.prototype.target = function(target) {
+  this.target = target;
+  return this;
+}
 
 /**
  * Returns all the keys in the working context.
