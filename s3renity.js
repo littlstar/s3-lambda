@@ -100,7 +100,12 @@ S3renity.prototype.encode = function(encoding) {
  */
 
 S3renity.prototype.target = function(target) {
-  this.target = target;
+  var output = resolveKey(target);
+  if (output.type != TYPE_S3) {
+    throw new Error(S3_PATH_ERROR);
+  }
+  this.outputBucket = output.bucket;
+  this.outputKey = output.prefix;
   return this;
 }
 
@@ -524,11 +529,13 @@ S3renity.prototype.filter = function(func, isAsync) {
   }
 
   var key, result, promises, newBody, newSplitEntries;
+  var removeObjects = [];
+  var keepObjects = [];
 
   // recursively get all objects and run filter function
   const _filterObjects = (keys, callback) => {
     if (keys.length == 0) {
-      callback(null);
+      _finish(callback);
       return;
     }
     key = keys.shift();
@@ -536,12 +543,11 @@ S3renity.prototype.filter = function(func, isAsync) {
       if (isAsync) {
         func(body).then(result => {
           if (result) {
-            _filterObjects(keys, callback);
-            return;
+            keepObjects.push(key);
+          } else {
+            removeObjects.push(key);
           }
-          this.delete(this.bucket, key).then(_ => {
-            _filterObjects(keys, callback);
-          }).catch(callback);
+          _filterObjects(keys, callback);
         }).catch(callback);
       } else {
         try {
@@ -551,14 +557,25 @@ S3renity.prototype.filter = function(func, isAsync) {
           return;
         }
         if (result) {
-          _filterObjects(keys, callback);
-          return;
+          keepItems.push(key);
+        } else {
+          removeItems.push(key);
         }
-        this.delete(this.bucket, key).then(_ => {
-          _filterObjects(keys, callback);
-        }).catch(callback);
+        _filterObjects(keys, callback);
       }
     }).catch(callback);
+  };
+
+  const _finish = callback => {
+    if (!this.target) {
+      this.delete(this.bucket, removeItems).then(_ => {
+        callback(null);
+      }).catch(callback);
+    } else {
+      keepObjects.forEach(item => {
+        this.copy(this.outputBucket, this.outputKey)
+      });
+    }
   };
 
   const _splitObjects = (keys, callback) => {
