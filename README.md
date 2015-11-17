@@ -180,20 +180,13 @@ s3renity.delete('bucket', ['s3://bucket/path/to/thing', 's3://bucket/path/to/thi
 ```
 
 **join(delimiter)**  
-Concatenate, or "join" the objects in the working context into one file, and direct the output to an S3 path or a local file.  Output can also be an array of paths.  Under the hood, join deferrs a promise and returns ```this```, so you need to call ```output()``` after for it to run.
+Joins the objects in the working context by ```delimiter``` and returns the result.
 ```javascript
 s3renity
   .context(path)
   .join('\n')
-  .output('output.txt')
-  .then(_ => ...)
-  .catch(e)
-
-s3renity
-  .context(path)
-  .join('\n')
-  .output(['output.txt', 's3://bucket/path/to/file1', 's3://bucket/path/to/file2'])
-  .then()
+  .then(result => console.log(result))
+  .catch(e => ...)
 ```
 
 **clean()**  
@@ -236,24 +229,34 @@ const lookupId = line => {
 s3renity
   .context(path)
   .split('\n')
-  .forEach(lookupId)
-  .then(..)
-  .catch(..)
+  .forEach(lookupId, true)
+  .then(_ => console.log('done!'))
+  .catch(e => console.log(e))
 ```
 
 Add a field to each log entry and then concatonate all the files into one and save it locally.
 ```javascript
+
+var folder = 's3://bucket/path/to/folder';
+var tmpFolder = 's3://bucket/path/to/temporary/output/folder';
+var localOutput = 'output.txt';
+
 s3renity
-  .context(path)
+  .context(folder)
   .split('\n')
+  .target(tmpFolder)
   .map(entry => {
     var temp = JSON.parse(entry);
     if (temp.timestamp == null) {
      temp.timestamp = Date.now()/1000|0;
     }
-    return temp; 
+    return temp;
   })
-  .then(_ => s3renity.join('\n').then(b => write('output.txt'))
+  .then(_ => {
+    s3renity.ctx(tmpFolder).join('\n').then(results => {
+      s3renity.write(results, localOutput);
+    })}
+  )
   .catch(err => console.log(err));
 ```
 
