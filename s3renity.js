@@ -39,8 +39,6 @@ function S3renity(conf) {
     this.context(conf.key);
   }
 
-  this.encoding = conf.encoding || 'utf8';
-
   if (conf.access_key_id && conf.secred_access_key) {
     aws.config.update({
       accessKeyId: conf.access_key_id,
@@ -50,6 +48,8 @@ function S3renity(conf) {
 
   const s3 = new aws.S3();
   this.s3 = s3;
+  this.encoding = conf.encoding || 'utf8';
+  this.target = false;
 }
 
 /**
@@ -104,10 +104,11 @@ S3renity.prototype.target = function(target) {
   if (output.type != TYPE_S3) {
     throw new Error(S3_PATH_ERROR);
   }
-  this.outputBucket = output.bucket;
-  this.outputKey = output.prefix;
+  this.targetBucket = output.bucket;
+  this.targetPrefix = output.prefix;
+  this.target = true;
   return this;
-}
+};
 
 /**
  * Returns all the keys in the working context.
@@ -293,7 +294,8 @@ S3renity.prototype.forEach = function(func, isAsync) {
  * @param {function} func The function to map over each object in the working
  * context. Func takes the object as a parameter and returns the value that
  * should replace it.
- * @param {boolean} isAsync Optional, default is false. If set to true, this indicates that func returns a promise.
+ * @param {boolean} isAsync Optional, default is false. If set to true, this
+ * indicates that func returns a promise.
  * @return {promise} Fulfilled when map is complete.
  */
 
@@ -317,11 +319,9 @@ S3renity.prototype.map = function(func, isAsync) {
     const key = keys.shift();
     this.get(this.bucket, key).then(body => {
       if (isAsync) {
-        func(body).then(newBody => {
-          this.put(this.bucket, key, newBody).then(_ => {
-            _mapObject(keys, callback);
-          }).catch(callback);
-        }).catch(callback);
+        func(body)
+          .then(newBody => _output(key, newBody, callback))
+          .catch(callback);
       } else {
         try {
           result = func(body);
@@ -369,6 +369,20 @@ S3renity.prototype.map = function(func, isAsync) {
         }
       }
     });
+  };
+
+  const _output = (key, body, callback) => {
+    if (this.targetBucket && this.targetKey) {
+      // TODO general function to get filename
+      var fileName = key.substr(key.lastIndexOf('/'), key.length);
+      this.put(this.targetBucket, this.targetPrefix + fileName, body).then(_ => {
+        _mapObject(keys, callback);
+      }).catch(callback);
+    } else {
+      this.put(this.bucket, key, body).then(_ => {
+        _mapObject(keys, callback);
+      })
+    }
   };
 
   return new Promise((success, fail) => {
@@ -574,7 +588,8 @@ S3renity.prototype.filter = function(func, isAsync) {
     } else {
       promises = [];
       keepObjects.forEach(key => {
-        promises.push(this.copy(this.bucket, key, this.outputKey));
+        // TODO account for file name here
+        promises.push(this.copy(this.bucket, key, this.targetPrefix));
       });
       Promise.all(promises).then(_ => {
         callback();
