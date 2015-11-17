@@ -572,9 +572,13 @@ S3renity.prototype.filter = function(func, isAsync) {
         callback(null);
       }).catch(callback);
     } else {
-      keepObjects.forEach(item => {
-        this.copy(this.outputBucket, this.outputKey)
+      promises = [];
+      keepObjects.forEach(key => {
+        promises.push(this.copy(this.bucket, key, this.outputKey));
       });
+      Promise.all(promises).then(_ => {
+        callback();
+      }).catch(callback);
     }
   };
 
@@ -776,6 +780,31 @@ S3renity.prototype.put = function(bucket, key, body) {
       Key: key,
       Body: body
     }, (err, res) => {
+      if (err) {
+        fail(err);
+      } else {
+        success(res);
+      }
+    });
+  });
+};
+
+/**
+ * Copies an object in S3 from sourceKey to targetKey
+ *
+ * @public
+ * @param {string} bucket The s3 bucket to use.
+ * @param {string} sourceKey The source of the object to copy.
+ * @param {string} targetKey The target to copy the object to in s3.
+ */
+
+S3renity.prototype.copy = function(bucket, sourceKey, targetKey) {
+  return new Promise((success, fail) => {
+    this.s3.copyObject({
+      Bucket: bucket,
+      CopySource: sourceKey,
+      Key: targetKey
+    }, (err, res) {
       if (err) {
         fail(err);
       } else {
