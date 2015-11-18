@@ -1,3 +1,11 @@
+/**
+ * Gives access to batch operations over s3 files, as well as a promised base
+ * wrapper around the s3 api.
+ *
+ * @author Wells Johnston <wells@littlstar.com>
+ * @exports S3renity
+ */
+
 'use strict'
 
 var aws = require('aws-sdk'),
@@ -7,14 +15,6 @@ const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
 const S3_PATH_ERROR = 'Context needs to be a valid s3 path. Ex: "s3://<bucket>/path/to/folder[/object]."';
 const INPUT_FUNCTION_ERROR = '"func" must be a function.';
-
-/**
- * Give access to batch operations over s3 files, as well as a promised base
- * wrapper around the s3 api.
- *
- * @author Wells Johnston <wells@littlstar.com>
- * @exports S3renity
- */
 
 module.exports = S3renity;
 
