@@ -287,8 +287,9 @@ S3renity.prototype.forEach = function(func, isAsync) {
 };
 
 /**
- * Warning: destructive. Maps a function over the objects in the working
- * context, replaceing each with the return value.
+ * Maps a function over the objects in the working context, replaceing each
+ * with the return value.  If an output is specified, the objects will not be
+ * overwritten, but rather copied to the target location.
  *
  * @public
  * @param {function} func The function to map over each object in the working
@@ -309,29 +310,27 @@ S3renity.prototype.map = function(func, isAsync) {
     isAsync = false;
   }
 
-  var entryUpdates, result;
+  const isSplit = this.delimiter != null;
 
   const _mapObject = (keys, callback) => {
     if (keys.length == 0) {
       callback(null);
       return;
     }
-    const key = keys.shift();
+    let key = keys.shift();
     this.get(this.bucket, key).then(body => {
       if (isAsync) {
         func(body)
-          .then(newBody => _output(key, newBody, callback))
+          .then(newBody => _output(key, newBody, keys, callback))
           .catch(callback);
       } else {
         try {
-          result = func(body);
+          newBody = func(body);
         } catch (e) {
           callback(e);
           return;
         }
-        this.put(this.bucket, key, result).then(_ => {
-          _mapObject(keys, callback);
-        }).catch(callback);
+        _output(key, newBody, keys, callback);
       }
     }).catch(callback);
   };
@@ -341,14 +340,12 @@ S3renity.prototype.map = function(func, isAsync) {
       callback(null);
       return;
     }
-    const key = keys.shift();
+    let key = keys.shift();
     this.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
       entries => {
         _mapSplit(entries).then(newEntries => {
-          const newBody = newEntries.join(this.delimiter);
-          this.put(this.bucket, key, newBody).then(_ => {
-            _splitObjects(keys, callback);
-          }).catch(callback);
+          let newBody = newEntries.join(this.delimiter);
+          _output(key, newBody, keys, callback);
         }).catch(callback);
       }).catch(callback);
   };
@@ -356,7 +353,7 @@ S3renity.prototype.map = function(func, isAsync) {
   const _mapSplit = entries => {
     return new Promise((success, fail) => {
       if (isAsync) {
-        entryUpdates = [];
+        let entryUpdates = [];
         entries.forEach(entry => {
           entryUpdates.push(func(entry));
         });
@@ -371,23 +368,30 @@ S3renity.prototype.map = function(func, isAsync) {
     });
   };
 
-  const _output = (key, body, callback) => {
+  const _output = (key, body, keys, callback) => {
     if (this.targetBucket && this.targetKey) {
-      // TODO general function to get filename
-      var fileName = key.substr(key.lastIndexOf('/'), key.length);
-      this.put(this.targetBucket, this.targetPrefix + fileName, body).then(_ => {
-        _mapObject(keys, callback);
-      }).catch(callback);
+      this
+        .put(this.targetBucket, this.targetPrefix + fileName(key), body)
+        .then(_ => _continue(keys, callback))
+        .catch(callback);
     } else {
-      this.put(this.bucket, key, body).then(_ => {
-        _mapObject(keys, callback);
-      })
+      this.put(this.bucket, key, body)
+        .then(_ => _continue(keys, callback))
+        .catch(callback);
+    }
+  };
+
+  const _continue = (keys, callback) => {
+    if (isSplit) {
+      _splitObjects(keys, callback);
+    } else {
+      _mapObject(keys, callback);
     }
   };
 
   return new Promise((success, fail) => {
     this.list().then(keys => {
-      if (this.delimiter == null) {
+      if (isSplit) {
         _mapObject(keys, err => {
           if (err) {
             fail(err);
@@ -922,7 +926,7 @@ S3renity.prototype.deleteObjects = function(bucket, keys) {
 /**
  * Take a path or s3 key and resolve it.
  *
- * @public
+ * @private
  * @param {string} key an s3 key or local file path
  * @return {object} An object wity keys: bucket, prefix, file, and type.
  */
@@ -942,4 +946,16 @@ const resolveKey = key => {
     target.type = TYPE_FILE;
   }
   return target;
+};
+
+/**
+ * Returns the filename (last part of the key) from an S3 key.
+ *
+ * @private
+ * @param {string} key The S3 key to get the file name for.
+ * @return {string} The filename from the S3 key.
+ */
+
+const fileName = key => {
+  return key.substr(key.lastIndexOf('/'), key.length);
 };
