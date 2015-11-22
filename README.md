@@ -27,11 +27,11 @@ var folder = 's3://<bucket>/path/to/folder/';
 var print = body => console.log('this is a s3 object:', body);
 
 s3renity
-  .encode('utf8')  // (optional) this is default
-  .ctx(folder) // sets the directory in S3
-  .forEach(print)  // function to perform over each s3 object
-  .then(_ => console.log('done!'))
-  .catch(e => console.log(e))
+  .encode('utf8')                  // (optional) this is default
+  .context(folder)                 // sets the directory in S3
+  .forEach(print)                  // function to perform over each s3 object
+  .then(_ => console.log('done!')) // continue
+  .catch(e => console.log(e))      // handle error
 ```
 
 ## Instructions
@@ -40,8 +40,8 @@ S3renity has the concept of a working context, which defines the files or conten
 s3renity
   .context(dir)
   .forEach(body => console.log('do something with file body')
-  .then(s => ...do something else...)
-  .catch(e => ...handle error...);
+  .then(_ => {})
+  .catch(e => {});
 ```
 
 It is also possible for the working context to to be set to the content within in the files by calling ```split()```.  Suppose you wanted to map a function that adds a period to the end of every line (of every file in the S3 path).  You could do something like:  
@@ -51,7 +51,7 @@ s3renity
   .split('\n')
   .map(line => line + '.')
   .then(_ => console.log('done!')
-  .catch(e => console.log(e));
+  .catch(e => {});
 ```
 
 ## Batch Functions
@@ -66,15 +66,15 @@ Perform ```func``` on every item in the working context.  If ```split``` is call
 s3renity
   .context(path)
   .forEach(func)
-  .then(..)
-  .catch(..)
+  .then(_ => {})
+  .catch(e => {})
   
 s3renity
   .context(path)
   .split('\n')
   .forEach(func)
-  .then(_ => ...)
-  .catch(e)
+  .then(_ => {})
+  .catch(e => {})
 ```
 
 **map(func[, isAsync])**  
@@ -83,15 +83,15 @@ Perform ```func``` on every item in the working context, replacing each in place
 s3renity
   .context(path)
   .map(func)
-  .then(_ => ...)
-  .catch(e)
+  .then(_ => {})
+  .catch(e => {})
   
 s3renity
   .context(path)
   .split('\n')
   .map(func)
-  .then(_ => ...)
-  .catch(e)
+  .then(_ => {})
+  .catch(e => {})
 ```
 
 **reduce(func[, initialValue, isAsync])**
@@ -101,15 +101,15 @@ Reduce the working context to a single value with ```func```. ```func``` takes t
 s3renity
   .context(path)
   .reduce(func)
-  .then(result => ...)
-  .catch(e => ...)
+  .then(result => {})
+  .catch(e => {})
 
 s3renity
   .context(path)
   .split('\n')
   .reduce(func)
-  .then(result => ...)
-  .catch(e => ...)
+  .then(result => {})
+  .catch(e => {})
 ```
 
 **filter(func)**  
@@ -118,7 +118,7 @@ Filter the working context with ```func```, removing all objects or entries that
 s3renity
   .context(path)
   .filter(func)
-  .then(_ => ...)
+  .then(_ => {})
   .catch(e)
   
 s3renity
@@ -145,8 +145,8 @@ Get all the keys in the working context.
 s3renity
   .context(path)
   .list()
-  .then(keys => ...)
-  .catch(e => ...)
+  .then(keys => {})
+  .catch(e => {})
 ```
 
 **get(arg1[, arg2])**  
@@ -154,8 +154,8 @@ Get an object from S3 either by specifying a valid key, or separate them into tw
 ```javascript
 s3renity
   .get('bucket', 'path/to/object')
-  .then(object => ...)
-  .catch(e => ...)
+  .then(object => {})
+  .catch(e => {})
 
 s3renity
   .get('s3://path/to/object')
@@ -212,8 +212,8 @@ Split a single (text) object in S3 by a delimiter. Default delimiter is \n and e
 s3renity
   .context(path)
   .splitObject('bucket', 'path/to/object', '\t');
-  .then(result => ...)
-  .catch(e => ...)
+  .then(result => {}) // do something with result
+  .catch(console.log)
 ```
 
 ## Advanced Examples
