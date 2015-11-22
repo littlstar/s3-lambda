@@ -1,3 +1,11 @@
+/**
+ * Gives access to batch operations over s3 files, as well as a promised base
+ * wrapper around the s3 api.
+ *
+ * @author Wells Johnston <wells@littlstar.com>
+ * @exports S3renity
+ */
+
 'use strict'
 
 var aws = require('aws-sdk'),
@@ -39,8 +47,6 @@ function S3renity(conf) {
     this.context(conf.key);
   }
 
-  this.encoding = conf.encoding || 'utf8';
-
   if (conf.access_key_id && conf.secred_access_key) {
     aws.config.update({
       accessKeyId: conf.access_key_id,
@@ -50,6 +56,8 @@ function S3renity(conf) {
 
   const s3 = new aws.S3();
   this.s3 = s3;
+  this.encoding = conf.encoding || 'utf8';
+  this.hasTarget = false;
 }
 
 /**
@@ -61,7 +69,7 @@ function S3renity(conf) {
  */
 
 S3renity.prototype.context = function(key) {
-  var target = resolveKey(key);
+  const target = resolveKey(key);
   if (target.type != TYPE_S3) {
     throw new Error(S3_PATH_ERROR);
   }
@@ -100,9 +108,15 @@ S3renity.prototype.encode = function(encoding) {
  */
 
 S3renity.prototype.target = function(target) {
-  this.target = target;
+  const output = resolveKey(target);
+  if (output.type != TYPE_S3) {
+    throw new Error(S3_PATH_ERROR);
+  }
+  this.targetBucket = output.bucket;
+  this.targetPrefix = output.prefix;
+  this.hasTarget = true;
   return this;
-}
+};
 
 /**
  * Returns all the keys in the working context.
@@ -163,7 +177,7 @@ S3renity.prototype.join = function(delimiter) {
 
   return new Promise((success, fail) => {
     this.list().then(keys => {
-      var getPromises = [];
+      let getPromises = [];
       keys.forEach(key => {
         getPromises.push(this.get(this.bucket, key));
       });
@@ -198,8 +212,6 @@ S3renity.prototype.forEach = function(func, isAsync) {
   if (isAsync == null) {
     isAsync = false;
   }
-
-  var updates;
 
   const _eachObject = (keys, callback) => {
     if (keys.length == 0) {
@@ -241,7 +253,7 @@ S3renity.prototype.forEach = function(func, isAsync) {
   const _eachSplit = entries => {
     return new Promise((success, fail) => {
       if (isAsync) {
-        updates = [];
+        let updates = [];
         entries.forEach(entry => {
           updates.push(func(entry));
         });
@@ -281,14 +293,16 @@ S3renity.prototype.forEach = function(func, isAsync) {
 };
 
 /**
- * Warning: destructive. Maps a function over the objects in the working
- * context, replaceing each with the return value.
+ * Maps a function over the objects in the working context, replaceing each
+ * with the return value.  If an output is specified, the objects will not be
+ * overwritten, but rather copied to the target location.
  *
  * @public
  * @param {function} func The function to map over each object in the working
  * context. Func takes the object as a parameter and returns the value that
  * should replace it.
- * @param {boolean} isAsync Optional, default is false. If set to true, this indicates that func returns a promise.
+ * @param {boolean} isAsync Optional, default is false. If set to true, this
+ * indicates that func returns a promise.
  * @return {promise} Fulfilled when map is complete.
  */
 
@@ -302,31 +316,27 @@ S3renity.prototype.map = function(func, isAsync) {
     isAsync = false;
   }
 
-  var entryUpdates, result;
+  const isSplit = this.delimiter != null;
 
   const _mapObject = (keys, callback) => {
     if (keys.length == 0) {
       callback(null);
       return;
     }
-    const key = keys.shift();
+    let key = keys.shift();
     this.get(this.bucket, key).then(body => {
       if (isAsync) {
-        func(body).then(newBody => {
-          this.put(this.bucket, key, newBody).then(_ => {
-            _mapObject(keys, callback);
-          }).catch(callback);
-        }).catch(callback);
+        func(body)
+          .then(newBody => _output(key, newBody, keys, callback))
+          .catch(callback);
       } else {
         try {
-          result = func(body);
+          let newBody = func(body);
+          _output(key, newBody, keys, callback);
         } catch (e) {
           callback(e);
           return;
         }
-        this.put(this.bucket, key, result).then(_ => {
-          _mapObject(keys, callback);
-        }).catch(callback);
       }
     }).catch(callback);
   };
@@ -336,14 +346,12 @@ S3renity.prototype.map = function(func, isAsync) {
       callback(null);
       return;
     }
-    const key = keys.shift();
+    let key = keys.shift();
     this.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
       entries => {
         _mapSplit(entries).then(newEntries => {
-          const newBody = newEntries.join(this.delimiter);
-          this.put(this.bucket, key, newBody).then(_ => {
-            _splitObjects(keys, callback);
-          }).catch(callback);
+          let newBody = newEntries.join(this.delimiter);
+          _output(key, newBody, keys, callback);
         }).catch(callback);
       }).catch(callback);
   };
@@ -351,7 +359,7 @@ S3renity.prototype.map = function(func, isAsync) {
   const _mapSplit = entries => {
     return new Promise((success, fail) => {
       if (isAsync) {
-        entryUpdates = [];
+        let entryUpdates = [];
         entries.forEach(entry => {
           entryUpdates.push(func(entry));
         });
@@ -366,9 +374,30 @@ S3renity.prototype.map = function(func, isAsync) {
     });
   };
 
+  const _output = (key, body, keys, callback) => {
+    if (this.hasTarget) {
+      this
+        .put(this.targetBucket, this.targetPrefix + getFileName(key), body)
+        .then(_ => _continue(keys, callback))
+        .catch(callback);
+    } else {
+      this.put(this.bucket, key, body)
+        .then(_ => _continue(keys, callback))
+        .catch(callback);
+    }
+  };
+
+  const _continue = (keys, callback) => {
+    if (isSplit) {
+      _splitObjects(keys, callback);
+    } else {
+      _mapObject(keys, callback);
+    }
+  };
+
   return new Promise((success, fail) => {
     this.list().then(keys => {
-      if (this.delimiter == null) {
+      if (isSplit) {
         _mapObject(keys, err => {
           if (err) {
             fail(err);
@@ -417,15 +446,14 @@ S3renity.prototype.reduce = function(func, initialValue, isAsync) {
     isAsync = false;
   }
 
-  var value = initialValue,
-    key, entry;
+  var value = initialValue;
 
   const _reduceObjects = (keys, callback) => {
     if (keys.length == 0) {
       callback(null, value);
       return;
     }
-    key = keys.shift();
+    let key = keys.shift();
     this.get(this.bucket, key).then(body => {
       if (isAsync) {
         func(value, body, key).then(newValue => {
@@ -462,7 +490,7 @@ S3renity.prototype.reduce = function(func, initialValue, isAsync) {
       done();
       return;
     }
-    entry = entries.shift();
+    let entry = entries.shift();
     if (isAsync) {
       func(value, entry, key).then(newValue => {
         value = newValue;
@@ -523,42 +551,60 @@ S3renity.prototype.filter = function(func, isAsync) {
     isAsync = false;
   }
 
-  var key, result, promises, newBody, newSplitEntries;
+  var removeObjects = [];
+  var keepObjects = [];
 
   // recursively get all objects and run filter function
   const _filterObjects = (keys, callback) => {
     if (keys.length == 0) {
-      callback(null);
+      _finish(callback);
       return;
     }
-    key = keys.shift();
+    let key = keys.shift();
     this.get(this.bucket, key).then(body => {
       if (isAsync) {
         func(body).then(result => {
+          checkResult(result);
           if (result) {
-            _filterObjects(keys, callback);
-            return;
+            keepObjects.push(key);
+          } else {
+            removeObjects.push(key);
           }
-          this.delete(this.bucket, key).then(_ => {
-            _filterObjects(keys, callback);
-          }).catch(callback);
+          _filterObjects(keys, callback);
         }).catch(callback);
       } else {
         try {
-          result = func(body);
+          var result = func(body);
         } catch (e) {
           callback(e);
           return;
         }
+        checkResult(result);
         if (result) {
-          _filterObjects(keys, callback);
-          return;
+          keepObjects.push(key);
+        } else {
+          removeObjects.push(key);
         }
-        this.delete(this.bucket, key).then(_ => {
-          _filterObjects(keys, callback);
-        }).catch(callback);
+        _filterObjects(keys, callback);
       }
     }).catch(callback);
+  };
+
+  const _finish = callback => {
+    if (this.hasTarget) {
+      let promises = [];
+      keepObjects.forEach(key => {
+        let fileName = getFileName(key);
+        promises.push(this.copy(this.bucket, key, this.targetBucket, this.targetPrefix + fileName));
+      });
+      Promise.all(promises).then(_ => {
+        callback();
+      }).catch(callback);
+    } else {
+      this.delete(this.bucket, removeObjects).then(_ => {
+        callback(null);
+      }).catch(callback);
+    }
   };
 
   const _splitObjects = (keys, callback) => {
@@ -566,12 +612,20 @@ S3renity.prototype.filter = function(func, isAsync) {
       callback(null);
       return;
     }
-    key = keys.shift();
+    let key = keys.shift();
     this.splitObject(this.bucket, key, this.delimiter, this.encoding)
       .then(entries => {
         _filterSplitObject(entries).then(newEntries => {
-          newBody = newEntries.join(this.delimiter);
-          this.put(this.bucket, key, newBody).then(_ => {
+          var targetBucket, targetKey;
+          let newBody = newEntries.join(this.delimiter);
+          if (this.hasTarget) {
+            targetBucket = this.targetBucket;
+            targetKey = this.targetPrefix + getFileName(key);
+          } else {
+            targetBucket = this.bucket;
+            targetKey = key;
+          }
+          this.put(targetBucket, targetKey, newBody).then(_ => {
             _splitObjects(keys, callback);
           }).catch(callback);
         }).catch(callback);
@@ -586,7 +640,7 @@ S3renity.prototype.filter = function(func, isAsync) {
         promises.push(func(entry));
       });
       Promise.all(promises).then(results => {
-        newSplitEntries = [];
+        let newSplitEntries = [];
         results.forEach((pass, i) => {
           if (pass) {
             newSplitEntries.push(entries[i]);
@@ -602,6 +656,12 @@ S3renity.prototype.filter = function(func, isAsync) {
       }
     }
   });
+
+  const checkResult = result => {
+    if (typeof result != 'boolean') {
+      throw new TypeError('Filter function must return a boolean');
+    }
+  };
 
   return new Promise((success, fail) => {
     this.list().then(keys => {
@@ -769,6 +829,32 @@ S3renity.prototype.put = function(bucket, key, body) {
 };
 
 /**
+ * Copies an object in S3 from sourceKey to targetKey
+ *
+ * @public
+ * @param {string} bucket The s3 bucket to use.
+ * @param {string} sourceKey The source of the object to copy.
+ * @param {string} targetKey The target to copy the object to in s3.
+ */
+
+S3renity.prototype.copy = function(sourceBucket, sourceKey, targetBucket, targetKey) {
+  return new Promise((success, fail) => {
+    this.s3.copyObject({
+      Bucket: targetBucket,
+      Key: targetKey,
+      CopySource: `${sourceBucket}/${sourceKey}`
+    }, (err, res) => {
+      console.log(err, res);
+      if (err) {
+        fail(err);
+      } else {
+        success(res);
+      }
+    });
+  });
+};
+
+/**
  * Returns a promise that deletes an object in S3.
  *
  * @public
@@ -861,7 +947,7 @@ S3renity.prototype.deleteObjects = function(bucket, keys) {
 /**
  * Take a path or s3 key and resolve it.
  *
- * @public
+ * @private
  * @param {string} key an s3 key or local file path
  * @return {object} An object wity keys: bucket, prefix, file, and type.
  */
@@ -882,3 +968,13 @@ const resolveKey = key => {
   }
   return target;
 };
+
+/**
+ * Returns the filename (last part of the key) from an S3 key.
+ *
+ * @private
+ * @param {string} key The S3 key to get the file name for.
+ * @return {string} The filename from the S3 key.
+ */
+
+const getFileName = key => key.substr(key.lastIndexOf('/') + 1, key.length);
