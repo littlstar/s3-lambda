@@ -78,10 +78,11 @@ s3renity
 ```
 
 **map(func[, isAsync])**  
-Perform ```func``` on every item in the working context, replacing each in place.  *This function is destructive*.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous that returns the new object (or item) or returns a promise that resolves to the new object.
+Perform ```func``` on every item in the working context, replacing each in place.  *This function is destructive unless if you specify an output*.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous that returns the new object (or item) or returns a promise that resolves to the new object.
 ```javascript
 s3renity
   .context(path)
+  .output(outputFolder)  // optional
   .map(func)
   .then(_ => {})
   .catch(e => {})
@@ -113,10 +114,11 @@ s3renity
 ```
 
 **filter(func)**  
-Filter the working context with ```func```, removing all objects or entries that don't pass the test.  *This function is destructive*.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous or returns a promise, and returns false if the item should be filtered.
+Filter the working context with ```func```, removing all objects or entries that don't pass the test.  *This function is destructive unless if you specify an output*.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous or returns a promise, and returns false if the item should be filtered.
 ```javascript
 s3renity
   .context(path)
+  .output(outputFolder) // optional
   .filter(func)
   .then(_ => {})
   .catch(e)
