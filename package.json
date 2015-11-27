@@ -5,6 +5,10 @@
   "main": "s3renity.js",
   "author": "Wells Johnston",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/littlstar/s3renity"
+  },
   "dependencies": {
     "aws-sdk": "^2.2.17"
   }
