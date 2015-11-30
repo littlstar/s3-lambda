@@ -32,7 +32,7 @@ module.exports = S3renity;
  * @class S3renity
  * @constructor
  * @param {object} aws your aws credentials. this object contains two keys
- * access_key_id and secred_access_key
+ * access_key_id and secret_access_key
  */
 
 function S3renity(conf) {
@@ -47,7 +47,7 @@ function S3renity(conf) {
     this.context(conf.key);
   }
 
-  if (conf.access_key_id && conf.secred_access_key) {
+  if (conf.access_key_id && conf.secret_access_key) {
     aws.config.update({
       accessKeyId: conf.access_key_id,
       secretAccessKey: conf.secret_access_key
