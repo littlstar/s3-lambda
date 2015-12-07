@@ -56,6 +56,7 @@ function S3renity(conf) {
 
   const s3 = new aws.S3();
   this.s3 = s3;
+  this.marker = conf.marker || '';
   this.encoding = conf.encoding || 'utf8';
   this.hasTarget = false;
 }
@@ -83,6 +84,19 @@ S3renity.prototype.context = function(key) {
  */
 
 S3renity.prototype.ctx = S3renity.prototype.context;
+
+/**
+ * Set the marker for the working context (file to start on)
+ *
+ * @public
+ * @param {string} marker The marker to start with for getting objects.
+ * @return {S3renity} `this`
+ */
+
+S3renity.prototype.marker = function(marker) {
+  this.marker = marker;
+  return this;
+}
 
 /**
  * Sets the working context encoding.
@@ -143,7 +157,7 @@ S3renity.prototype.list = function() {
   };
 
   return new Promise((success, fail) => {
-    _keys([], '', success, fail);
+    _keys([], this.marker, success, fail);
   });
 };
 
