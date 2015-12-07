@@ -112,6 +112,18 @@ S3renity.prototype.encode = function(encoding) {
 };
 
 /**
+ * Transforms the S3 object before proceeding.
+ *
+ * @param {function} transform The function to use to transform the object.
+ * @return {S3renity} `this`
+ */
+
+S3renity.prototype.transform = function(transform) {
+  this.transform = transform;
+  return this;
+};
+
+/**
  * Sets the output directory for map or filter.  If a target is set, map and
  * filter write to that location instead of changing the original objects
  * themselves.
@@ -806,7 +818,11 @@ S3renity.prototype.get = function(arg1, arg2) {
         fail(err);
       } else {
         try {
-          success(object.Body.toString(this.encoding));
+          if (this.transform != null) {
+            success(this.transform(object.Body));
+          } else {
+            success(object.Body.toString(this.encoding));
+          }
         } catch (e) {
           fail(e);
         }
