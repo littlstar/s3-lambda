@@ -118,8 +118,8 @@ S3renity.prototype.encode = function(encoding) {
  * @return {S3renity} `this`
  */
 
-S3renity.prototype.transform = function(transform) {
-  this.transform = transform;
+S3renity.prototype.transform = function(transformer) {
+  this.transformer = transformer;
   return this;
 };
 
@@ -818,10 +818,10 @@ S3renity.prototype.get = function(arg1, arg2) {
         fail(err);
       } else {
         try {
-          if (this.transform != null) {
-            success(this.transform(object.Body));
-          } else {
+          if (this.transformer == null) {
             success(object.Body.toString(this.encoding));
+          } else {
+            success(this.transformer(object.Body));
           }
         } catch (e) {
           fail(e);
