@@ -80,12 +80,6 @@ S3renity.prototype.context = function(key) {
 };
 
 /**
- * @alias ctx shorthand for context.
- */
-
-S3renity.prototype.ctx = S3renity.prototype.context;
-
-/**
  * Set the marker for the working context (file to start on)
  *
  * @public
@@ -120,6 +114,20 @@ S3renity.prototype.encode = function(encoding) {
 
 S3renity.prototype.transform = function(transformer) {
   this.transformer = transformer;
+  return this;
+};
+
+/**
+ * Move the context from s3 objects to objects split by a delimiter.
+ *
+ * @public
+ * @param {string} delimiter The character to split the document objects by.
+ * Default is "\n"
+ * @return {S3renity} `this`
+ */
+
+S3renity.prototype.split = function(delimiter) {
+  this.delimiter = delimiter || '\n';
   return this;
 };
 
@@ -171,20 +179,6 @@ S3renity.prototype.list = function() {
   return new Promise((success, fail) => {
     _keys([], this.marker, success, fail);
   });
-};
-
-/**
- * Move the context from s3 objects to objects split by a delimiter.
- *
- * @public
- * @param {string} delimiter The character to split the document objects by.
- * Default is "\n"
- * @return {S3renity} `this`
- */
-
-S3renity.prototype.split = function(delimiter) {
-  this.delimiter = delimiter || '\n';
-  return this;
 };
 
 /**
