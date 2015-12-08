@@ -1,7 +1,6 @@
 # S3renity.js
-A powerful S3 toolbelt that gives you access to batch operations like forEach, map, reduce, filter, as well as a promise-based wrapper around the S3 api.
+A powerful S3 toolbelt that gives you access to batch operations like forEach, map, reduce, filter, as well as a promise-based wrapper around the S3 api.  
 
-## Use Cases
 - Quickly prototype MapReduce jobs
 - Clean or organize dirty log files
 - Perform sync or async functions over each file with forEach, map, reduce, and filter
@@ -13,7 +12,7 @@ Install S3renity
 npm install s3renity --save
 ```
 
-In your code:
+Quick Example
 ```javascript
 var S3renity = require('s3renity');
 
@@ -22,26 +21,63 @@ var s3renity = new S3renity({
   secret_access_key: 'your secret key'
 });
 
-// Ex: Print out every file in an S3 directory
+// Print out the contents of every file in an S3 directory
 var folder = 's3://<bucket>/path/to/folder/';
 var print = body => console.log('this is a s3 object:', body);
 
 s3renity
-  .encode('utf8')                  // (optional) this is default
   .context(folder)                 // sets the directory in S3
   .forEach(print)                  // function to perform over each s3 object
   .then(_ => console.log('done!')) // continue
   .catch(e => console.log(e))      // handle error
 ```
 
-## Instructions
-S3renity has the concept of a working context, which defines the files or content that you are working with.  The working context is set by ```s3renity.context()```.  By calling that on a valid S3 path, the working context is set to all the files with that key prefix (in that directory).  From there, you can perform batch operations.  For example:  
+## Input
+Before operating over S3 files, you must tell S3renity where to get the S3 objects and how to treat them.  There are a few functions you can use before calling a batch function.
+
+- context
+- marker
+- encode
+- transform
+- split
+
+**S3renity.context(dir)**  
+Required  
+Sets the directory in S3 to work on.
+```javascript
+s3renity.context('s3://<bucket>/path/to/dir')...
+```
+
+**S3renity.marker(start)**  
+Optional  
+Tells S3renity which file to start on, proceeding alphabetically from `start`.  This is the same way `marker` works in [getObject()](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGET.html) in the S3 spec.
 ```javascript
 s3renity
-  .context(dir)
-  .forEach(body => console.log('do something with file body')
-  .then(_ => {})
-  .catch(e => {});
+  .context('s3://<bucket>/path/to/dir/')
+  .marker('1234.text')
+  ...
+```
+
+**S3renity.encode(encoding)**  
+Otional, default = 'utf8'
+Tells S3renity what encoding to use when calling `toString()` on the S3 object body.  Alternatively, you can use `S3renity.transform` to do something else with the file.
+```javascript
+s3renity
+  .context('s3://<bucket>/path/to/dir/')
+  .encode('ascii')
+  ...
+```
+
+**S3renity.transform(func)**  
+Optional  
+Tells S3renity to run `func` over S3 objects before using them.  For example, you may want to use `zlib` to unzip files before processing.
+```javascript
+var zlib = require('zlib');
+
+S3renity
+  .context('s3://<bucket>/path/to/dir/')
+  .transform(obj => zlib.gunzipSync(obj).toString('utf8'))
+  ...
 ```
 
 It is also possible for the working context to to be set to the content within in the files by calling ```split()```.  Suppose you wanted to map a function that adds a period to the end of every line (of every file in the S3 path).  You could do something like:  
