@@ -35,12 +35,6 @@ s3renity
 ## Input
 Before operating over S3 files, you must tell S3renity where to get the S3 objects and how to treat them.  There are a few functions you can use before calling a batch function.
 
-- context
-- marker
-- encode
-- transform
-- split
-
 **S3renity.context(dir)**  
 Required  
 Sets the directory in S3 to work on.
@@ -59,8 +53,8 @@ s3renity
 ```
 
 **S3renity.encode(encoding)**  
-Otional, default = 'utf8'
-Tells S3renity what encoding to use when calling `toString()` on the S3 object body.  Alternatively, you can use `S3renity.transform` to do something else with the file.
+Otional  
+Tells S3renity what encoding to use when calling `toString()` on the S3 object body (default is 'utf8').  Alternatively, you can use `S3renity.transform` to do something else to load the file.
 ```javascript
 s3renity
   .context('s3://<bucket>/path/to/dir/')
