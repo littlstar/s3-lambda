@@ -1,5 +1,5 @@
 # S3renity.js
-A powerful S3 toolbelt that gives you access to batch operations like forEach, map, reduce, filter, as well as a promise-based wrapper around the S3 api.  
+A powerful toolbelt for batch operations in S3.  S3renity provides `forEach`, `map`, `reduce`, `filter`, as well as a friendly promise-based wrapper around the S3 api.  
 
 - Quickly prototype MapReduce jobs
 - Clean or organize dirty log files
@@ -80,14 +80,14 @@ S3renity
   ...
 ```
 
-It is also possible for the working context to to be set to the content within in the files by calling ```split()```.  Suppose you wanted to map a function that adds a period to the end of every line (of every file in the S3 path).  You could do something like:  
-```javascrpit
-s3renity
-  .context(dir)
+**S3renity.split(delimiter)**  
+Optional  
+Tells S3renity to work over the deliminations of objects instead of the objects themselves.  For example, calling `S3renity.split('\n')` would tell S3renity to perform operations over each line in each file. 
+```javascript
+S3renity
+  .context('s3//<bucket>/path/to/dir/')
   .split('\n')
-  .map(line => line + '.')
-  .then(_ => console.log('done!')
-  .catch(e => {});
+  .forEach(line => console.log(line))
 ```
 
 ## Batch Functions
