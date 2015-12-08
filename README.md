@@ -164,7 +164,7 @@ s3renity
 ```
 
 ## Extra Functionality
-- keys
+- list
 - get
 - put
 - delete
@@ -174,7 +174,7 @@ s3renity
 - splitObject
 
 **list()**  
-Get all the keys in the working context.
+List all the keys in the working context.
 ```javascript
 s3renity
   .context(path)
