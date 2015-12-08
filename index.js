@@ -56,7 +56,7 @@ function S3renity(conf) {
 
   const s3 = new aws.S3();
   this.s3 = s3;
-  this.marker = conf.marker || '';
+  this._marker = conf.marker || '';
   this.encoding = conf.encoding || 'utf8';
   this.hasTarget = false;
 }
@@ -88,7 +88,7 @@ S3renity.prototype.context = function(key) {
  */
 
 S3renity.prototype.marker = function(marker) {
-  this.marker = marker;
+  this._marker = marker;
   return this;
 }
 
@@ -177,7 +177,7 @@ S3renity.prototype.list = function() {
   };
 
   return new Promise((success, fail) => {
-    _keys([], this.marker, success, fail);
+    _keys([], this._marker, success, fail);
   });
 };
 
