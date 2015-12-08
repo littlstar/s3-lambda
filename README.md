@@ -108,7 +108,8 @@ s3renity
 ```
 
 **map(func[, isAsync])**  
-Perform ```func``` on every item in the working context, replacing each in place.  *This function is destructive unless if you specify an output*.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous that returns the new object (or item) or returns a promise that resolves to the new object.
+Destructuve (unless `target` is specified)  
+Perform ```func``` on every item in the working context, replacing each in place.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous that returns the new object (or item) or returns a promise that resolves to the new object.
 ```javascript
 s3renity
   .context(path)
