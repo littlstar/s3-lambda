@@ -108,7 +108,7 @@ s3renity
 ```
 
 **map(func[, isAsync])**  
-Destructuve (unless `target` is specified)  
+Destructuve (unless `output` is specified)  
 Perform ```func``` on every item in the working context, replacing each in place.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous that returns the new object (or item) or returns a promise that resolves to the new object.
 ```javascript
 s3renity
@@ -126,7 +126,7 @@ s3renity
   .catch(e => {})
 ```
 
-**reduce(func[, initialValue, isAsync])**
+**reduce(func[, initialValue, isAsync])**  
 Reduce the working context to a single value with ```func```. ```func``` takes three arguments: ```previousValue```, ```currentValue```, and ```key``` (the key of the current S3 object), and returns the updated object.
 
 ```javascript
@@ -145,6 +145,7 @@ s3renity
 ```
 
 **filter(func)**  
+Destructive (unless `output` is specified)  
 Filter the working context with ```func```, removing all objects or entries that don't pass the test.  *This function is destructive unless if you specify an output*.  If ```split``` is called, ```func``` takes a string.  Otherwise, it takes an S3 object.  ```func``` is either synchronous or returns a promise, and returns false if the item should be filtered.
 ```javascript
 s3renity
@@ -172,7 +173,7 @@ s3renity
 - write
 - splitObject
 
-**list()**
+**list()**  
 Get all the keys in the working context.
 ```javascript
 s3renity
