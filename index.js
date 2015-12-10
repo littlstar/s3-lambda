@@ -292,12 +292,13 @@ S3renity.prototype.forEach = function(func, isAsync) {
 
   return new Promise((success, fail) => {
     this.list().then(keys => {
+      var lastKey = keys[keys.length-1];
       if (this.delimiter == null) {
         _eachObject(keys, err => {
           if (err) {
             fail(err);
           } else {
-            success();
+            success(lastKey);
           }
         });
       } else {
@@ -305,7 +306,7 @@ S3renity.prototype.forEach = function(func, isAsync) {
           if (err) {
             fail(err);
           } else {
-            success();
+            success(lastKey);
           }
         });
       }
@@ -418,12 +419,13 @@ S3renity.prototype.map = function(func, isAsync) {
 
   return new Promise((success, fail) => {
     this.list().then(keys => {
+      var lastKey = keys[keys.length-1];
       if (isSplit) {
         _mapObject(keys, err => {
           if (err) {
             fail(err);
           } else {
-            success();
+            success(lastKey);
           }
         });
       } else {
@@ -431,7 +433,7 @@ S3renity.prototype.map = function(func, isAsync) {
           if (err) {
             fail(err)
           } else {
-            success();
+            success(lastKey);
           }
         });
       }
