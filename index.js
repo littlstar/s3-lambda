@@ -807,7 +807,7 @@ S3renity.prototype.get = function(arg1, arg2) {
     key = arg2;
   }
   if (this.verbose) {
-    console.info('get object', bucket, prefix);
+    console.info('get object', bucket, key);
   }
   return new Promise((success, fail) => {
     this.s3.getObject({
