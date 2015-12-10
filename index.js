@@ -799,15 +799,15 @@ S3renity.prototype.splitObject = function(bucket, key, delimiter, encoding) {
 S3renity.prototype.get = function(arg1, arg2) {
   var target = resolveKey(arg1),
     bucket, key;
-  if (this.verbose) {
-    console.info('get object', target.bucket, target.prefix);
-  }
   if (target.type == TYPE_S3) {
     bucket = target.bucket;
     key = target.prefix;
   } else {
     bucket = arg1;
     key = arg2;
+  }
+  if (this.verbose) {
+    console.info('get object', bucket, prefix);
   }
   return new Promise((success, fail) => {
     this.s3.getObject({
