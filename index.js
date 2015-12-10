@@ -56,6 +56,7 @@ function S3renity(conf) {
 
   const s3 = new aws.S3();
   this.s3 = s3;
+  this.verbose = conf.verbose || false;
   this._marker = conf.marker || '';
   this.encoding = conf.encoding || 'utf8';
   this.hasTarget = false;
@@ -796,6 +797,9 @@ S3renity.prototype.splitObject = function(bucket, key, delimiter, encoding) {
 S3renity.prototype.get = function(arg1, arg2) {
   var target = resolveKey(arg1),
     bucket, key;
+  if (this.verbose) {
+    console.info('get object', target.bucket, target.prefix);
+  }
   if (target.type == TYPE_S3) {
     bucket = target.bucket;
     key = target.prefix;
@@ -837,6 +841,9 @@ S3renity.prototype.get = function(arg1, arg2) {
  */
 
 S3renity.prototype.put = function(bucket, key, body) {
+  if (this.verbose) {
+    console.info('put object', bucket, key);
+  }
   return new Promise((success, fail) => {
     this.s3.putObject({
       Bucket: bucket,
@@ -891,6 +898,9 @@ S3renity.prototype.copy = function(sourceBucket, sourceKey, targetBucket, target
 S3renity.prototype.delete = function(bucket, key) {
   if (typeof key == 'object') {
     return this.deleteObjects(bucket, key);
+  }
+  if (this.verbose) {
+    console.info('delete object', bucket, key);
   }
   return new Promise((success, fail) => {
     this.s3.deleteObject({
@@ -947,6 +957,9 @@ S3renity.prototype.listObjects = function(bucket, prefix, marker) {
  */
 
 S3renity.prototype.deleteObjects = function(bucket, keys) {
+  if (this.verbose) {
+    console.info('delete objects', bucket, keys);
+  }
   return new Promise((success, fail) => {
     keys.map((key, i, arr) => {
       arr[i] = {
