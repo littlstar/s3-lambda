@@ -31,6 +31,12 @@ s3renity
   .then(_ => console.log('done!')) // continue
   .catch(e => console.log(e))      // handle error
 ```
+## Options
+```
+{
+  verbose: true,  // default: false
+}
+```
 
 ## Input
 Before operating over S3 files, you must tell S3renity where to get the S3 objects and how to treat them.  There are a few functions you can use before calling a batch function.
