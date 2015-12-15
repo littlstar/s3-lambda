@@ -54,7 +54,13 @@ function S3renity(conf) {
     });
   }
 
-  const s3 = new aws.S3();
+  let s3opts = {};
+
+  if (conf.timeout) {
+    s3opts.httpOptions = { timeout: conf.timeout };
+  }
+
+  const s3 = new aws.S3(s3opts);
   this.s3 = s3;
   this.verbose = conf.verbose || false;
   this._marker = conf.marker || '';
