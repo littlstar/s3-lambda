@@ -60,6 +60,10 @@ function S3renity(conf) {
     s3opts.httpOptions = { timeout: conf.timeout };
   }
 
+  if (conf.maxRetries) {
+    s3opts.maxRetries = conf.maxRetries;
+  }
+
   const s3 = new aws.S3(s3opts);
   this.s3 = s3;
   this.verbose = conf.verbose || false;
