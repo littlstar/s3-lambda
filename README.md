@@ -175,7 +175,6 @@ s3renity
 - put
 - delete
 - join
-- clean
 - write
 - splitObject
 
@@ -226,16 +225,6 @@ s3renity
   .context(path)
   .join('\n')
   .then(result => console.log(result))
-  .catch(e => ...)
-```
-
-**clean()**  
-Removes empty files in the working context
-```javascript
-s3renity
-  .context(path)
-  .clean()
-  .then(_ => ...)
   .catch(e => ...)
 ```
 
