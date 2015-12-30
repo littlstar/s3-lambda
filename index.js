@@ -39,8 +39,8 @@ class S3renity {
       s3opts.maxRetries = config.maxRetries;
     }
 
-    const s3 = new aws.S3(s3opts);
-    this.s3 = s3;
+    let instance = new aws.S3(s3opts);
+    this.S3 = new S3(instance);
 
     this.verbose = config.verbose || false;
     this._marker = config.marker || '';
@@ -49,7 +49,7 @@ class S3renity {
   }
 
   context(key) {
-    return new Context(key);
+    return new Context(key, this.S3);
   }
 
 }
