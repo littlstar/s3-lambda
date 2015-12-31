@@ -49,4 +49,14 @@ class S3renity {
     return new Context(key, marker, this.S3);
   }
 
+  get(arg1, arg2) {
+    return this.S3.get(arg1, arg2);
+  }
+
+  write(targets, body, encoding) {
+    return this.S3.write(targets, body, encoding);
+  }
+
 }
+
+module.exports = S3renity;
