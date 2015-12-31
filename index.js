@@ -39,17 +39,14 @@ class S3renity {
       s3opts.maxRetries = config.maxRetries;
     }
 
+    let verbose = config.verbose || false;
+
     let instance = new aws.S3(s3opts);
-    this.S3 = new S3(instance);
-
-    this.verbose = config.verbose || false;
-    this._marker = config.marker || '';
-    this.encoding = config.encoding || 'utf8';
-
+    this.S3 = new S3(instance, verbose);
   }
 
-  context(key) {
-    return new Context(key, this.S3);
+  context(key, marker) {
+    return new Context(key, marker, this.S3);
   }
 
 }
