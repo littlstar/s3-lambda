@@ -45,8 +45,12 @@ class S3renity {
     this.S3 = new S3(instance, verbose);
   }
 
-  context(key, marker) {
-    return new Context(key, marker, this.S3);
+  context(bucket, key, marker) {
+    return new Context(bucket, key, marker, this.S3);
+  }
+
+  list(bucket, key, marker) {
+
   }
 
   get(arg1, arg2) {
