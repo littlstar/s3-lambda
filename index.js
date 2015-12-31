@@ -57,6 +57,10 @@ class S3renity {
     return this.S3.write(targets, body, encoding);
   }
 
+  delete(arg1, arg2) {
+    return this.S3.delete(arg1, arg2);
+  }
+
 }
 
 module.exports = S3renity;
