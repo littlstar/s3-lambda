@@ -228,7 +228,7 @@ s3renity.write('body text', ['output2.txt', s3dir + 'output3.txt']);
 // single file
 s3renity
   .delete('your-bucket', 'path/to/file.txt')
-  .then(_ => console.log('done'));
+  .then(_ => console.log('done'))
   .catch(e => console.log(e));
 
 // multiple files

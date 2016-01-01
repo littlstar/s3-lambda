@@ -1,0 +1,3058 @@
+[
+  {
+    "__docId__": 0,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/index.js",
+    "memberof": null,
+    "longname": "src/index.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 9,
+    "content": "/**\n * Gives access to batch operations over s3 files, as well as a promised base\n * wrapper around the s3 api.\n *\n * @author Wells Johnston <wells@littlstar.com>\n * @exports S3renity\n */\n\n'use strict'\n\nconst aws = require('aws-sdk');\nconst fs = require('fs');\n\nconst Context = require('./lib/Context');\nconst S3 = require('./lib/S3');\n\nclass S3renity {\n\n  constructor(config) {\n\n    if (config == null) config = {};\n\n    if (config.access_key_id && config.secret_access_key) {\n      aws.configig.update({\n        accessKeyId: config.access_key_id,\n        secretAccessKey: config.secret_access_key\n      });\n    }\n\n    let s3opts = {};\n\n    if (config.timeout) {\n      s3opts.httpOptions = {\n        timeout: config.timeout\n      };\n    }\n\n    if (config.maxRetries) {\n      s3opts.maxRetries = config.maxRetries;\n    }\n\n    let verbose = config.verbose || false;\n\n    let instance = new aws.S3(s3opts);\n    this.S3 = new S3(instance, verbose);\n  }\n\n  context(bucket, key, marker) {\n    return new Context(bucket, key, marker, this.S3);\n  }\n\n  list(bucket, key, marker) {\n    return this.S3.list(bucket, key, marker);\n  }\n\n  get(bucket, key, encoding) {\n    return this.S3.get(bucket, key, encoding);\n  }\n\n  write(targets, body, encoding) {\n    return this.S3.write(targets, body, encoding);\n  }\n\n  delete(arg1, arg2) {\n    return this.S3.delete(arg1, arg2);\n  }\n\n}\n\nmodule.exports = S3renity;\n"
+  },
+  {
+    "__docId__": 1,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "aws",
+    "memberof": "src/index.js",
+    "longname": "src/index.js~aws",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/index.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 2,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "fs",
+    "memberof": "src/index.js",
+    "longname": "src/index.js~fs",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/index.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 3,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "Context",
+    "memberof": "src/index.js",
+    "longname": "src/index.js~Context",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/index.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 4,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "S3",
+    "memberof": "src/index.js",
+    "longname": "src/index.js~S3",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/index.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 5,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "S3renity",
+    "memberof": "src/index.js",
+    "longname": "src/index.js~S3renity",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/index.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 17,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 6,
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "params": [
+      {
+        "name": "config",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 7,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "S3",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#S3",
+    "access": null,
+    "description": null,
+    "lineNumber": 45,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 8,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "context",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#context",
+    "access": null,
+    "description": null,
+    "lineNumber": 48,
+    "undocument": true,
+    "params": [
+      {
+        "name": "bucket",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "key",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "marker",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 9,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "list",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#list",
+    "access": null,
+    "description": null,
+    "lineNumber": 52,
+    "undocument": true,
+    "params": [
+      {
+        "name": "bucket",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "key",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "marker",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 10,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "get",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#get",
+    "access": null,
+    "description": null,
+    "lineNumber": 56,
+    "undocument": true,
+    "params": [
+      {
+        "name": "bucket",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "key",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "encoding",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 11,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "write",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#write",
+    "access": null,
+    "description": null,
+    "lineNumber": 60,
+    "undocument": true,
+    "params": [
+      {
+        "name": "targets",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "body",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "encoding",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 12,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "delete",
+    "memberof": "src/index.js~S3renity",
+    "longname": "src/index.js~S3renity#delete",
+    "access": null,
+    "description": null,
+    "lineNumber": 64,
+    "undocument": true,
+    "params": [
+      {
+        "name": "arg1",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "arg2",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 13,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/lib/BatchRequest.js",
+    "memberof": null,
+    "longname": "src/lib/BatchRequest.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "'use strict'\n\nclass BatchRequest {\n\n  /**\n   * @constructor\n   * @param {Context} ctx The working context for the batch operation (contains\n   * bucket, prefix, marker, encoding, etc.\n   */\n\n  constructor(ctx) {\n    this.S3 = ctx.s3;\n    this.bucket = ctx.bucket;\n    this.prefix = ctx.prefix;\n    this.marker = ctx._marker;\n    this.encoding = ctx.encoding;\n    this.transformer = ctx.transformer;\n    this.delimiter = ctx.delimiter;\n    this.target = ctx.target;\n  }\n\n  /**\n   * Run a function over s3 objects in a for-each construct.\n   *\n   * @private\n   * @param {Function} func The function to perform over the working context.\n   * @param {Boolean} isAsync Optional, default is false. True if `func` is async (returns a\n   * Promise).\n   * @return {Promise}\n   */\n\n  forEach(func, isAsync) {\n\n    if (typeof func != 'function') {\n      throw new TypeError('first parameter `func` must be a Function.');\n    }\n\n    if (isAsync == null) {\n      isAsync = false;\n    }\n\n    const _eachObject = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null);\n        return;\n      }\n      const key = keys.shift();\n      this.S3.get(this.bucket, key).then(body => {\n        if (isAsync) {\n          func(body).then(_ => {\n            _eachObject(keys, callback);\n          }).catch(callback);\n        } else {\n          try {\n            func(body);\n          } catch (e) {\n            callback(e);\n            return;\n          }\n          _eachObject(keys, callback);\n        }\n      }).catch(callback);\n    };\n\n    const _splitObjects = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null);\n        return;\n      }\n      const key = keys.shift();\n      this.S3.splitObject(this.bucket, key, this.delimiter, this.encoding)\n        .then(entries => {\n          _eachSplit(entries).then(_ => {\n            _splitObjects(keys, callback);\n          }).catch(callback);\n        }).catch(callback);\n    };\n\n    const _eachSplit = entries => {\n      return new Promise((success, fail) => {\n        if (isAsync) {\n          let updates = [];\n          entries.forEach(entry => {\n            updates.push(func(entry));\n          });\n          Promise.all(updates).then(success).catch(fail);\n        } else {\n          try {\n            entries.forEach(func);\n            success();\n          } catch (err) {\n            fail(err);\n          }\n        }\n      });\n    };\n\n    return new Promise((success, fail) => {\n      this.S3.list(this.bucket, this.prefix, this.marker).then(keys => {\n        var lastKey = keys[keys.length - 1];\n        if (this.delimiter == null) {\n          _eachObject(keys, err => {\n            if (err) {\n              fail(err);\n            } else {\n              success(lastKey);\n            }\n          });\n        } else {\n          _splitObjects(keys, err => {\n            if (err) {\n              fail(err);\n            } else {\n              success(lastKey);\n            }\n          });\n        }\n      }).catch(fail);\n    });\n  }\n\n  /**\n   * Maps a function over the objects in the working context, replaceing each\n   * with the return value.  If an output is specified, the objects will not be\n   * overwritten, but rather copied to the target location.\n   *\n   * @public\n   * @param {function} func The function to map over each object in the working\n   * context. Func takes the object as a parameter and returns the value that\n   * should replace it.\n   * @param {boolean} isAsync Optional, default is false. If set to true, this\n   * indicates that func returns a promise.\n   * @return {promise} Fulfilled when map is complete.\n   */\n\n  map(func, isAsync) {\n\n    if (typeof func != 'function') {\n      throw new TypeError(INPUT_FUNCTION_ERROR);\n    }\n\n    if (isAsync == null) {\n      isAsync = false;\n    }\n\n    const isSplit = this.delimiter != null;\n\n    const _mapObject = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null);\n        return;\n      }\n      let key = keys.shift();\n      this.S3.get(this.bucket, key).then(body => {\n        if (isAsync) {\n          func(body)\n            .then(newBody => _output(key, newBody, keys, callback))\n            .catch(callback);\n        } else {\n          try {\n            let newBody = func(body);\n            _output(key, newBody, keys, callback);\n          } catch (e) {\n            callback(e);\n            return;\n          }\n        }\n      }).catch(callback);\n    };\n\n    const _splitObjects = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null);\n        return;\n      }\n      let key = keys.shift();\n      this.S3.splitObject(this.bucket, key, this.delimiter, this.encoding).then(\n        entries => {\n          _mapSplit(entries).then(newEntries => {\n            let newBody = newEntries.join(this.delimiter);\n            _output(key, newBody, keys, callback);\n          }).catch(callback);\n        }).catch(callback);\n    };\n\n    const _mapSplit = entries => {\n      return new Promise((success, fail) => {\n        if (isAsync) {\n          let entryUpdates = [];\n          entries.forEach(entry => {\n            entryUpdates.push(func(entry));\n          });\n          Promise.all(entryUpdates).then(success).catch(fail);\n        } else {\n          try {\n            success(entries.map(func));\n          } catch (err) {\n            fail(err);\n          }\n        }\n      });\n    };\n\n    const _output = (key, body, keys, callback) => {\n      if (this.target != null) {\n        this\n          .put(this.target.bucket, this.target.prefix + this.S3.getFileName(key), body)\n          .then(_ => _continue(keys, callback))\n          .catch(callback);\n      } else {\n        this.put(this.bucket, key, body)\n          .then(_ => _continue(keys, callback))\n          .catch(callback);\n      }\n    };\n\n    const _continue = (keys, callback) => {\n      if (isSplit) {\n        _splitObjects(keys, callback);\n      } else {\n        _mapObject(keys, callback);\n      }\n    };\n\n    return new Promise((success, fail) => {\n      this.list().then(keys => {\n        var lastKey = keys[keys.length - 1];\n        if (isSplit) {\n          _mapObject(keys, err => {\n            if (err) {\n              fail(err);\n            } else {\n              success(lastKey);\n            }\n          });\n        } else {\n          _splitObjects(keys, err => {\n            if (err) {\n              fail(err)\n            } else {\n              success(lastKey);\n            }\n          });\n        }\n      }).catch(fail);\n    });\n  }\n\n  /**\n   * Reduce the objects in the working context to a single value.\n   *\n   * @param {function} func Function to execute on each value in the array, taking\n   * three arguments:\n   *   previousValue - The value previously returned in the last invocation of\n   *   func\n   *   currentValue  - The current entry being processed\n   *   key           - The key of the current object being processed\n   *   func either returns the updated value, or a promise that resolves to the\n   *   updated value.\n   * @param {string} initialValue Optional.  Value to use as the first argument to\n   * the first call of func.\n   * @param {boolean} isAsync Optional, defaults to false. If set to true, this\n   * indicates that func returns a promise.\n   * @return {promise} Returns the reduced result.\n   */\n\n  reduce(func, initialValue, isAsync) {\n\n    if (typeof func != 'function') {\n      throw new TypeError(INPUT_FUNCTION_ERROR);\n    }\n\n    if (isAsync == null) {\n      isAsync = false;\n    }\n\n    var value = initialValue;\n\n    const _reduceObjects = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null, value);\n        return;\n      }\n      let key = keys.shift();\n      this.get(this.bucket, key).then(body => {\n        if (isAsync) {\n          func(value, body, key).then(newValue => {\n            value = newValue;\n            _reduceObjects(keys, callback);\n          }).catch(e => callback(e, null));\n        } else {\n          value = func(value, body, key);\n          _reduceObjects(keys, callback);\n        }\n      }).catch(e => callback(e, null));\n    };\n\n    const _splitAndReduceObjects = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null, value);\n        return;\n      }\n      key = keys.shift();\n      this.splitObject(this.bucket, key, this.delimiter, this.encoding).then(\n        entries => {\n          _reduceSplitEntries(key, entries, err => {\n            if (err) {\n              callback(err, null);\n              return;\n            }\n            _splitAndReduceObjects(keys, callback);\n          });\n        }).catch(e => callback(e, null));\n    };\n\n    const _reduceSplitEntries = (key, entries, done) => {\n      if (entries.length == 0) {\n        done();\n        return;\n      }\n      let entry = entries.shift();\n      if (isAsync) {\n        func(value, entry, key).then(newValue => {\n          value = newValue;\n          _reduceSplitEntries(key, entries, done);\n        }).catch(done);\n      } else {\n        try {\n          value = func(value, entry, key);\n          _reduceSplitEntries(key, entries, done);\n        } catch (e) {\n          done(e);\n        }\n      }\n    };\n\n    return new Promise((success, fail) => {\n      this.list().then(keys => {\n        if (this.delimiter == null) {\n          _reduceObjects(keys, (err, result) => {\n            if (err) {\n              fail(err);\n            } else {\n              success(result);\n            }\n          });\n        } else {\n          _splitAndReduceObjects(keys, (err, result) => {\n            if (err) {\n              fail(err);\n            } else {\n              success(result);\n            }\n          });\n        }\n      }).catch(fail);\n    });\n  }\n\n  /**\n   * Filter the objects in the working context.\n   *\n   * @public\n   * @param {function} func The function to filter objects by, returning true for\n   * objects that should not be filtered and false for those that should. If\n   * isAsync is set to true, func returns a promise that resolves to true or\n   * false.\n   * @param {boolean} isAsync Optional, defaults to false. If set to true, this\n   * indicates that func returns a promise.\n   */\n\n  filter(func, isAsync) {\n\n    if (typeof func != 'function') {\n      throw new TypeError(INPUT_FUNCTION_ERROR);\n    }\n\n    if (isAsync == null) {\n      isAsync = false;\n    }\n\n    var removeObjects = [];\n    var keepObjects = [];\n\n    // recursively get all objects and run filter function\n    const _filterObjects = (keys, callback) => {\n      if (keys.length == 0) {\n        _finish(callback);\n        return;\n      }\n      let key = keys.shift();\n      this.get(this.bucket, key).then(body => {\n        if (isAsync) {\n          func(body).then(result => {\n            checkResult(result);\n            if (result) {\n              keepObjects.push(key);\n            } else {\n              removeObjects.push(key);\n            }\n            _filterObjects(keys, callback);\n          }).catch(callback);\n        } else {\n          try {\n            var result = func(body);\n          } catch (e) {\n            callback(e);\n            return;\n          }\n          checkResult(result);\n          if (result) {\n            keepObjects.push(key);\n          } else {\n            removeObjects.push(key);\n          }\n          _filterObjects(keys, callback);\n        }\n      }).catch(callback);\n    };\n\n    const _finish = callback => {\n      if (this.hasTarget) {\n        let promises = [];\n        keepObjects.forEach(key => {\n          let fileName = this.S3.getFileName(key);\n          promises.push(this.copy(this.bucket, key, this.targetBucket, this.targetPrefix + fileName));\n        });\n        Promise.all(promises).then(_ => {\n          callback();\n        }).catch(callback);\n      } else {\n        this.delete(this.bucket, removeObjects).then(_ => {\n          callback(null);\n        }).catch(callback);\n      }\n    };\n\n    const _splitObjects = (keys, callback) => {\n      if (keys.length == 0) {\n        callback(null);\n        return;\n      }\n      let key = keys.shift();\n      this.splitObject(this.bucket, key, this.delimiter, this.encoding)\n        .then(entries => {\n          _filterSplitObject(entries).then(newEntries => {\n            var targetBucket, targetKey;\n            let newBody = newEntries.join(this.delimiter);\n            if (this.hasTarget) {\n              targetBucket = this.targetBucket;\n              targetKey = this.targetPrefix + this.S3.getFileName(key);\n            } else {\n              targetBucket = this.bucket;\n              targetKey = key;\n            }\n            this.put(targetBucket, targetKey, newBody).then(_ => {\n              _splitObjects(keys, callback);\n            }).catch(callback);\n          }).catch(callback);\n        }).catch(callback);\n    };\n\n    // runs the filter function on a split (containing entries)\n    const _filterSplitObject = entries => new Promise((success, fail) => {\n      if (isAsync) {\n        promises = [];\n        entries.forEach(entry => {\n          promises.push(func(entry));\n        });\n        Promise.all(promises).then(results => {\n          let newSplitEntries = [];\n          results.forEach((pass, i) => {\n            if (pass) {\n              newSplitEntries.push(entries[i]);\n            }\n            success(newSplitEntries);\n          });\n        }).catch(fail);\n      } else {\n        try {\n          success(entries.filter(func));\n        } catch (err) {\n          fail(err);\n        }\n      }\n    });\n\n    const checkResult = result => {\n      if (typeof result != 'boolean') {\n        throw new TypeError('Filter function must return a boolean');\n      }\n    };\n\n    return new Promise((success, fail) => {\n      this.list().then(keys => {\n        if (this.delimiter == null) {\n          _filterObjects(keys, err => {\n            if (err) {\n              fail(err);\n            } else {\n              success();\n            }\n          });\n        } else {\n          _splitObjects(keys, err => {\n            if (err) {\n              fail(err);\n            } else {\n              success();\n            }\n          });\n        }\n      }).catch(fail);\n    });\n  }\n\n  /**\n   * Join the objects in the working context by the given delimiter and return the\n   * result.\n   *\n   * @public\n   * @param {string} delimiter The character used to join the documents by.\n   * Default is \"\\n\"\n   * @return {promise} Returns the body and `this` on success.\n   */\n\n  join(delimiter) {\n    if (delimiter == null) delimiter = '\\n';\n    return new Promise((success, fail) => {\n      this.list().then(keys => {\n        let getPromises = [];\n        keys.forEach(key => {\n          getPromises.push(this.get(this.bucket, key));\n        });\n        Promise.all(getPromises).then(objects => {\n          success(objects.join(delimiter));\n        }).catch(fail);\n      }).catch(fail);\n    });\n  }\n\n}\n\nmodule.exports = BatchRequest;\n"
+  },
+  {
+    "__docId__": 14,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "BatchRequest",
+    "memberof": "src/lib/BatchRequest.js",
+    "longname": "src/lib/BatchRequest.js~BatchRequest",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/BatchRequest.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 15,
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 11,
+    "unknown": [
+      {
+        "tagName": "@constructor",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Context"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "ctx",
+        "description": "The working context for the batch operation (contains\nbucket, prefix, marker, encoding, etc."
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 16,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "S3",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#S3",
+    "access": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 17,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "bucket",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#bucket",
+    "access": null,
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 18,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "prefix",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#prefix",
+    "access": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 19,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "marker",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#marker",
+    "access": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 20,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "encoding",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#encoding",
+    "access": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 21,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "transformer",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#transformer",
+    "access": null,
+    "description": null,
+    "lineNumber": 17,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 22,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "delimiter",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#delimiter",
+    "access": null,
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 23,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "target",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#target",
+    "access": null,
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 24,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "forEach",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#forEach",
+    "access": "private",
+    "description": "Run a function over s3 objects in a for-each construct.",
+    "lineNumber": 32,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "The function to perform over the working context."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Optional, default is false. True if `func` is async (returns a\nPromise)."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": ""
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 25,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "map",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#map",
+    "access": "public",
+    "description": "Maps a function over the objects in the working context, replaceing each\nwith the return value.  If an output is specified, the objects will not be\noverwritten, but rather copied to the target location.",
+    "lineNumber": 136,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "The function to map over each object in the working\ncontext. Func takes the object as a parameter and returns the value that\nshould replace it."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Optional, default is false. If set to true, this\nindicates that func returns a promise."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when map is complete."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 26,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "reduce",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#reduce",
+    "access": null,
+    "description": "Reduce the objects in the working context to a single value.",
+    "lineNumber": 267,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "Function to execute on each value in the array, taking\nthree arguments:\n  previousValue - The value previously returned in the last invocation of\n  func\n  currentValue  - The current entry being processed\n  key           - The key of the current object being processed\n  func either returns the updated value, or a promise that resolves to the\n  updated value."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "initialValue",
+        "description": "Optional.  Value to use as the first argument to\nthe first call of func."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Optional, defaults to false. If set to true, this\nindicates that func returns a promise."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Returns the reduced result."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 27,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "filter",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#filter",
+    "access": "public",
+    "description": "Filter the objects in the working context.",
+    "lineNumber": 372,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "The function to filter objects by, returning true for\nobjects that should not be filtered and false for those that should. If\nisAsync is set to true, func returns a promise that resolves to true or\nfalse."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Optional, defaults to false. If set to true, this\nindicates that func returns a promise."
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 28,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "join",
+    "memberof": "src/lib/BatchRequest.js~BatchRequest",
+    "longname": "src/lib/BatchRequest.js~BatchRequest#join",
+    "access": "public",
+    "description": "Join the objects in the working context by the given delimiter and return the\nresult.",
+    "lineNumber": 527,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "delimiter",
+        "description": "The character used to join the documents by.\nDefault is \"\\n\""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Returns the body and `this` on success."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 29,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/lib/Context.js",
+    "memberof": null,
+    "longname": "src/lib/Context.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "'use strict'\n\nclass Context {\n\n  /**\n   * @constructor\n   * @param {String} key A valid S3 key, which is used to generate the context\n   * for the batch operations.\n   * @param {String} marker Optional. The marker to start at when getting objects from `key`.\n   * @param {S3} S3 The s3 instance to use in batch requests.\n   */\n\n  constructor(key, marker, S3) {\n    let context = S3.resolveKey(key);\n    if (context.type != 's3') {\n      throw new Error('context must be valid s3 path');\n    }\n    this.bucket = context.bucket;\n    this.prefix = context.prefix;\n    this.marker = marker;\n    this.S3 = S3;\n  }\n\n  /**\n   * Set the marker for the working context (file to start on)\n   * @param {String} marker The marker to start with for getting objects.\n   * @return {Context} `this`\n   */\n\n  marker(marker) {\n    this.marker = marker;\n    return this;\n  }\n\n  /**\n   * @param {String} encoding\n   * @returns {Context} `this`\n   */\n\n  encode(encoding) {\n    this.encoding = encoding;\n    return this;\n  }\n\n  /**\n   * Transforms the S3 object before proceeding.\n   *\n   * @param {Function} transform The function to use to transform the object.\n   * @return {Context} `this`\n   */\n\n  transform(transformer) {\n    this.transformer = transformer;\n    return this;\n  }\n\n  /**\n   * Move the context from s3 objects to objects split by a delimiter.\n   *\n   * @param {string} delimiter The character to split the document objects by.\n   * Default is \"\\n\"\n   * @return {Context} `this`\n   */\n\n  split(delimiter) {\n    this.delimiter = delimiter || '\\n';\n    return this;\n  }\n\n  /**\n   * Sets the output directory for map or filter.  If a target is set, map and\n   * filter write to that location instead of changing the original objects\n   * themselves.\n   *\n   * @param {String} target The location to send the output of map or filter.\n   * @return {Context} `this`\n   */\n\n  target(target) {\n    this.target = S3.resolveKey(target);\n    return this;\n  }\n\n  /**\n   * Returns a for each batch request.\n   *\n   * @param {Function} func This function takes an s3 object and performs a\n   * synchronous function. If isAsync is true, func returns a promise.\n   * @param {Boolean} isAsync Optional. Default is false. If set to true, this\n   * indicates that func returns a promise that should be executed.\n   * @returns {Promise} Fulfilled when the mapper functions are done. Returns a\n   * list of keys that were operated over.\n   */\n\n  forEach(func, isAsync) {\n    let batch = new BatchRequest(this);\n    return batch.forEach(func, isAsync);\n  }\n\n  /**\n   * @param {Function} func This function takes an s3 object and returns the updated object.\n   * @param {Boolean} isAsync Whether the function is asynchronous (returns a\n   * promise).\n   * @return {Promise}\n   */\n\n  map(func, isAsync) {\n    let batch = new BatchRequest(this);\n    return batch.map(func, isAsync);\n  }\n\n  /**\n   * @param {Function} func The reducer function.\n   * @param {Mixed} initialValue The value to start with in `func`.\n   * @param {Boolean} isAsync Whether the function is asynchronous (returns a promise).\n   */\n\n  reduce(func, initialValue, isAsync) {\n    let batch = new BatchRequest(this);\n    return batch.reduce(func, initialValue, isAsync);\n  }\n\n  filter(func, isAsync) {\n    let batch = new BatchRequest(this);\n    return batch.filter(func, isAsync);\n  }\n\n  join(delimiter) {\n    let batch = new BatchRequest(this);\n    return batch.join(delimiter);\n  }\n\n}\n"
+  },
+  {
+    "__docId__": 30,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "Context",
+    "memberof": "src/lib/Context.js",
+    "longname": "src/lib/Context.js~Context",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/Context.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 31,
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 13,
+    "unknown": [
+      {
+        "tagName": "@constructor",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "A valid S3 key, which is used to generate the context\nfor the batch operations."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "marker",
+        "description": "Optional. The marker to start at when getting objects from `key`."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "S3"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "S3",
+        "description": "The s3 instance to use in batch requests."
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 32,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "bucket",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#bucket",
+    "access": null,
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 33,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "prefix",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#prefix",
+    "access": null,
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 34,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "marker",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#marker",
+    "access": null,
+    "description": null,
+    "lineNumber": 20,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 35,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "S3",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#S3",
+    "access": null,
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 36,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "marker",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#marker",
+    "access": null,
+    "description": "Set the marker for the working context (file to start on)",
+    "lineNumber": 30,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "marker",
+        "description": "The marker to start with for getting objects."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Context"
+      ],
+      "spread": false,
+      "description": "`this`"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 37,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "marker",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#marker",
+    "access": null,
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 38,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "encode",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#encode",
+    "access": null,
+    "description": null,
+    "lineNumber": 40,
+    "unknown": [
+      {
+        "tagName": "@returns",
+        "tagValue": "{Context} `this`"
+      }
+    ],
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "encoding",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Context"
+      ],
+      "spread": false,
+      "description": "`this`"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 39,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "encoding",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#encoding",
+    "access": null,
+    "description": null,
+    "lineNumber": 41,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 40,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "transform",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#transform",
+    "access": null,
+    "description": "Transforms the S3 object before proceeding.",
+    "lineNumber": 52,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "transform",
+        "description": "The function to use to transform the object."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Context"
+      ],
+      "spread": false,
+      "description": "`this`"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 41,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "transformer",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#transformer",
+    "access": null,
+    "description": null,
+    "lineNumber": 53,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 42,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "split",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#split",
+    "access": null,
+    "description": "Move the context from s3 objects to objects split by a delimiter.",
+    "lineNumber": 65,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "delimiter",
+        "description": "The character to split the document objects by.\nDefault is \"\\n\""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Context"
+      ],
+      "spread": false,
+      "description": "`this`"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 43,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "delimiter",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#delimiter",
+    "access": null,
+    "description": null,
+    "lineNumber": 66,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 44,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "target",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#target",
+    "access": null,
+    "description": "Sets the output directory for map or filter.  If a target is set, map and\nfilter write to that location instead of changing the original objects\nthemselves.",
+    "lineNumber": 79,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "target",
+        "description": "The location to send the output of map or filter."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Context"
+      ],
+      "spread": false,
+      "description": "`this`"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 45,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "target",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#target",
+    "access": null,
+    "description": null,
+    "lineNumber": 80,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 46,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "forEach",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#forEach",
+    "access": null,
+    "description": "Returns a for each batch request.",
+    "lineNumber": 95,
+    "unknown": [
+      {
+        "tagName": "@returns",
+        "tagValue": "{Promise} Fulfilled when the mapper functions are done. Returns a\nlist of keys that were operated over."
+      }
+    ],
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "This function takes an s3 object and performs a\nsynchronous function. If isAsync is true, func returns a promise."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Optional. Default is false. If set to true, this\nindicates that func returns a promise that should be executed."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when the mapper functions are done. Returns a\nlist of keys that were operated over."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 47,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "map",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#map",
+    "access": null,
+    "description": null,
+    "lineNumber": 107,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "This function takes an s3 object and returns the updated object."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Whether the function is asynchronous (returns a\npromise)."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": ""
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 48,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "reduce",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#reduce",
+    "access": null,
+    "description": null,
+    "lineNumber": 118,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "func",
+        "description": "The reducer function."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Mixed"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "initialValue",
+        "description": "The value to start with in `func`."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "isAsync",
+        "description": "Whether the function is asynchronous (returns a promise)."
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 49,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "filter",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#filter",
+    "access": null,
+    "description": null,
+    "lineNumber": 123,
+    "undocument": true,
+    "params": [
+      {
+        "name": "func",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "isAsync",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 50,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "join",
+    "memberof": "src/lib/Context.js~Context",
+    "longname": "src/lib/Context.js~Context#join",
+    "access": null,
+    "description": null,
+    "lineNumber": 128,
+    "undocument": true,
+    "params": [
+      {
+        "name": "delimiter",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 51,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/lib/S3.js",
+    "memberof": null,
+    "longname": "src/lib/S3.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "'use strict'\n\nconst TYPE_S3 = 's3';\nconst TYPE_FILE = 'file';\n\nclass S3 {\n\n  /**\n   * @constructor\n   * @param {Object} aws The aws sdk instance.\n   * @param {Boolean} verbose Whether to use verbose mode with s3.\n   */\n  constructor(aws, verbose) {\n    this.aws = aws;\n    this.verbose = verbose;\n  }\n\n  /**\n   * Take a path or s3 key and resolve it.\n   *\n   * @private\n   * @param {string} key an s3 key or local file path\n   * @return {object} An object wity keys: bucket, prefix, file, and type.\n   */\n\n  resolveKey(key) {\n    var target = {};\n    if (key.indexOf('s3://') == 0) {\n      key = key.substr(5, key.length - 1);\n      target.bucket = key.split('/')[0];\n      target.prefix = key.substr(key.indexOf('/') + 1, key.length);\n      target.file = null;\n      target.type = TYPE_S3;\n    } else {\n      target.bucket = null;\n      target.prefix = null;\n      target.file = key;\n      target.type = TYPE_FILE;\n    }\n    return target;\n  }\n\n  /**\n   * Returns the filename (last part of the key) from an S3 key.\n   *\n   * @param {string} key The S3 key to get the file name for.\n   * @return {string} The filename from the S3 key.\n   */\n\n  getFileName(key) {\n    return key.substr(key.lastIndexOf('/') + 1, key.length);\n  }\n\n  /**\n   * @param {String} bucket The bucket to get from.\n   * @param {String} key The key of the object to get.\n   * @param {String} encoding Optional. Default is 'utf8'\n   * @param {Function} transformer Optional. If supplied, this function will be\n   * run on Object.Body before returning. Useful for dealing with compressed\n   * files or weird formats.\n   * @return {Promise} Fulfilled when object is retrieved.\n   */\n\n  get(bucket, key, encoding, transformer) {\n    if (encoding == null) {\n      encoding = 'utf8';\n    }\n    return new Promise((success, fail) => {\n      this.aws.getObject({\n        Bucket: bucket,\n        Key: key\n      }, (err, object) => {\n        if (err) {\n          fail(err);\n        } else {\n          try {\n            if (transformer != null) {\n              success(transformer(object));\n            } else {\n              success(object.Body.toString(encoding));\n            }\n            if (this.verbose) {\n              console.info(`GET OBJECT s3://${bucket}/${key}`);\n            }\n          } catch (e) {\n            fail(e);\n          }\n        }\n      });\n    });\n  }\n\n  /**\n   * @param {String} bucket The s3 bucket to use.\n   * @param {String} key The key path where the object will be placed.\n   * @param {String} body The object body.\n   * @param {String} encoding Optional. Default is 'utf8'.\n   * @return {Promise} Fulfilled when the object is written to s3. Returns\n   * response from s3.\n   */\n\n  put(bucket, key, body, encoding) {\n    if (encoding == null) {\n      encoding = 'utf8';\n    }\n    return new Promise((success, fail) => {\n      this.aws.putObject({\n        Bucket: bucket,\n        Key: key,\n        Body: body,\n        ContentEncoding: encoding\n      }, (err, res) => {\n        if (err) {\n          fail(err);\n        } else {\n          if (this.verbose) {\n            console.info(`PUT OBJECT s3://${bucket}/${key}`);\n          }\n          success(res);\n        }\n      });\n    });\n  }\n\n  /**\n   * Copies an object in S3.\n   *\n   * @public\n   * @param {String} sourceBucket The s3 bucket to use.\n   * @param {String} sourceKey The source of the object to copy.\n   * @param {String} targetBucket The target bucket to copy to.\n   * @param {String} targetKey The target to copy the object to in s3.\n   * @return {Promise}\n   */\n\n  copy(sourceBucket, sourceKey, targetBucket, targetKey) {\n    return new Promise((success, fail) => {\n      this.aws.copyObject({\n        Bucket: targetBucket,\n        Key: targetKey,\n        CopySource: `${sourceBucket}/${sourceKey}`\n      }, (err, res) => {\n        if (err) {\n          fail(err);\n        } else {\n          success(res);\n        }\n      });\n    });\n  }\n\n  /**\n   * Returns a promise that deletes an object in S3.\n   *\n   * @public\n   * @param {String} bucket The s3 bucket to use.\n   * @param {String} key The key of the object to delete\n   * @return {Promise} Fulfilled when the object deleted. Returns `this`.\n   */\n\n  delete(bucket, key) {\n    return new Promise((success, fail) => {\n      this.aws.deleteObject({\n        Bucket: bucket,\n        Key: key\n      }, (err, res) => {\n        if (err) {\n          fail(err);\n        } else {\n          success(res);\n          if (this.verbose) {\n            console.info(`DELETE OBJECT s3://${bucket}/${key}`);\n          }\n        }\n      });\n    });\n  }\n\n  /**\n   * Deletes a list of objects in S3.\n   *\n   * @public\n   * @param {string} bucket The s3 bucket to use.\n   * @param {array} keys The keys of the objects to delete.\n   * @return {promise} Fulfilled when objects are deleted. Returns response.\n   */\n\n  deleteObjects(bucket, keys) {\n    return new Promise((success, fail) => {\n      keys.map((key, i, arr) => {\n        arr[i] = {\n          Key: key\n        };\n      });\n      //TODO(wells) this can't really work\n      this.aws.deleteObjects({\n        Bucket: bucket,\n        Delete: {\n          Objects: keys\n        }\n      }, (err, res) => {\n        if (err) {\n          fail(err);\n        } else {\n          success(res);\n          if (this.verbose) {\n            console.info('DELETE OBJECTS');\n            keys.forEach(key => {\n              console.info(`s3://${bucket}/${key}`);\n            });\n          }\n        }\n      });\n    });\n  }\n\n  /**\n   * Returns all the keys in the working context.\n   *\n   * @public\n   * @return {promise} Fulfilled when all the keys are retrieved from s3.\n   */\n\n  list(bucket, prefix, marker) {\n\n    return new Promise((success, fail) => {\n      listRecursive([], marker, success, fail);\n    });\n\n    function listRecursive(allKeys, marker, success, fail) {\n      this.listObjects(bucket, prefix, marker).then(keys => {\n        if (keys.length == 0) {\n          success(allKeys);\n          return;\n        }\n        keys.forEach(key => {\n          allKeys.push(key.Key);\n          marker = key.Key;\n        });\n        listRecursive(allKeys, marker, success, fail);\n      }).catch(fail);\n    };\n  }\n\n  /**\n   * Return a promise that gets keys from s3 given a bucket, prefix and marker.\n   *\n   * @public\n   * @param {string} bucket The bucket to get the keys from.\n   * @param {string} prefix The prefix for the folder where the keys are.\n   * @param {string} [marker] The marker to start from (optional).\n   * @return {promise} Fulfilled when the keys are retrieved from s3.\n   */\n\n  listObjects(bucket, prefix, marker) {\n    return new Promise((success, fail) => {\n      if (prefix[prefix.length - 1] != '/') prefix += '/';\n      this.aws.listObjects({\n        Bucket: bucket,\n        Prefix: prefix,\n        Marker: marker\n      }, (err, keys) => {\n        if (err) {\n          fail(err);\n        } else {\n          if (this.verbose) {\n            console.info(`LIST OBJECTS s3://${bucket}/${prefix} MARKER: ${marker}`);\n          }\n          keys = keys.Contents;\n          // aws sometimes returns the folder as a key for some reason,\n          // so shift it off\n          if (keys.length && keys[0].Key == prefix) {\n            keys.shift();\n          }\n          success(keys);\n        }\n      });\n    });\n  }\n\n  /**\n   * Output the working context to a file or location in s3.\n   *\n   * @public\n   * @param {String} target Either a valid s3 path 's3://' or local file path.\n   * @param {String} body\n   * @param {String} encoding\n   * @return {Promise} Fulfilled when the file is finished saving. Returns the\n   * response either from `fs` or s3.\n   */\n\n  write(target, body, encoding) {\n    if (encoding == null) {\n      encoding = 'utf8'\n    }\n    target = this.resolveKey(target);\n    if (target.type == TYPE_S3) {\n      return this.put(target.bucket, target.prefix, body, encoding);\n    } else if (target.type == TYPE_FILE) {\n      return new Promise((success, fail) => {\n        fs.writeFile(target.file, body, (err, res) => {\n          if (err) {\n            fail(err);\n          } else {\n            success();\n            if (this.verbose) {\n              console.info(`WRITE FILE ${target.file}`);\n            }\n          }\n        });\n      });\n    }\n  }\n\n  /**\n   * Splits an object in s3 by a delimiter and returns.\n   *\n   * @param {string} bucket The s3 bucket to use.\n   * @param {string} key The key to the object.\n   * @param {string} delimiter Optional, default is \\n. The character to use in\n   * the split over the object's body.\n   * @param {string} encoding Optional, default is utf8.\n   * @return {promise} Returns an array that is the split of the object.\n   */\n\n  splitObject(bucket, key, delimiter, encoding) {\n    if (delimiter == null) {\n      delimiter = '\\n';\n    }\n    if (encoding == null) {\n      encoding = 'utf8';\n    }\n    return new Promise((success, fail) => {\n      this.get(bucket, key, encoding).then(body => {\n        if (body == '') {\n          success([]);\n        } else {\n          try {\n            success(body.split(delimiter));\n          } catch (err) {\n            fail(err);\n          }\n        }\n      }).catch(fail);\n    });\n  }\n\n}\n\nmodule.exports = S3;\n"
+  },
+  {
+    "__docId__": 52,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "TYPE_S3",
+    "memberof": "src/lib/S3.js",
+    "longname": "src/lib/S3.js~TYPE_S3",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/S3.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "type": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "__docId__": 53,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "TYPE_FILE",
+    "memberof": "src/lib/S3.js",
+    "longname": "src/lib/S3.js~TYPE_FILE",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/S3.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "type": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "__docId__": 54,
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "S3",
+    "memberof": "src/lib/S3.js",
+    "longname": "src/lib/S3.js~S3",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/S3.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "__docId__": 55,
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 13,
+    "unknown": [
+      {
+        "tagName": "@constructor",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "aws",
+        "description": "The aws sdk instance."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "verbose",
+        "description": "Whether to use verbose mode with s3."
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 56,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "aws",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#aws",
+    "access": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 57,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "verbose",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#verbose",
+    "access": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 58,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "resolveKey",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#resolveKey",
+    "access": "private",
+    "description": "Take a path or s3 key and resolve it.",
+    "lineNumber": 26,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "an s3 key or local file path"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "object"
+      ],
+      "spread": false,
+      "description": "An object wity keys: bucket, prefix, file, and type."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 59,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "getFileName",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#getFileName",
+    "access": null,
+    "description": "Returns the filename (last part of the key) from an S3 key.",
+    "lineNumber": 50,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "The S3 key to get the file name for."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string"
+      ],
+      "spread": false,
+      "description": "The filename from the S3 key."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 60,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "get",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#get",
+    "access": null,
+    "description": null,
+    "lineNumber": 64,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "bucket",
+        "description": "The bucket to get from."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "The key of the object to get."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "encoding",
+        "description": "Optional. Default is 'utf8'"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "transformer",
+        "description": "Optional. If supplied, this function will be\nrun on Object.Body before returning. Useful for dealing with compressed\nfiles or weird formats."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when object is retrieved."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 61,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "put",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#put",
+    "access": null,
+    "description": null,
+    "lineNumber": 102,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "bucket",
+        "description": "The s3 bucket to use."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "The key path where the object will be placed."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "body",
+        "description": "The object body."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "encoding",
+        "description": "Optional. Default is 'utf8'."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when the object is written to s3. Returns\nresponse from s3."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 62,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "copy",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#copy",
+    "access": "public",
+    "description": "Copies an object in S3.",
+    "lineNumber": 136,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "sourceBucket",
+        "description": "The s3 bucket to use."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "sourceKey",
+        "description": "The source of the object to copy."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "targetBucket",
+        "description": "The target bucket to copy to."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "targetKey",
+        "description": "The target to copy the object to in s3."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": ""
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 63,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "delete",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#delete",
+    "access": "public",
+    "description": "Returns a promise that deletes an object in S3.",
+    "lineNumber": 161,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "bucket",
+        "description": "The s3 bucket to use."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "The key of the object to delete"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when the object deleted. Returns `this`."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 64,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "deleteObjects",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#deleteObjects",
+    "access": "public",
+    "description": "Deletes a list of objects in S3.",
+    "lineNumber": 188,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "bucket",
+        "description": "The s3 bucket to use."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "array"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "keys",
+        "description": "The keys of the objects to delete."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when objects are deleted. Returns response."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 65,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "list",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#list",
+    "access": "public",
+    "description": "Returns all the keys in the working context.",
+    "lineNumber": 224,
+    "params": [
+      {
+        "name": "bucket",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "prefix",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "marker",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when all the keys are retrieved from s3."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 66,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "listObjects",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#listObjects",
+    "access": "public",
+    "description": "Return a promise that gets keys from s3 given a bucket, prefix and marker.",
+    "lineNumber": 255,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "bucket",
+        "description": "The bucket to get the keys from."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "prefix",
+        "description": "The prefix for the folder where the keys are."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "marker",
+        "description": "The marker to start from (optional)."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when the keys are retrieved from s3."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 67,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "write",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#write",
+    "access": "public",
+    "description": "Output the working context to a file or location in s3.",
+    "lineNumber": 292,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "target",
+        "description": "Either a valid s3 path 's3://' or local file path."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "body",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "String"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "encoding",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Promise"
+      ],
+      "spread": false,
+      "description": "Fulfilled when the file is finished saving. Returns the\nresponse either from `fs` or s3."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 68,
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "splitObject",
+    "memberof": "src/lib/S3.js~S3",
+    "longname": "src/lib/S3.js~S3#splitObject",
+    "access": null,
+    "description": "Splits an object in s3 by a delimiter and returns.",
+    "lineNumber": 326,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "bucket",
+        "description": "The s3 bucket to use."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "key",
+        "description": "The key to the object."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "delimiter",
+        "description": "Optional, default is \\n. The character to use in\nthe split over the object's body."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "encoding",
+        "description": "Optional, default is utf8."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "promise"
+      ],
+      "spread": false,
+      "description": "Returns an array that is the split of the object."
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 69,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/lib/examples.js",
+    "memberof": null,
+    "longname": "src/lib/examples.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "'use strict'\n\nvar S3renity = require('S3renity');\n\nvar config = {\n  access_key_id: 'access-key',\n  secret_access_key: 'secret-access-key'\n};\n\nvar s3renity = new S3renity(config);\nvar s3dir = 's3://<bucket>/path/to/folder/';\n\n\n// list keys\ns3renity\n  .context(s3dir)\n  .list()\n  .then(keys => {\n    console.log(keys);\n  });\n\n\n// join\ns3renity\n  .context(s3dir)\n  .join('\\n')\n  .then(result =>  console.log(result))\n  .catch(e => console.log(e));\n\n\n// forEach\n// forEach with synchronous function\nvar a = o => {\n  console.log(o);\n};\n\ns3renity\n  .context(s3dir)\n  .forEach(a)\n  .then(s => console.log('done!'))\n  .catch(e => console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .forEach(a)\n  .then(_ =>  console.log('done!'))\n  .catch(e => console.log(e));\n\n// forEach with async function\nvar b = o => {\n  return new Promise((success, fail) => {\n    setTimeout(function() {\n      console.log(o);\n      success('success message');\n    }, 100);\n  });\n};\n\ns3renity\n  .context(s3dir)\n  .forEach(b, true)\n  .then(_ => console.log('done!'))\n  .catch(e => console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .forEach(b, true)\n  .then(_ => console.log('done!'))\n  .catch(e => console.log(e));\n\n\n// map\n// map with synchronous function\nvar a = o => {\n  return o + ' added text';\n};\n\ns3renity\n  .context(s3dir)\n  .map(a)\n  .then(s => console.log(s))\n  .catch(e => console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .map(a)\n  .then(s => console.log(s))\n  .catch(e => console.log(e));\n\n// map with async function\nvar b = o => {\n  return new Promise((success, fail) => {\n    setTimeout(function() {\n      success(o + ' added text');\n    }, 200);\n  });\n};\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .map(b, true)\n  .then(s => console.log(s))\n  .catch(e => console.log(e));\n\ns3renity\n  .context(s3dir)\n  .map(b, true)\n  .then(s => console.log(s))\n  .catch(e => console.log(e));\n\n\n// reduce\n// reduce with sync function\nvar a = (p, c, k) => {\n  if (p == null) return c;\n  return p + c;\n};\n\ns3renity\n  .context(s3dir)\n  .reduce(a)\n  .then(result => console.log(result))\n  .catch(e=> console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .reduce(a)\n  .then(result => console.log(result))\n  .catch(e=> console.log(e));\n\n// reduce with async function\nvar b = (p, c, k) => {\n  return new Promise((success, fail) => {\n    setTimeout(function() {\n      if (p == null) {\n        success(c);\n      } else {\n        success(p + c);\n      }\n    }, 100);\n  });\n};\n\ns3renity\n  .context(s3dir)\n  .reduce(b, null, true)\n  .then(result => console.log(result))\n  .catch(e=> console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .reduce(b, null, true)\n  .then(result => console.log(result))\n  .catch(e=> console.log(e));\n\n\n// filter\n// filter with sync function\nvar a = b => {\n  console.log(b[11]);\n  if (b[11] == '3') {\n    return false;\n  }\n  return true;\n};\n\ns3renity\n  .context(s3dir)\n  .filter(a)\n  .then(s=> console.log(s))\n  .catch(e=> console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .filter(a)\n  .then(s=> console.log(s))\n  .catch(e=> console.log(e));\n\n// filter with async function\nvar b = e => {\n  return new Promise((success, fail) => {\n    setTimeout(function() {\n      if (e[11] == '3') {\n        success(false);\n      } else {\n        success(true);\n      }\n    }, 200);\n  });\n};\n\ns3renity\n  .context(s3dir)\n  .filter(b, true)\n  .then(s => console.log(s))\n  .catch(e => console.log(e));\n\ns3renity\n  .context(s3dir)\n  .split('\\n')\n  .filter(b, true)\n  .then(s => console.log(s))\n  .catch(e => console.log(e));\n\n\n// clean (delete empty files)\ns3renity\n  .context(s3dir)\n  .clean()\n  .then(_ => console.log('done!'))\n  .catch(e=>console.log(e));\n\n// write\n// to single location\ns3renity.write('body text', 'output1.txt');\n\n// to multiple locations\ns3renity.write('body text', ['output2.txt', s3dir + 'output3.txt']);\n\n// delete\n// single file\ns3renity\n  .delete('your-bucket', 'path/to/file.txt')\n  .then(_ => console.log('done'))\n  .catch(e => console.log(e));\n\n// multiple files\ns3renity\n  .delete('your-bucket', ['path/to/local/output1.txt', 's3://path/to/output2.txt'])\n  .then(_ => console.log('done!'))\n  .catch(e => console.log(e));\n"
+  },
+  {
+    "__docId__": 70,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "S3renity",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~S3renity",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 71,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "config",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~config",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 72,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "s3renity",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~s3renity",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "type": {
+      "types": [
+        "S3renity"
+      ]
+    }
+  },
+  {
+    "__docId__": 73,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "s3dir",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~s3dir",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "type": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "__docId__": 74,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "a",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~a",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 33,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 75,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "b",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~b",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 51,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 76,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "a",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~a",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 76,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 77,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "b",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~b",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 94,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 78,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "a",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~a",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 118,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 79,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "b",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~b",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 137,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 80,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "a",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~a",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 165,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 81,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "b",
+    "memberof": "src/lib/examples.js",
+    "longname": "src/lib/examples.js~b",
+    "access": null,
+    "export": false,
+    "importPath": "s3renity/src/lib/examples.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 187,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 83,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Infinity",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 84,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~NaN",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 85,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~undefined",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 86,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~null",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 87,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 88,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 89,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 90,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 91,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 92,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 93,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Symbol",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 94,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Error",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 95,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~EvalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 96,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~InternalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 97,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RangeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 98,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ReferenceError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 99,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~SyntaxError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 100,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~TypeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 101,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~URIError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 102,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 103,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 104,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Date",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 105,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~String",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 106,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~string",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 107,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RegExp",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 108,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 109,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 110,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 111,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8ClampedArray",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 112,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 113,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 114,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 115,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 116,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 117,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float64Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 118,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Map",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 119,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Set",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 120,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakMap",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 121,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakSet",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 122,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ArrayBuffer",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 123,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~DataView",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 124,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~JSON",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 125,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Promise",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 126,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Generator",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 127,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~GeneratorFunction",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 128,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Reflect",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 129,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Proxy",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 131,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "CanvasRenderingContext2D",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~CanvasRenderingContext2D",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 132,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DocumentFragment",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~DocumentFragment",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 133,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Element",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Element",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 134,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Event",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Event",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 135,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Node",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Node",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 136,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NodeList",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~NodeList",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 137,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "XMLHttpRequest",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 138,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "AudioContext",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~AudioContext",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  }
+]

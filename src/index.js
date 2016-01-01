@@ -50,7 +50,7 @@ class S3renity {
   }
 
   list(bucket, key, marker) {
-
+    return this.S3.list(bucket, key, marker);
   }
 
   get(bucket, key, encoding) {

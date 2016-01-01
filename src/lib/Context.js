@@ -17,28 +17,24 @@ class Context {
     }
     this.bucket = context.bucket;
     this.prefix = context.prefix;
-    this._marker = marker;
+    this.marker = marker;
     this.S3 = S3;
   }
 
   /**
    * Set the marker for the working context (file to start on)
-   * @public
    * @param {String} marker The marker to start with for getting objects.
    * @return {Context} `this`
    */
 
   marker(marker) {
-    this._marker = marker;
+    this.marker = marker;
     return this;
   }
 
   /**
-   * Set the working context based on an s3 key.
-   *
-   * @public
-   * @param {String} key a key in the form: "s3://<your-bucket>/path/to/folder/"
-   * @returns {S3renity} `this`
+   * @param {String} encoding
+   * @returns {Context} `this`
    */
 
   encode(encoding) {
@@ -50,7 +46,7 @@ class Context {
    * Transforms the S3 object before proceeding.
    *
    * @param {Function} transform The function to use to transform the object.
-   * @return {S3renity} `this`
+   * @return {Context} `this`
    */
 
   transform(transformer) {
@@ -61,10 +57,9 @@ class Context {
   /**
    * Move the context from s3 objects to objects split by a delimiter.
    *
-   * @public
    * @param {string} delimiter The character to split the document objects by.
    * Default is "\n"
-   * @return {S3renity} `this`
+   * @return {Context} `this`
    */
 
   split(delimiter) {
@@ -77,9 +72,8 @@ class Context {
    * filter write to that location instead of changing the original objects
    * themselves.
    *
-   * @public
    * @param {String} target The location to send the output of map or filter.
-   * @return {S3renity} `this`
+   * @return {Context} `this`
    */
 
   target(target) {
@@ -90,7 +84,6 @@ class Context {
   /**
    * Returns a for each batch request.
    *
-   * @public
    * @param {Function} func This function takes an s3 object and performs a
    * synchronous function. If isAsync is true, func returns a promise.
    * @param {Boolean} isAsync Optional. Default is false. If set to true, this
@@ -117,7 +110,7 @@ class Context {
   }
 
   /**
-   * @param {Function} func The reducer function
+   * @param {Function} func The reducer function.
    * @param {Mixed} initialValue The value to start with in `func`.
    * @param {Boolean} isAsync Whether the function is asynchronous (returns a promise).
    */

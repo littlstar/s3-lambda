@@ -18,7 +18,7 @@ test('s3renity.write and s3renity.get', t => {
   let name = `${key}/${i}`;
 
   s3.write(name, body).then(_ => {
-    s3.list()
+    s3.list();
     t.ok(true, `s3renity.write`);
     s3.get(name).then(object => {
       t.ok(object == 'hello world test', 's3renity.get');

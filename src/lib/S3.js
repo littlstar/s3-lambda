@@ -297,7 +297,7 @@ class S3 {
     if (target.type == TYPE_S3) {
       return this.put(target.bucket, target.prefix, body, encoding);
     } else if (target.type == TYPE_FILE) {
-      return new Promise((success, fail) {
+      return new Promise((success, fail) => {
         fs.writeFile(target.file, body, (err, res) => {
           if (err) {
             fail(err);
