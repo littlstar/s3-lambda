@@ -19,8 +19,8 @@ class S3 {
    * Take a path or s3 key and resolve it.
    *
    * @private
-   * @param {string} key an s3 key or local file path
-   * @return {object} An object wity keys: bucket, prefix, file, and type.
+   * @param {String} key an s3 key or local file path
+   * @return {Object} An object wity keys: bucket, prefix, file, and type.
    */
 
   resolveKey(key) {
@@ -217,18 +217,27 @@ class S3 {
   /**
    * Returns all the keys in the working context.
    *
-   * @public
    * @return {promise} Fulfilled when all the keys are retrieved from s3.
    */
 
   list(bucket, prefix, marker) {
 
+    console.log(bucket, prefix, marker);
+    let self = this;
+    if (marker == null) {
+      marker = '';
+    }
+    console.log(bucket, prefix, marker);
+
     return new Promise((success, fail) => {
-      listRecursive([], marker, success, fail);
+      listRecursive(marker, success, fail);
     });
 
-    function listRecursive(allKeys, marker, success, fail) {
-      this.listObjects(bucket, prefix, marker).then(keys => {
+    function listRecursive(marker, success, fail, allKeys) {
+      if (allKeys == null) {
+        allKeys = [];
+      }
+      self.listObjects(bucket, prefix, marker).then(keys => {
         if (keys.length == 0) {
           success(allKeys);
           return;
@@ -237,24 +246,30 @@ class S3 {
           allKeys.push(key.Key);
           marker = key.Key;
         });
-        listRecursive(allKeys, marker, success, fail);
+        listRecursive(marker, success, fail, allKeys);
       }).catch(fail);
     };
   }
 
   /**
    * Return a promise that gets keys from s3 given a bucket, prefix and marker.
+   * TODO(wells) don't do the second lookup if # results < 1000
    *
    * @public
-   * @param {string} bucket The bucket to get the keys from.
-   * @param {string} prefix The prefix for the folder where the keys are.
-   * @param {string} [marker] The marker to start from (optional).
-   * @return {promise} Fulfilled when the keys are retrieved from s3.
+   * @param {String} bucket The bucket to get the keys from.
+   * @param {String} prefix The prefix for the folder where the keys are.
+   * @param {String} marker Optional. The key to start listing from.
+   * @return {Promise} Fulfilled when the keys are retrieved from s3.
    */
 
   listObjects(bucket, prefix, marker) {
+    if (marker == null) {
+      marker = '';
+    }
     return new Promise((success, fail) => {
-      if (prefix[prefix.length - 1] != '/') prefix += '/';
+      if (prefix[prefix.length - 1] != '/') {
+        prefix += '/';
+      }
       this.aws.listObjects({
         Bucket: bucket,
         Prefix: prefix,
@@ -264,9 +279,14 @@ class S3 {
           fail(err);
         } else {
           if (this.verbose) {
-            console.info(`LIST OBJECTS s3://${bucket}/${prefix} MARKER: ${marker}`);
+            if (marker == '') {
+              console.info(`LIST OBJECTS s3://${bucket}/${prefix}`);
+            } else {
+              console.info(`LIST OBJECTS s3://${bucket}/${marker}`);
+            }
           }
           keys = keys.Contents;
+
           // aws sometimes returns the folder as a key for some reason,
           // so shift it off
           if (keys.length && keys[0].Key == prefix) {

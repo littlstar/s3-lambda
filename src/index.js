@@ -40,8 +40,8 @@ class S3renity {
     }
 
     let verbose = config.verbose || false;
-
     let instance = new aws.S3(s3opts);
+
     this.S3 = new S3(instance, verbose);
   }
 
@@ -53,8 +53,8 @@ class S3renity {
     return this.S3.list(bucket, key, marker);
   }
 
-  get(bucket, key, encoding) {
-    return this.S3.get(bucket, key, encoding);
+  get(bucket, key, encoding, transformer) {
+    return this.S3.get(bucket, key, encoding, transformer);
   }
 
   write(targets, body, encoding) {
