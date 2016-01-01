@@ -53,8 +53,8 @@ class S3renity {
 
   }
 
-  get(arg1, arg2) {
-    return this.S3.get(arg1, arg2);
+  get(bucket, key, encoding) {
+    return this.S3.get(bucket, key, encoding);
   }
 
   write(targets, body, encoding) {
