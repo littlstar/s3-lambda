@@ -33,10 +33,35 @@ test('put, list, get, delete', t => {
   }).catch(console.error);
 });
 
-test('forEach', t => {
+test('put', t => {
+  t.plan(3);
+  [1, 2, 3].forEach(n => {
+    s.put(bucket, `${name}${n}`, `${body} ${n}`).then(_ => {
+      t.ok(true, 's3renity.put');
+    }).catch(console.error);
+  });
+});
+
+test('forEach, delete [target, target]', t => {
+
+  t.plan(2);
+
   var str = '';
   const func = obj => {
     str += obj;
   }
-  s.context(bucket, prefix)
+
+  s.context(bucket, prefix).forEach(func).then(_ => {
+    let answer = 'hello world 1hello world 2hello world 3';
+    t.ok(str.trim() == answer, 's3renity.context.forEach');
+
+    s.list(bucket, prefix).then(keys => {
+      s.delete(bucket, keys).then(_ => {
+        s.list(bucket, prefix).then(keys => {
+          t.ok(keys.length == 0, 's3renity.delete([key, key2, key3])')
+        }).catch(console.error);
+      }).catch(console.error);
+    });
+
+  }).catch(console.error);
 });

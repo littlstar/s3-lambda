@@ -8,7 +8,7 @@ const aws = require('aws-sdk');
 const fs = require('fs');
 const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
-const BatchContext = require('./BatchRequest');
+const BatchRequest = require('./BatchRequest');
 
 /**
  * A S3renity instance allows you to create contexts for batch requests.  It
@@ -203,15 +203,18 @@ class S3renity {
   }
 
   /**
-   * Deletes an object in S3.
+   * Deletes an object or array of objects in S3.
    *
    * @public
    * @param {String} bucket - The bucket
-   * @param {String} key - The key to delete
+   * @param {String|Array} key - The key to delete.  Optionally supply an array of keys to delete.
    * @returns {Promise}
    */
 
   delete(bucket, key) {
+    if (typeof key == 'object') {
+      return this.deleteObjects(bucket, key);
+    }
     return new Promise((success, fail) => {
       this.s3.deleteObject({
         Bucket: bucket,
@@ -240,16 +243,17 @@ class S3renity {
 
   deleteObjects(bucket, keys) {
     return new Promise((success, fail) => {
-      keys.map((key, i, arr) => {
-        arr[i] = {
+      // creates input with format: { Key: key }
+      let input = [];
+      keys.forEach((key, i, arr) => {
+        input.push({
           Key: key
-        };
+        });
       });
-      //TODO(wells) this can't really work
       this.s3.deleteObjects({
         Bucket: bucket,
         Delete: {
-          Objects: keys
+          Objects: input
         }
       }, (err, res) => {
         if (err) {

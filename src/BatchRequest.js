@@ -23,7 +23,7 @@ class BatchRequest {
       this.prefix = context.prefix;
     } else {
       this.bucket = bucket;
-      this.prefix = key;
+      this.prefix = prefix;
     }
     this.marker = marker;
     this.s3 = s3renity;
@@ -88,7 +88,7 @@ class BatchRequest {
    */
 
   target(target) {
-    this.target = S3.resolveKey(target);
+    this.target = this.s3.resolveKey(target);
     return this;
   }
 
@@ -118,7 +118,7 @@ class BatchRequest {
         return;
       }
       const key = keys.shift();
-      this.S3.get(this.bucket, key).then(body => {
+      this.s3.get(this.bucket, key).then(body => {
         if (isAsync) {
           func(body).then(_ => {
             _eachObject(keys, callback);
@@ -141,7 +141,7 @@ class BatchRequest {
         return;
       }
       const key = keys.shift();
-      this.S3.splitObject(this.bucket, key, this.delimiter, this.encoding)
+      this.s3.splitObject(this.bucket, key, this.delimiter, this.encoding)
         .then(entries => {
           _eachSplit(entries).then(_ => {
             _splitObjects(keys, callback);
@@ -169,7 +169,7 @@ class BatchRequest {
     };
 
     return new Promise((success, fail) => {
-      this.S3.list(this.bucket, this.prefix, this.marker).then(keys => {
+      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
         var lastKey = keys[keys.length - 1];
         if (this.delimiter == null) {
           _eachObject(keys, err => {
@@ -223,7 +223,7 @@ class BatchRequest {
         return;
       }
       let key = keys.shift();
-      this.S3.get(this.bucket, key).then(body => {
+      this.s3.get(this.bucket, key).then(body => {
         if (isAsync) {
           func(body)
             .then(newBody => _output(key, newBody, keys, callback))
@@ -246,7 +246,7 @@ class BatchRequest {
         return;
       }
       let key = keys.shift();
-      this.S3.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
+      this.s3.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
         entries => {
           _mapSplit(entries).then(newEntries => {
             let newBody = newEntries.join(this.delimiter);
@@ -276,7 +276,7 @@ class BatchRequest {
     const _output = (key, body, keys, callback) => {
       if (this.target != null) {
         this
-          .put(this.target.bucket, this.target.prefix + this.S3.getFileName(key), body)
+          .put(this.target.bucket, this.target.prefix + this.s3.getFileName(key), body)
           .then(_ => _continue(keys, callback))
           .catch(callback);
       } else {
@@ -494,7 +494,7 @@ class BatchRequest {
       if (this.hasTarget) {
         let promises = [];
         keepObjects.forEach(key => {
-          let fileName = this.S3.getFileName(key);
+          let fileName = this.s3.getFileName(key);
           promises.push(this.copy(this.bucket, key, this.targetBucket, this.targetPrefix + fileName));
         });
         Promise.all(promises).then(_ => {
@@ -520,7 +520,7 @@ class BatchRequest {
             let newBody = newEntries.join(this.delimiter);
             if (this.hasTarget) {
               targetBucket = this.targetBucket;
-              targetKey = this.targetPrefix + this.S3.getFileName(key);
+              targetKey = this.targetPrefix + this.s3.getFileName(key);
             } else {
               targetBucket = this.bucket;
               targetKey = key;
