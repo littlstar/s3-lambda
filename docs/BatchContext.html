@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Documentation Class: S3renity</title>
+	<title>Documentation Class: BatchContext</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -62,17 +62,16 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Class: S3renity</h1>
+	<h1 class="page-title">Class: BatchContext</h1>
 <section>
 
 <header>
     
         <h2>
-        S3renity
+        BatchContext
         </h2>
         
-            <div class="class-description">A S3renity instance allows you to create contexts for batch requests.  It
-also gives you a promise-based wrapper around the S3 api.</div>
+            <div class="class-description">A `BatchContext` enables you to set reusable conditions for batch requests.</div>
         
     
 </header>
@@ -84,12 +83,16 @@ also gives you a promise-based wrapper around the S3 api.</div>
         
 <hr>
 <dt>
-    <h4 class="name" id="S3renity"><span class="type-signature"></span>new S3renity(config)</h4>
+    <h4 class="name" id="BatchContext"><span class="type-signature"></span>new BatchContext(key, <span class="optional">marker</span>, s3renity)</h4>
     
     
 </dt>
 <dd>
 
+    
+    <div class="description">
+        Creates a new `BatchContext` to perform batch operations with.
+    </div>
     
 
     
@@ -111,57 +114,10 @@ also gives you a promise-based wrapper around the S3 api.</div>
         <th>Type</th>
 
         
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Options to initialize s3renity with. If `access_key_id`
-and `secret_access_key` are left out, the aws sdk will attempt
-to use the computer's default credentials.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
         <th>Argument</th>
         
 
         
-        <th>Default</th>
-        
 
         <th class="last">Description</th>
     </tr>
@@ -172,7 +128,40 @@ to use the computer's default credentials.
 
         <tr>
             
-                <td class="name"><code>access_key_id</code></td>
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">A valid S3 key, which is used to generate the context
+for the batch operations</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>marker</code></td>
             
 
             <td class="type">
@@ -198,27 +187,21 @@ to use the computer's default credentials.
             
 
             
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
 
-            <td class="description last">AWS Access Key</td>
+            <td class="description last">The marker to start at when getting objects from `key`.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>secret_access_key</code></td>
+                <td class="name"><code>s3renity</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type"><a href="S3renity.html">S3renity</a></span>
 
 
 
@@ -228,8 +211,6 @@ to use the computer's default credentials.
             
                 <td class="attributes">
                 
-                    &lt;optional><br>
-                
 
                 
 
@@ -238,141 +219,8 @@ to use the computer's default credentials.
             
 
             
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
 
-            <td class="description last">AWS Secret Key</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>timeout</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    120
-                
-                </td>
-            
-
-            <td class="description last">Timeout allowed for aws api requests</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>maxRetries</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    30
-                
-                </td>
-            
-
-            <td class="description last">Max retries allowed for aws api requets</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>verbose</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-
-            <td class="description last">Whether to use verbose mode when making requets</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last">The s3renity instance to use in batch requests</td>
         </tr>
 
     
@@ -458,7 +306,7 @@ to use the computer's default credentials.
             
 <hr>
 <dt>
-    <h4 class="name" id="context"><span class="type-signature"></span>context(bucket, prefix, marker)</h4>
+    <h4 class="name" id="encode"><span class="type-signature"></span>encode(encoding)</h4>
     
     
 </dt>
@@ -466,7 +314,7 @@ to use the computer's default credentials.
 
     
     <div class="description">
-        Creates a new `BatchContext` for performing batch operations.
+        Sets the encoding.
     </div>
     
 
@@ -501,7 +349,7 @@ to use the computer's default credentials.
 
         <tr>
             
-                <td class="name"><code>bucket</code></td>
+                <td class="name"><code>encoding</code></td>
             
 
             <td class="type">
@@ -518,56 +366,7 @@ to use the computer's default credentials.
 
             
 
-            <td class="description last">The S3 bucket</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>prefix</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The folder prefix for where the files are</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>marker</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Optional. A prefix that indicates where to start
-listing files alphabetically.</td>
+            <td class="description last">The encoding</td>
         </tr>
 
     
@@ -630,6 +429,10 @@ listing files alphabetically.</td>
     <h5>Returns:</h5>
     
             
+<div class="param-desc">
+    `this`
+</div>
+
 
 
 <dl>
@@ -655,7 +458,7 @@ listing files alphabetically.</td>
             
 <hr>
 <dt>
-    <h4 class="name" id="copy"><span class="type-signature"></span>copy(bucket, key, targetBucket, targetKey)</h4>
+    <h4 class="name" id="forEach"><span class="type-signature"></span>forEach(func, isAsync)</h4>
     
     
 </dt>
@@ -663,7 +466,7 @@ listing files alphabetically.</td>
 
     
     <div class="description">
-        Copies an object in S3.
+        Returns a for each batch request.
     </div>
     
 
@@ -698,511 +501,7 @@ listing files alphabetically.</td>
 
         <tr>
             
-                <td class="name"><code>bucket</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The source bucket.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>key</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The source key.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetBucket</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The target bucket.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetKey</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The target key.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="delete"><span class="type-signature"></span>delete(bucket, key)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Deletes an object in S3.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>bucket</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The bucket</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>key</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The key to delete</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="get"><span class="type-signature"></span>get(bucket, key, <span class="optional">encoding</span>, <span class="optional">transformer</span>)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Argument</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>bucket</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">The bucket to get from</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>key</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">The key of the object to get</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>encoding</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    utf8
-                
-                </td>
-            
-
-            <td class="description last">The encoding</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>transformer</code></td>
+                <td class="name"><code>func</code></td>
             
 
             <td class="type">
@@ -1216,26 +515,36 @@ listing files alphabetically.</td>
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
 
-                
+            
 
+            <td class="description last">This function takes an s3 object and performs a
+synchronous function. If isAsync is true, func returns a promise.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isAsync</code></td>
+            
+
+            <td class="type">
+            
                 
-                </td>
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
             
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">If supplied, this function will be
-run on Object.Body before returning. Useful for dealing with compressed
-files or weird formats</td>
+            <td class="description last">Optional. Default is false. If set to true, this
+indicates that func returns a promise that should be executed.</td>
         </tr>
 
     
@@ -1299,7 +608,8 @@ files or weird formats</td>
     
             
 <div class="param-desc">
-    The s3 text object.
+    Fulfilled when the mapper functions are done. Returns a
+list of keys that were operated over.
 </div>
 
 
@@ -1327,7 +637,176 @@ files or weird formats</td>
             
 <hr>
 <dt>
-    <h4 class="name" id="list"><span class="type-signature"></span>list(bucket, prefix, <span class="optional">marker</span>)</h4>
+    <h4 class="name" id="map"><span class="type-signature"></span>map(func, isAsync)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>func</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">This function takes an s3 object and returns the updated object.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isAsync</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether the function is asynchronous (returns a
+promise).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="marker"><span class="type-signature"></span>marker(marker)</h4>
     
     
 </dt>
@@ -1335,7 +814,7 @@ files or weird formats</td>
 
     
     <div class="description">
-        Lists all the keys in the given s3 folder.
+        Sets the marker.
     </div>
     
 
@@ -1358,8 +837,6 @@ files or weird formats</td>
         <th>Type</th>
 
         
-        <th>Argument</th>
-        
 
         
 
@@ -1368,70 +845,6 @@ files or weird formats</td>
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>bucket</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The bucket</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>prefix</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The prefix for the folder to list keys for</td>
-        </tr>
-
     
 
         <tr>
@@ -1450,20 +863,10 @@ files or weird formats</td>
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">The key to start listing from, alphabetically</td>
+            <td class="description last">The marker to start with for getting objects.</td>
         </tr>
 
     
@@ -1527,7 +930,7 @@ files or weird formats</td>
     
             
 <div class="param-desc">
-    Array containing all the keys in `s3://bucket/prefix`
+    `this`
 </div>
 
 
@@ -1538,7 +941,7 @@ files or weird formats</td>
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
 
 
 
@@ -1555,7 +958,179 @@ files or weird formats</td>
             
 <hr>
 <dt>
-    <h4 class="name" id="put"><span class="type-signature"></span>put(bucket, key, body, <span class="optional">encoding</span>)</h4>
+    <h4 class="name" id="reduce"><span class="type-signature"></span>reduce(func, initialValue, isAsync)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>func</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The reducer function.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>initialValue</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Mixed</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value to start with in `func`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isAsync</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether the function is asynchronous (returns a promise).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="split"><span class="type-signature"></span>split(delimiter)</h4>
     
     
 </dt>
@@ -1563,7 +1138,7 @@ files or weird formats</td>
 
     
     <div class="description">
-        Puts a text object in S3.
+        Move the context from s3 objects to objects split by a delimiter.
     </div>
     
 
@@ -1586,11 +1161,7 @@ files or weird formats</td>
         <th>Type</th>
 
         
-        <th>Argument</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -1602,7 +1173,7 @@ files or weird formats</td>
 
         <tr>
             
-                <td class="name"><code>bucket</code></td>
+                <td class="name"><code>delimiter</code></td>
             
 
             <td class="type">
@@ -1616,134 +1187,11 @@ files or weird formats</td>
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">The s3 bucket to use</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>key</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">The key path where the object will be placed</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>body</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">The object body</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>encoding</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    utf8
-                
-                </td>
-            
-
-            <td class="description last">The encoding</td>
+            <td class="description last">The character to split the document objects by -
+Defaults to "\n"</td>
         </tr>
 
     
@@ -1807,7 +1255,7 @@ files or weird formats</td>
     
             
 <div class="param-desc">
-    Promise that resolves when the object is written to s3
+    `this`
 </div>
 
 
@@ -1818,7 +1266,313 @@ files or weird formats</td>
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="target"><span class="type-signature"></span>target(target)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Sets the output directory for map or filter.  If a target is set, map and
+filter write to that location instead of changing the original objects
+themselves.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>target</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The location to send the output of map or filter.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    `this`
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Context</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="transform"><span class="type-signature"></span>transform(transform)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Sets a transformation function to use when getting objects from s3.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>transform</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to use to transform the object.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    `this`
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
 
 
 
@@ -1879,7 +1633,7 @@ files or weird formats</td>
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
 	
-		on 2016-01-01T23:45:37-05:00
+		on 2016-01-01T23:45:36-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

@@ -1,22 +1,92 @@
 'use strict'
 
-/** class representing a batch request */
+/**
+ * A `BatchContext` enables you to set reusable conditions for batch requests.
+ */
+
 class BatchRequest {
 
   /**
-   * Create a batch request.
-   * @param {Context} context - The working context for the batch operation.
+   * Creates a new `BatchContext` to perform batch operations with.
+   *
+   * @param {String} key - A valid S3 key, which is used to generate the context
+   * for the batch operations
+   * @param {String} [marker] - The marker to start at when getting objects from `key`.
+   * @param {S3renity} s3renity - The s3renity instance to use in batch requests
    */
 
-  constructor(context) {
-    this.S3 = context.s3;
+  constructor(key, marker, s3renity) {
+    let context = s3renity.resolveKey(key);
+    if (context.type != 's3') {
+      throw new Error('context must be valid s3 path');
+    }
     this.bucket = context.bucket;
     this.prefix = context.prefix;
-    this.marker = context.marker;
-    this.encoding = context.encoding;
-    this.transformer = context.transformer;
-    this.delimiter = context.delimiter;
-    this.target = context.target;
+    this.marker = marker;
+    this.s3 = s3renity;
+  }
+
+  /**
+   * Sets the marker.
+   *
+   * @param {String} marker - The marker to start with for getting objects.
+   * @returns {BatchContext} `this`
+   */
+
+  marker(marker) {
+    this.marker = marker;
+    return this;
+  }
+
+  /**
+   * Sets the encoding.
+   *
+   * @param {String} encoding - The encoding
+   * @returns {BatchContext} `this`
+   */
+
+  encode(encoding) {
+    this.encoding = encoding;
+    return this;
+  }
+
+  /**
+   * Sets a transformation function to use when getting objects from s3.
+   *
+   * @param {Function} transform - The function to use to transform the object.
+   * @returns {BatchContext} `this`
+   */
+
+  transform(transformer) {
+    this.transformer = transformer;
+    return this;
+  }
+
+  /**
+   * Move the context from s3 objects to objects split by a delimiter.
+   *
+   * @param {String} delimiter The character to split the document objects by -
+   * Defaults to "\n"
+   * @returns {BatchContext} `this`
+   */
+
+  split(delimiter) {
+    this.delimiter = delimiter || '\n';
+    return this;
+  }
+
+  /**
+   * Sets the output directory for map or filter.  If a target is set, map and
+   * filter write to that location instead of changing the original objects
+   * themselves.
+   *
+   * @param {String} target - The location to send the output of map or filter.
+   * @return {BatchContext} `this`
+   */
+
+  target(target) {
+    this.target = S3.resolveKey(target);
+    return this;
   }
 
   /**

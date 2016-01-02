@@ -8,9 +8,13 @@ const aws = require('aws-sdk');
 const fs = require('fs');
 const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
-const BatchContext = require('./BatchContext');
+const BatchContext = require('./BatchRequest');
 
-/** Class representing a s3renity instance. */
+/**
+ * A S3renity instance allows you to create contexts for batch requests.  It
+ * also gives you a promise-based wrapper around the S3 api.
+ */
+
 class S3renity {
 
   /**
@@ -48,21 +52,25 @@ class S3renity {
   }
 
   /**
-   * Returns a new context, which can be used to perform batch operations.
-   * @param {String} bucket The S3 bucket.
-   * @param {String} prefix The folder prefix for where the files are.
-   * @param {String} marker Optional. A marker to start at.
+   * Creates a new `BatchContext` for performing batch operations.
+   *
+   * @param {String} bucket The S3 bucket
+   * @param {String} prefix The folder prefix for where the files are
+   * @param {String} marker Optional. A prefix that indicates where to start
+   * listing files alphabetically.
    * @return {BatchContext}
    */
 
   context(bucket, key, marker) {
-    return new BatchContext(bucket, key, marker, this);
+    return new BatchRequest(bucket, key, marker, this);
   }
 
   /**
-   * Take a path or s3 key and resolve it.
-   * @param {String} key an s3 key or local file path
-   * @return {Object} An object wity keys: bucket, prefix, file, and type.
+   * Resolves a key into a s3 file path. TODO(wells) used?
+   *
+   * @private
+   * @param {String} key An s3 key or local file path
+   * @return {Object} An object wity keys: bucket, prefix, file, and type
    */
 
   resolveKey(key) {
@@ -83,10 +91,11 @@ class S3renity {
   }
 
   /**
-   * Returns the filename (last part of the key) from an S3 key.
+   * Returns the filename (last part of the key) from an S3 key. TODO(wells) used?
    *
-   * @param {string} key The S3 key to get the file name for.
-   * @return {string} The filename from the S3 key.
+   * @private
+   * @param {String} key - The S3 key to get the file name for
+   * @return {String} - The filename from the S3 key
    */
 
   getFileName(key) {
@@ -94,13 +103,13 @@ class S3renity {
   }
 
   /**
-   * @param {String} bucket The bucket to get from.
-   * @param {String} key The key of the object to get.
-   * @param {String} encoding Optional. Default is 'utf8'
-   * @param {Function} transformer Optional. If supplied, this function will be
+   * @param {String} bucket - The bucket to get from
+   * @param {String} key - The key of the object to get
+   * @param {String} [encoding=utf8] - The encoding
+   * @param {Function} [transformer] - If supplied, this function will be
    * run on Object.Body before returning. Useful for dealing with compressed
-   * files or weird formats.
-   * @return {Promise} Fulfilled when object is retrieved.
+   * files or weird formats
+   * @returns {Promise} The s3 text object.
    */
 
   get(bucket, key, encoding, transformer) {
@@ -133,12 +142,13 @@ class S3renity {
   }
 
   /**
-   * @param {String} bucket The s3 bucket to use.
-   * @param {String} key The key path where the object will be placed.
-   * @param {String} body The object body.
-   * @param {String} encoding Optional. Default is 'utf8'.
-   * @return {Promise} Fulfilled when the object is written to s3. Returns
-   * response from s3.
+   * Puts a text object in S3.
+   *
+   * @param {String} bucket - The s3 bucket to use
+   * @param {String} key - The key path where the object will be placed
+   * @param {String} body - The object body
+   * @param {String} [encoding=utf8] - The encoding
+   * @return {Promise} Promise that resolves when the object is written to s3
    */
 
   put(bucket, key, body, encoding) {
@@ -168,19 +178,19 @@ class S3renity {
    * Copies an object in S3.
    *
    * @public
-   * @param {String} sourceBucket The s3 bucket to use.
-   * @param {String} sourceKey The source of the object to copy.
-   * @param {String} targetBucket The target bucket to copy to.
-   * @param {String} targetKey The target to copy the object to in s3.
+   * @param {String} bucket The source bucket.
+   * @param {String} key The source key.
+   * @param {String} targetBucket The target bucket.
+   * @param {String} targetKey The target key.
    * @return {Promise}
    */
 
-  copy(sourceBucket, sourceKey, targetBucket, targetKey) {
+  copy(bucket, key, targetBucket, targetKey) {
     return new Promise((success, fail) => {
       this.s3.copyObject({
         Bucket: targetBucket,
         Key: targetKey,
-        CopySource: `${sourceBucket}/${sourceKey}`
+        CopySource: `${bucket}/${key}`
       }, (err, res) => {
         if (err) {
           fail(err);
@@ -192,12 +202,12 @@ class S3renity {
   }
 
   /**
-   * Returns a promise that deletes an object in S3.
+   * Deletes an object in S3.
    *
    * @public
-   * @param {String} bucket The s3 bucket to use.
-   * @param {String} key The key of the object to delete
-   * @return {Promise} Fulfilled when the object deleted. Returns `this`.
+   * @param {String} bucket - The bucket
+   * @param {String} key - The key to delete
+   * @returns {Promise}
    */
 
   delete(bucket, key) {
@@ -219,12 +229,12 @@ class S3renity {
   }
 
   /**
-   * Deletes a list of objects in S3.
+   * Deletes a list of objects in S3
    *
-   * @public
-   * @param {string} bucket The s3 bucket to use.
-   * @param {array} keys The keys of the objects to delete.
-   * @return {promise} Fulfilled when objects are deleted. Returns response.
+   * @private
+   * @param {String} bucket The s3 bucket to use
+   * @param {Array} keys The keys of the objects to delete
+   * @returns {Promise} Fulfilled when objects are deleted. Returns response.
    */
 
   deleteObjects(bucket, keys) {
@@ -257,9 +267,12 @@ class S3renity {
   }
 
   /**
-   * Returns all the keys in the working context.
+   * Lists all the keys in the given s3 folder.
    *
-   * @return {promise} Fulfilled when all the keys are retrieved from s3.
+   * @param {String} bucket - The bucket
+   * @param {String} prefix - The prefix for the folder to list keys for
+   * @param {String} [marker] - The key to start listing from, alphabetically
+   * @returns {Promise} Array containing all the keys in `s3://bucket/prefix`
    */
 
   list(bucket, prefix, marker) {
@@ -295,11 +308,11 @@ class S3renity {
    * Return a promise that gets keys from s3 given a bucket, prefix and marker.
    * TODO(wells) don't do the second lookup if # results < 1000
    *
-   * @public
-   * @param {String} bucket The bucket to get the keys from.
-   * @param {String} prefix The prefix for the folder where the keys are.
-   * @param {String} marker Optional. The key to start listing from.
-   * @return {Promise} Fulfilled when the keys are retrieved from s3.
+   * @private
+   * @param {String} bucket - The bucket to get the keys from.
+   * @param {String} prefix - The prefix for the folder where the keys are.
+   * @param {String} marker - Optional. The key to start listing from.
+   * @returns {Promise}
    */
 
   listObjects(bucket, prefix, marker) {
@@ -335,48 +348,15 @@ class S3renity {
   }
 
   /**
-   * Output the working context to a file or location in s3.
+   * Splits an S3 object by a delimiter.
    *
-   * @public
-   * @param {String} target Either a valid s3 path 's3://' or local file path.
-   * @param {String} body
-   * @param {String} encoding
-   * @return {Promise} Fulfilled when the file is finished saving. Returns the
-   * response either from `fs` or s3.
-   */
-
-  write(target, body, encoding) {
-    if (encoding == null) {
-      encoding = 'utf8'
-    }
-    target = this.resolveKey(target);
-    if (target.type == TYPE_S3) {
-      return this.put(target.bucket, target.prefix, body, encoding);
-    } else if (target.type == TYPE_FILE) {
-      return new Promise((success, fail) => {
-        fs.writeFile(target.file, body, (err, res) => {
-          if (err) {
-            fail(err);
-          } else {
-            success();
-            if (this.verbose) {
-              console.info(`WRITE FILE ${target.file}`);
-            }
-          }
-        });
-      });
-    }
-  }
-
-  /**
-   * Splits an object in s3 by a delimiter and returns.
-   *
-   * @param {string} bucket The s3 bucket to use.
-   * @param {string} key The key to the object.
-   * @param {string} delimiter Optional, default is \n. The character to use in
+   * @private
+   * @param {String} bucket - The s3 bucket to use.
+   * @param {String} key - The key to the object.
+   * @param {String} delimiter - Optional, default is \n. The character to use in
    * the split over the object's body.
-   * @param {string} encoding Optional, default is utf8.
-   * @return {promise} Returns an array that is the split of the object.
+   * @param {String} encoding - Optional, default is utf8.
+   * @returns {Promise} An array that is the split of the object.
    */
 
   splitObject(bucket, key, delimiter, encoding) {

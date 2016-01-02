@@ -288,6 +288,3 @@ s3renity
   )
   .catch(err => console.log(err));
 ```
-
-## More Examples
-Check out the examples file https://github.com/littlstar/s3renity/blob/master/examples.js

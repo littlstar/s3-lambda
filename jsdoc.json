@@ -4,11 +4,15 @@
     "dictionaries": ["jsdoc", "closure"]
   },
   "source": {
-    "include": ["src/S3renity.js"]
+    "include": ["src/S3renity.js", "src/BatchContext.js"]
   },
-  "package": "package.json",
   "opts": {
+    "template": "./node_modules/ink-docstrap/template",
     "destination": "docs",
     "readme": "README.md"
+  },
+  "templates": {
+    "theme": "cosmo",
+    "navType": "vertical"
   }
 }
