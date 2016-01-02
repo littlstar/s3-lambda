@@ -57,12 +57,16 @@ class S3renity {
     return this.S3.get(bucket, key, encoding, transformer);
   }
 
+  put(bucket, key, body, encoding) {
+    return this.S3.put(bucket, key, body, encoding);
+  }
+
   write(targets, body, encoding) {
     return this.S3.write(targets, body, encoding);
   }
 
-  delete(arg1, arg2) {
-    return this.S3.delete(arg1, arg2);
+  delete(bucket, key) {
+    return this.S3.delete(bucket, key);
   }
 
 }

@@ -222,12 +222,10 @@ class S3 {
 
   list(bucket, prefix, marker) {
 
-    console.log(bucket, prefix, marker);
     let self = this;
     if (marker == null) {
       marker = '';
     }
-    console.log(bucket, prefix, marker);
 
     return new Promise((success, fail) => {
       listRecursive(marker, success, fail);
@@ -279,11 +277,7 @@ class S3 {
           fail(err);
         } else {
           if (this.verbose) {
-            if (marker == '') {
-              console.info(`LIST OBJECTS s3://${bucket}/${prefix}`);
-            } else {
-              console.info(`LIST OBJECTS s3://${bucket}/${marker}`);
-            }
+            console.info(`LIST OBJECTS s3://${bucket}/${marker == '' ? prefix : marker}`);
           }
           keys = keys.Contents;
 
