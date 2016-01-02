@@ -7,7 +7,7 @@ const s = new s3renity({
   verbose: true
 });
 
-test('s3renity.write and s3renity.get', t => {
+test('put, list, get, delete', t => {
 
   t.plan(4);
 
@@ -31,12 +31,10 @@ test('s3renity.write and s3renity.get', t => {
 
         s.delete(bucket, name).then(_ => {
           s.list(bucket, prefix).then(keys => {
-            t.ok(keys.length == 0, `s3renity.delete`);
+            t.ok(keys.length == 0, 's3renity.delete');
           });
         }).catch(console.error);
       }).catch(console.error);
-
     }).catch(console.error);
-
   }).catch(console.error);
 });

@@ -1,0 +1,9 @@
+{
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "source": {
+    "include": ["src/S3renity.js", "src/S3Wrapper.js", "src/Context.js", "src/BatchRequest.js"]
+  }
+}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: S3renity.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,55 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: S3renity.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Gives access to batch operations over s3 files, as well as a promised base
+ * wrapper around the s3 api.
+ *
+ * @author Wells Johnston &lt;wells@littlstar.com>
+ */
 
+'use strict'
 
-    <h3> </h3>
+const Context = require('./Context');
+const S3Wrapper = require('./S3Wrapper');
 
+/**
+ * @class S3renity
+ */
 
+class S3renity extends S3Wrapper {
 
+  constructor(config) {
+    super(config);
+  }
 
+  /**
+   * Returns a new context, which can be used to perform batch operations.
+   * @param {String} bucket The S3 bucket.
+   * @param {String} prefix The folder prefix for where the files are.
+   * @param {String} marker Optional. A marker to start at.
+   * @return {Context}
+   */
 
+  context(bucket, key, marker) {
+    return new Context(bucket, key, marker, this);
+  }
 
+}
 
-
-
-
-    
-
-
-
-
-
+module.exports = S3renity;
+</code></pre>
+        </article>
+    </section>
 
 
 
