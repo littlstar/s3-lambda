@@ -1,18 +1,44 @@
 'use strict'
 
+const aws = require('aws-sdk');
+const fs = require('fs');
 const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
 
-class S3 {
+class S3Wrapper {
 
   /**
    * @constructor
-   * @param {Object} aws The aws sdk instance.
-   * @param {Boolean} verbose Whether to use verbose mode with s3.
+   * @param {Object} config
    */
-  constructor(aws, verbose) {
-    this.aws = aws;
-    this.verbose = verbose;
+
+  constructor(config) {
+
+    if (config == null) {
+      config = {};
+    }
+
+    if (config.access_key_id && config.secret_access_key) {
+      aws.configig.update({
+        accessKeyId: config.access_key_id,
+        secretAccessKey: config.secret_access_key
+      });
+    }
+
+    let s3opts = {};
+
+    if (config.timeout) {
+      s3opts.httpOptions = {
+        timeout: config.timeout
+      };
+    }
+
+    if (config.maxRetries) {
+      s3opts.maxRetries = config.maxRetries;
+    }
+
+    this.s3 = new aws.S3(s3opts);
+    this.verbose = config.verbose || false;
   }
 
   /**
@@ -66,7 +92,7 @@ class S3 {
       encoding = 'utf8';
     }
     return new Promise((success, fail) => {
-      this.aws.getObject({
+      this.s3.getObject({
         Bucket: bucket,
         Key: key
       }, (err, object) => {
@@ -104,7 +130,7 @@ class S3 {
       encoding = 'utf8';
     }
     return new Promise((success, fail) => {
-      this.aws.putObject({
+      this.s3.putObject({
         Bucket: bucket,
         Key: key,
         Body: body,
@@ -135,7 +161,7 @@ class S3 {
 
   copy(sourceBucket, sourceKey, targetBucket, targetKey) {
     return new Promise((success, fail) => {
-      this.aws.copyObject({
+      this.s3.copyObject({
         Bucket: targetBucket,
         Key: targetKey,
         CopySource: `${sourceBucket}/${sourceKey}`
@@ -160,7 +186,7 @@ class S3 {
 
   delete(bucket, key) {
     return new Promise((success, fail) => {
-      this.aws.deleteObject({
+      this.s3.deleteObject({
         Bucket: bucket,
         Key: key
       }, (err, res) => {
@@ -193,7 +219,7 @@ class S3 {
         };
       });
       //TODO(wells) this can't really work
-      this.aws.deleteObjects({
+      this.s3.deleteObjects({
         Bucket: bucket,
         Delete: {
           Objects: keys
@@ -268,7 +294,7 @@ class S3 {
       if (prefix[prefix.length - 1] != '/') {
         prefix += '/';
       }
-      this.aws.listObjects({
+      this.s3.listObjects({
         Bucket: bucket,
         Prefix: prefix,
         Marker: marker
@@ -281,7 +307,7 @@ class S3 {
           }
           keys = keys.Contents;
 
-          // aws sometimes returns the folder as a key for some reason,
+          // s3 sometimes returns the folder as a key for some reason,
           // so shift it off
           if (keys.length && keys[0].Key == prefix) {
             keys.shift();
@@ -361,4 +387,4 @@ class S3 {
 
 }
 
-module.exports = S3;
+module.exports = S3Wrapper;
