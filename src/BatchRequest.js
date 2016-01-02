@@ -1,13 +1,13 @@
 'use strict'
 
 /**
- * A `BatchContext` enables you to set reusable conditions for batch requests.
+ * A `BatchRequest` enables you to set reusable conditions for batch requests.
  */
 
 class BatchRequest {
 
   /**
-   * Creates a new `BatchContext` to perform batch operations with.
+   * Creates a new `BatchRequest` to perform batch operations with.
    *
    * @param {String} key - A valid S3 key, which is used to generate the context
    * for the batch operations
@@ -30,7 +30,7 @@ class BatchRequest {
    * Sets the marker.
    *
    * @param {String} marker - The marker to start with for getting objects.
-   * @returns {BatchContext} `this`
+   * @returns {BatchRequest} `this`
    */
 
   marker(marker) {
@@ -39,10 +39,11 @@ class BatchRequest {
   }
 
   /**
-   * Sets the encoding.
+   * Sets the encoding to use when getting s3 objects. If noe set, the
+   * default is 'utf8'.
    *
    * @param {String} encoding - The encoding
-   * @returns {BatchContext} `this`
+   * @returns {BatchRequest} `this`
    */
 
   encode(encoding) {
@@ -53,8 +54,8 @@ class BatchRequest {
   /**
    * Sets a transformation function to use when getting objects from s3.
    *
-   * @param {Function} transform - The function to use to transform the object.
-   * @returns {BatchContext} `this`
+   * @param {Function} transformer - The function to use to transform the object.
+   * @returns {BatchRequest} `this`
    */
 
   transform(transformer) {
@@ -65,9 +66,8 @@ class BatchRequest {
   /**
    * Move the context from s3 objects to objects split by a delimiter.
    *
-   * @param {String} delimiter The character to split the document objects by -
-   * Defaults to "\n"
-   * @returns {BatchContext} `this`
+   * @param {String} delimiter='\n' The character to split the document objects by
+   * @returns {BatchRequest} `this`
    */
 
   split(delimiter) {
@@ -80,8 +80,8 @@ class BatchRequest {
    * filter write to that location instead of changing the original objects
    * themselves.
    *
-   * @param {String} target - The location to send the output of map or filter.
-   * @return {BatchContext} `this`
+   * @param {String} target - The location to send the output of map or filter
+   * @return {BatchRequest} `this`
    */
 
   target(target) {
@@ -93,8 +93,8 @@ class BatchRequest {
    * Run a function over s3 objects in a for-each construct.
    *
    * @private
-   * @param {Function} func The function to perform over the working context.
-   * @param {Boolean} isAsync Optional, default is false. True if `func` is async (returns a
+   * @param {Function} func The function to perform over the working context
+   * @param {Boolean} [isAsync=false] Set to true if `func` is async (returns a
    * Promise).
    * @return {Promise}
    */
@@ -195,12 +195,11 @@ class BatchRequest {
    * overwritten, but rather copied to the target location.
    *
    * @public
-   * @param {function} func The function to map over each object in the working
+   * @param {Function} func The function to map over each object in the working
    * context. Func takes the object as a parameter and returns the value that
    * should replace it.
-   * @param {boolean} isAsync Optional, default is false. If set to true, this
-   * indicates that func returns a promise.
-   * @return {promise} Fulfilled when map is complete.
+   * @param {Boolean} [isAsync=false] If set to true, this indicates that func is async and returns a promise.
+   * @returns {Promise}
    */
 
   map(func, isAsync) {
@@ -589,9 +588,8 @@ class BatchRequest {
    * result.
    *
    * @public
-   * @param {string} delimiter The character used to join the documents by.
-   * Default is "\n"
-   * @return {promise} Returns the body and `this` on success.
+   * @param {String} delimiter='\n' The character used to join the s3 objects
+   * @returns {Promise} The joined body.
    */
 
   join(delimiter) {

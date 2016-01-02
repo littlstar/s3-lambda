@@ -4,7 +4,7 @@
     "dictionaries": ["jsdoc", "closure"]
   },
   "source": {
-    "include": ["src/S3renity.js", "src/BatchContext.js"]
+    "include": ["src/S3renity.js", "src/BatchRequest.js"]
   },
   "opts": {
     "template": "./node_modules/ink-docstrap/template",

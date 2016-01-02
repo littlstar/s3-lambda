@@ -32,7 +32,7 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="BatchContext.html">BatchContext</a></li><li><a href="S3renity.html">S3renity</a></li>
+					<li><a href="BatchRequest.html">BatchRequest</a></li><li><a href="S3renity.html">S3renity</a></li>
 				</ul>
 			</li>
 			
@@ -84,7 +84,7 @@ also gives you a promise-based wrapper around the S3 api.</div>
         
 <hr>
 <dt>
-    <h4 class="name" id="S3renity"><span class="type-signature"></span>new S3renity(config)</h4>
+    <h4 class="name" id="S3renity"><span class="type-signature"></span>new S3renity(<span class="optional">config</span>)</h4>
     
     
 </dt>
@@ -110,6 +110,8 @@ also gives you a promise-based wrapper around the S3 api.</div>
 
         <th>Type</th>
 
+        
+        <th>Argument</th>
         
 
         
@@ -137,6 +139,16 @@ also gives you a promise-based wrapper around the S3 api.</div>
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -155,8 +167,6 @@ to use the computer's default credentials.
 
         <th>Type</th>
 
-        
-        <th>Argument</th>
         
 
         
@@ -185,16 +195,6 @@ to use the computer's default credentials.
             
             </td>
 
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
             
 
             
@@ -226,16 +226,6 @@ to use the computer's default credentials.
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
                 <td class="default">
@@ -265,16 +255,6 @@ to use the computer's default credentials.
             
             </td>
 
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
             
 
             
@@ -306,16 +286,6 @@ to use the computer's default credentials.
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
                 <td class="default">
@@ -345,16 +315,6 @@ to use the computer's default credentials.
             
             </td>
 
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
             
 
             
@@ -458,7 +418,7 @@ to use the computer's default credentials.
             
 <hr>
 <dt>
-    <h4 class="name" id="context"><span class="type-signature"></span>context(bucket, prefix, marker)</h4>
+    <h4 class="name" id="context"><span class="type-signature"></span>context(bucket, prefix, <span class="optional">marker</span>)</h4>
     
     
 </dt>
@@ -489,6 +449,8 @@ to use the computer's default credentials.
         <th>Type</th>
 
         
+        <th>Argument</th>
+        
 
         
 
@@ -515,6 +477,14 @@ to use the computer's default credentials.
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -538,6 +508,14 @@ to use the computer's default credentials.
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -563,11 +541,21 @@ to use the computer's default credentials.
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Optional. A prefix that indicates where to start
-listing files alphabetically.</td>
+            <td class="description last">A prefix that indicates where to start listing
+files alphabetically.</td>
         </tr>
 
     
@@ -638,7 +626,7 @@ listing files alphabetically.</td>
     </dt>
     <dd>
         
-<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
+<span class="param-type"><a href="BatchRequest.html">BatchRequest</a></span>
 
 
 
@@ -1879,7 +1867,7 @@ files or weird formats</td>
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
 	
-		on 2016-01-01T23:45:37-05:00
+		on 2016-01-02T00:20:10-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

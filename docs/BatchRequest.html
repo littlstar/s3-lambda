@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Documentation Class: BatchContext</title>
+	<title>Documentation Class: BatchRequest</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -32,7 +32,7 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="BatchContext.html">BatchContext</a></li><li><a href="S3renity.html">S3renity</a></li>
+					<li><a href="BatchRequest.html">BatchRequest</a></li><li><a href="S3renity.html">S3renity</a></li>
 				</ul>
 			</li>
 			
@@ -62,16 +62,16 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Class: BatchContext</h1>
+	<h1 class="page-title">Class: BatchRequest</h1>
 <section>
 
 <header>
     
         <h2>
-        BatchContext
+        BatchRequest
         </h2>
         
-            <div class="class-description">A `BatchContext` enables you to set reusable conditions for batch requests.</div>
+            <div class="class-description">A `BatchRequest` enables you to set reusable conditions for batch requests.</div>
         
     
 </header>
@@ -83,7 +83,7 @@
         
 <hr>
 <dt>
-    <h4 class="name" id="BatchContext"><span class="type-signature"></span>new BatchContext(key, <span class="optional">marker</span>, s3renity)</h4>
+    <h4 class="name" id="BatchRequest"><span class="type-signature"></span>new BatchRequest(key, <span class="optional">marker</span>, s3renity)</h4>
     
     
 </dt>
@@ -91,7 +91,7 @@
 
     
     <div class="description">
-        Creates a new `BatchContext` to perform batch operations with.
+        Creates a new `BatchRequest` to perform batch operations with.
     </div>
     
 
@@ -314,7 +314,8 @@ for the batch operations</td>
 
     
     <div class="description">
-        Sets the encoding.
+        Sets the encoding to use when getting s3 objects. If noe set, the
+default is 'utf8'.
     </div>
     
 
@@ -441,7 +442,7 @@ for the batch operations</td>
     </dt>
     <dd>
         
-<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
+<span class="param-type"><a href="BatchRequest.html">BatchRequest</a></span>
 
 
 
@@ -458,7 +459,7 @@ for the batch operations</td>
             
 <hr>
 <dt>
-    <h4 class="name" id="forEach"><span class="type-signature"></span>forEach(func, isAsync)</h4>
+    <h4 class="name" id="filter"><span class="type-signature"></span>filter(func, isAsync)</h4>
     
     
 </dt>
@@ -466,7 +467,7 @@ for the batch operations</td>
 
     
     <div class="description">
-        Returns a for each batch request.
+        Filter the objects in the working context.
     </div>
     
 
@@ -518,8 +519,10 @@ for the batch operations</td>
 
             
 
-            <td class="description last">This function takes an s3 object and performs a
-synchronous function. If isAsync is true, func returns a promise.</td>
+            <td class="description last">The function to filter objects by, returning true for
+objects that should not be filtered and false for those that should. If
+isAsync is set to true, func returns a promise that resolves to true or
+false.</td>
         </tr>
 
     
@@ -532,7 +535,7 @@ synchronous function. If isAsync is true, func returns a promise.</td>
             <td class="type">
             
                 
-<span class="param-type">Boolean</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -543,8 +546,145 @@ synchronous function. If isAsync is true, func returns a promise.</td>
 
             
 
-            <td class="description last">Optional. Default is false. If set to true, this
-indicates that func returns a promise that should be executed.</td>
+            <td class="description last">Optional, defaults to false. If set to true, this
+indicates that func returns a promise.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="join"><span class="type-signature"></span>join(delimiter)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Join the objects in the working context by the given delimiter and return the
+result.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>delimiter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    '\n'
+                
+                </td>
+            
+
+            <td class="description last">The character used to join the s3 objects</td>
         </tr>
 
     
@@ -608,8 +748,7 @@ indicates that func returns a promise that should be executed.</td>
     
             
 <div class="param-desc">
-    Fulfilled when the mapper functions are done. Returns a
-list of keys that were operated over.
+    The joined body.
 </div>
 
 
@@ -637,12 +776,18 @@ list of keys that were operated over.
             
 <hr>
 <dt>
-    <h4 class="name" id="map"><span class="type-signature"></span>map(func, isAsync)</h4>
+    <h4 class="name" id="map"><span class="type-signature"></span>map(func, <span class="optional">isAsync</span>)</h4>
     
     
 </dt>
 <dd>
 
+    
+    <div class="description">
+        Maps a function over the objects in the working context, replaceing each
+with the return value.  If an output is specified, the objects will not be
+overwritten, but rather copied to the target location.
+    </div>
     
 
     
@@ -664,7 +809,11 @@ list of keys that were operated over.
         <th>Type</th>
 
         
+        <th>Argument</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -690,10 +839,24 @@ list of keys that were operated over.
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">This function takes an s3 object and returns the updated object.</td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The function to map over each object in the working
+context. Func takes the object as a parameter and returns the value that
+should replace it.</td>
         </tr>
 
     
@@ -714,11 +877,26 @@ list of keys that were operated over.
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">Whether the function is asynchronous (returns a
-promise).</td>
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">If set to true, this indicates that func is async and returns a promise.</td>
         </tr>
 
     
@@ -941,7 +1119,7 @@ promise).</td>
     </dt>
     <dd>
         
-<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
+<span class="param-type"><a href="BatchRequest.html">BatchRequest</a></span>
 
 
 
@@ -964,6 +1142,10 @@ promise).</td>
 </dt>
 <dd>
 
+    
+    <div class="description">
+        Reduce the objects in the working context to a single value.
+    </div>
     
 
     
@@ -1014,7 +1196,14 @@ promise).</td>
 
             
 
-            <td class="description last">The reducer function.</td>
+            <td class="description last">Function to execute on each value in the array, taking
+three arguments:
+  previousValue - The value previously returned in the last invocation of
+  func
+  currentValue  - The current entry being processed
+  key           - The key of the current object being processed
+  func either returns the updated value, or a promise that resolves to the
+  updated value.</td>
         </tr>
 
     
@@ -1027,7 +1216,7 @@ promise).</td>
             <td class="type">
             
                 
-<span class="param-type">Mixed</span>
+<span class="param-type">string</span>
 
 
 
@@ -1038,7 +1227,8 @@ promise).</td>
 
             
 
-            <td class="description last">The value to start with in `func`.</td>
+            <td class="description last">Optional.  Value to use as the first argument to
+the first call of func.</td>
         </tr>
 
     
@@ -1051,7 +1241,7 @@ promise).</td>
             <td class="type">
             
                 
-<span class="param-type">Boolean</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -1062,7 +1252,8 @@ promise).</td>
 
             
 
-            <td class="description last">Whether the function is asynchronous (returns a promise).</td>
+            <td class="description last">Optional, defaults to false. If set to true, this
+indicates that func returns a promise.</td>
         </tr>
 
     
@@ -1122,6 +1313,30 @@ promise).</td>
     
 
     
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    Returns the reduced result.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">promise</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -1163,6 +1378,8 @@ promise).</td>
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -1189,9 +1406,14 @@ promise).</td>
             
 
             
+                <td class="default">
+                
+                    '\n'
+                
+                </td>
+            
 
-            <td class="description last">The character to split the document objects by -
-Defaults to "\n"</td>
+            <td class="description last">The character to split the document objects by</td>
         </tr>
 
     
@@ -1266,7 +1488,7 @@ Defaults to "\n"</td>
     </dt>
     <dd>
         
-<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
+<span class="param-type"><a href="BatchRequest.html">BatchRequest</a></span>
 
 
 
@@ -1345,7 +1567,7 @@ themselves.
 
             
 
-            <td class="description last">The location to send the output of map or filter.</td>
+            <td class="description last">The location to send the output of map or filter</td>
         </tr>
 
     
@@ -1420,7 +1642,7 @@ themselves.
     </dt>
     <dd>
         
-<span class="param-type">Context</span>
+<span class="param-type"><a href="BatchRequest.html">BatchRequest</a></span>
 
 
 
@@ -1437,7 +1659,7 @@ themselves.
             
 <hr>
 <dt>
-    <h4 class="name" id="transform"><span class="type-signature"></span>transform(transform)</h4>
+    <h4 class="name" id="transform"><span class="type-signature"></span>transform(transformer)</h4>
     
     
 </dt>
@@ -1480,7 +1702,7 @@ themselves.
 
         <tr>
             
-                <td class="name"><code>transform</code></td>
+                <td class="name"><code>transformer</code></td>
             
 
             <td class="type">
@@ -1572,7 +1794,7 @@ themselves.
     </dt>
     <dd>
         
-<span class="param-type"><a href="BatchContext.html">BatchContext</a></span>
+<span class="param-type"><a href="BatchRequest.html">BatchRequest</a></span>
 
 
 
@@ -1633,7 +1855,7 @@ themselves.
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
 	
-		on 2016-01-01T23:45:36-05:00
+		on 2016-01-02T00:20:10-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

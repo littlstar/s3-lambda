@@ -18,14 +18,14 @@ const BatchContext = require('./BatchRequest');
 class S3renity {
 
   /**
-   * @param {Object} config - Options to initialize s3renity with. If `access_key_id`
+   * @param {Object} [config] - Options to initialize s3renity with. If `access_key_id`
    * and `secret_access_key` are left out, the aws sdk will attempt
    * to use the computer's default credentials.
-   * @param {String} [config.access_key_id=null] AWS Access Key
-   * @param {String} [config.secret_access_key=null] AWS Secret Key
-   * @param {Integer} [config.timeout=120] Timeout allowed for aws api requests
-   * @param {Integer} [config.maxRetries=30] Max retries allowed for aws api requets
-   * @param {Boolean} [config.verbose=false] Whether to use verbose mode when making requets
+   * @param {String} config.access_key_id=null AWS Access Key
+   * @param {String} config.secret_access_key=null AWS Secret Key
+   * @param {Integer} config.timeout=120 Timeout allowed for aws api requests
+   * @param {Integer} config.maxRetries=30 Max retries allowed for aws api requets
+   * @param {Boolean} config.verbose=false Whether to use verbose mode when making requets
    */
 
   constructor(config) {
@@ -56,9 +56,9 @@ class S3renity {
    *
    * @param {String} bucket The S3 bucket
    * @param {String} prefix The folder prefix for where the files are
-   * @param {String} marker Optional. A prefix that indicates where to start
-   * listing files alphabetically.
-   * @return {BatchContext}
+   * @param {String} [marker] A prefix that indicates where to start listing
+   * files alphabetically.
+   * @return {BatchRequest}
    */
 
   context(bucket, key, marker) {
