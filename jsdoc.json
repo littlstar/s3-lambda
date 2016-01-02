@@ -6,7 +6,9 @@
   "source": {
     "include": ["src/S3renity.js"]
   },
+  "package": "package.json",
   "opts": {
-    "destination": "docs"
+    "destination": "docs",
+    "readme": "README.md"
   }
 }

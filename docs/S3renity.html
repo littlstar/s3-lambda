@@ -99,7 +99,234 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">Options to initialize s3renity with. If `access_key_id`
+and `secret_access_key` are left out, the aws sdk will attempt
+to use the computer's default credentials.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>access_key_id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">AWS Access Key</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>secret_access_key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">AWS Secret Key</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    120
+                
+                </td>
+            
+
+            <td class="description last">Timeout allowed for aws api requests</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxRetries</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    30
+                
+                </td>
+            
+
+            <td class="description last">Max retries allowed for aws api requets</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>verbose</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">Whether to use verbose mode when making requets</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -140,7 +367,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line20">line 20</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line14">line 14</a>
     </li></ul></dd>
     
 
@@ -335,7 +562,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line57">line 57</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -553,7 +780,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line177">line 177</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line178">line 178</a>
     </li></ul></dd>
     
 
@@ -725,7 +952,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line202">line 202</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line203">line 203</a>
     </li></ul></dd>
     
 
@@ -901,7 +1128,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line229">line 229</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line230">line 230</a>
     </li></ul></dd>
     
 
@@ -1121,7 +1348,7 @@ files or weird formats.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line105">line 105</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
@@ -1274,7 +1501,7 @@ files or weird formats.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line91">line 91</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -1378,7 +1605,7 @@ files or weird formats.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line264">line 264</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line265">line 265</a>
     </li></ul></dd>
     
 
@@ -1578,7 +1805,7 @@ TODO(wells) don't do the second lookup if # results < 1000
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line304">line 304</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line305">line 305</a>
     </li></ul></dd>
     
 
@@ -1796,7 +2023,7 @@ TODO(wells) don't do the second lookup if # results < 1000
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line143">line 143</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -1950,7 +2177,7 @@ response from s3.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line67">line 67</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -2173,7 +2400,7 @@ the split over the object's body.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line381">line 381</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line382">line 382</a>
     </li></ul></dd>
     
 
@@ -2372,7 +2599,7 @@ the split over the object's body.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line347">line 347</a>
+        <a href="S3renity.js.html">S3renity.js</a>, <a href="S3renity.js.html#line348">line 348</a>
     </li></ul></dd>
     
 
@@ -2443,7 +2670,7 @@ response either from `fs` or s3.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 01 2016 21:54:00 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 01 2016 22:22:35 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

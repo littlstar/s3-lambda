@@ -1,10 +1,7 @@
 /**
- * Gives access to batch operations over s3 files, as well as a promised base
- * wrapper around the s3 api.
- *
+ * S3renity
  * @author Wells Johnston <wells@littlstar.com>
  */
-
 'use strict'
 
 const aws = require('aws-sdk');
@@ -13,14 +10,18 @@ const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
 const BatchContext = require('./BatchContext');
 
-/**
- * Class representing a s3renity instance.
- */
-
+/** Class representing a s3renity instance. */
 class S3renity {
 
   /**
-   * @param {Object} config
+   * @param {Object} config - Options to initialize s3renity with. If `access_key_id`
+   * and `secret_access_key` are left out, the aws sdk will attempt
+   * to use the computer's default credentials.
+   * @param {String} [config.access_key_id=null] AWS Access Key
+   * @param {String} [config.secret_access_key=null] AWS Secret Key
+   * @param {Integer} [config.timeout=120] Timeout allowed for aws api requests
+   * @param {Integer} [config.maxRetries=30] Max retries allowed for aws api requets
+   * @param {Boolean} [config.verbose=false] Whether to use verbose mode when making requets
    */
 
   constructor(config) {
