@@ -7,21 +7,24 @@
 class BatchRequest {
 
   /**
-   * Creates a new `BatchRequest` to perform batch operations with.
+   * Creates a new `BatchRequest` to perform batch operations with. You can
+   * either supply an s3 path s3://bucket/path/to/folder or a bucket and prefix
    *
-   * @param {String} key - A valid S3 key, which is used to generate the context
-   * for the batch operations
-   * @param {String} [marker] - The marker to start at when getting objects from `key`.
-   * @param {S3renity} s3renity - The s3renity instance to use in batch requests
+   * @param {S3renity} s3renity - The s3renity instance to use for batch requests
+   * @param {String} bucket - The bucket to use
+   * @param {String} prefix - The prefix (folder) to use
+   * @param {String} [marker] - The key to start at when getting objects
    */
 
-  constructor(key, marker, s3renity) {
-    let context = s3renity.resolveKey(key);
-    if (context.type != 's3') {
-      throw new Error('context must be valid s3 path');
+  constructor(s3renity, bucket, prefix, marker) {
+    let context = s3renity.resolveKey(bucket);
+    if (context.type == 's3') {
+      this.bucket = context.bucket;
+      this.prefix = context.prefix;
+    } else {
+      this.bucket = bucket;
+      this.prefix = key;
     }
-    this.bucket = context.bucket;
-    this.prefix = context.prefix;
     this.marker = marker;
     this.s3 = s3renity;
   }

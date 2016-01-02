@@ -7,28 +7,22 @@ const s = new s3renity({
   verbose: true
 });
 
+const bucket = 'ls-playground';
+const prefix = 's3renity-test';
+const fileName = 'test';
+const name = `${prefix}/${fileName}`;
+const body = 'hello world';
+
 test('put, list, get, delete', t => {
 
   t.plan(4);
 
-  let bucket = 'ls-playground';
-  let prefix = 's3renity-test';
-  let fileName = 'test';
-  let name = `${prefix}/${fileName}`;
-  let body = 'hello world';
-
   s.put(bucket, name, body).then(_ => {
-
     t.ok(true, 's3renity.put');
-
     s.list(bucket, prefix).then(keys => {
-
       t.ok(keys[0] == name, 's3renity.list');
-
       s.get(bucket, name).then(object => {
-
         t.ok(object == 'hello world', 's3renity.get');
-
         s.delete(bucket, name).then(_ => {
           s.list(bucket, prefix).then(keys => {
             t.ok(keys.length == 0, 's3renity.delete');
@@ -37,4 +31,12 @@ test('put, list, get, delete', t => {
       }).catch(console.error);
     }).catch(console.error);
   }).catch(console.error);
+});
+
+test('forEach', t => {
+  var str = '';
+  const func = obj => {
+    str += obj;
+  }
+  s.context(bucket, prefix)
 });

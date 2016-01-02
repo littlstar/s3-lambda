@@ -52,17 +52,16 @@ class S3renity {
   }
 
   /**
-   * Creates a new `BatchContext` for performing batch operations.
+   * Creates a new `BatchRequest` to perform batch operations with. You can
+   * either supply an s3 path s3://bucket/path/to/folder or a bucket and prefix
    *
-   * @param {String} bucket The S3 bucket
-   * @param {String} prefix The folder prefix for where the files are
-   * @param {String} [marker] A prefix that indicates where to start listing
-   * files alphabetically.
-   * @return {BatchRequest}
+   * @param {String} bucket - The bucket to use
+   * @param {String} prefix - The prefix (folder) to use
+   * @param {String} [marker] - The key to start at when getting objects
    */
 
   context(bucket, key, marker) {
-    return new BatchRequest(bucket, key, marker, this);
+    return new BatchRequest(this, bucket, key, marker);
   }
 
   /**
@@ -103,6 +102,8 @@ class S3renity {
   }
 
   /**
+   * Gets an object in s3.
+   *
    * @param {String} bucket - The bucket to get from
    * @param {String} key - The key of the object to get
    * @param {String} [encoding=utf8] - The encoding
