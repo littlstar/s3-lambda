@@ -207,7 +207,7 @@ class S3renity {
    *
    * @public
    * @param {String} bucket - The bucket
-   * @param {String|Array} key - The key to delete.  Optionally supply an array of keys to delete.
+   * @param {String|Array} key - The key to delete or an array of keys to delete
    * @returns {Promise}
    */
 
