@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * A `BatchRequest` enables you to set reusable conditions for batch requests.
+ * A `Context` enables you to chain set conditions for batch functions. Contexts are reusable.
  */
 
 class Context {
