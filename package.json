@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "node test",
-    "generate-docs": "node_modules/jsdoc/jsdoc.js src/S3renity.js -d docs -c jsdoc.json"
+    "generate-docs": "rm -rf docs/ && node_modules/jsdoc/jsdoc.js -c jsdoc.json"
   },
   "dependencies": {
     "aws-sdk": "^2.2.17"

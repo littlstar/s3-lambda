@@ -1,11 +1,11 @@
 'use strict'
 
+/** class representing a batch request */
 class BatchRequest {
 
   /**
-   * @constructor
-   * @param {Context} context The working context for the batch operation (contains
-   * bucket, prefix, marker, encoding, etc.
+   * Create a batch request.
+   * @param {Context} context - The working context for the batch operation.
    */
 
   constructor(context) {

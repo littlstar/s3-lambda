@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('tape');
-const s3renity = require(`${__dirname}/../src/`);
+const s3renity = require(`${__dirname}/../src/S3renity.js`);
 
 const s = new s3renity({
   verbose: true
