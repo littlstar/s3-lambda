@@ -14,10 +14,11 @@
     "generate-docs": "rm -rf docs/ && node_modules/jsdoc/jsdoc.js -c jsdoc.json"
   },
   "dependencies": {
-    "aws-sdk": "^2.2.17"
+    "aws-sdk": "^2.2.17",
+    "ink-docstrap": "^1.1.0",
+    "mock-aws-s3": "^2.0.0"
   },
   "devDependencies": {
-    "ink-docstrap": "^1.1.0",
     "jsdoc": "^3.4.0",
     "tape": "^4.4.0"
   }

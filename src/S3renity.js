@@ -5,6 +5,7 @@
 'use strict'
 
 const aws = require('aws-sdk');
+const awsM = require('mock-aws-s3');
 const fs = require('fs');
 const TYPE_S3 = 's3';
 const TYPE_FILE = 'file';
@@ -29,26 +30,37 @@ class S3renity {
    */
 
   constructor(config) {
-    if (config == null) {
-      config = {};
-    }
-    if (config.access_key_id && config.secret_access_key) {
-      aws.configig.update({
-        accessKeyId: config.access_key_id,
-        secretAccessKey: config.secret_access_key
-      });
-    }
-    let s3opts = {};
-    if (config.timeout) {
-      s3opts.httpOptions = {
-        timeout: config.timeout
-      };
-    }
-    if (config.maxRetries) {
-      s3opts.maxRetries = config.maxRetries;
-    }
-    this.s3 = new aws.S3(s3opts);
+    config = config || {};
     this.verbose = config.verbose || false;
+
+    if (config.local_path != null) {
+
+      // use local files (using mock aws sdk)
+      awsM.config.basePath = config.local_path;
+      this.s3 = new awsM.S3();
+    } else {
+
+      // use the aws sdk. attempt to use aws credentials in config.  if they
+      // are not present, the aws sdk could pick them up in ~/.aws/credentials
+      // or elsewhere
+      if (config.access_key_id && config.secret_access_key) {
+        aws.config.update({
+          accessKeyId: config.access_key_id,
+          secretAccessKey: config.secret_access_key
+        });
+      }
+
+      let s3opts = {};
+      if (config.timeout) {
+        s3opts.httpOptions = {
+          timeout: config.timeout
+        };
+      }
+      if (config.maxRetries) {
+        s3opts.maxRetries = config.maxRetries;
+      }
+      this.s3 = new aws.S3(s3opts);
+    }
   }
 
   /**

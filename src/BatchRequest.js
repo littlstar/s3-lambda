@@ -19,7 +19,7 @@ class BatchRequest extends Context {
    * @param {Function} func The function to perform over the working context
    * @param {Boolean} [isAsync=false] Set to true if `func` is async (returns a
    * Promise).
-   * @return {Promise}
+   * @returns {Promise}
    */
 
   forEach(func, isAsync) {
@@ -514,3 +514,5 @@ class BatchRequest extends Context {
     });
   }
 }
+
+module.exports = BatchRequest;

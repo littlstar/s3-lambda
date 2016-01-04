@@ -7,7 +7,7 @@
 class Context {
 
   /**
-   * Creates a new `BatchRequest` to perform batch operations with. You can
+   * Creates a new `Context` to perform batch operations with. You can
    * either supply an s3 path s3://bucket/path/to/folder or a bucket and prefix
    *
    * @param {S3renity} s3renity - The s3renity instance used for internal requests
@@ -33,7 +33,7 @@ class Context {
    * Sets the marker.
    *
    * @param {String} marker - The marker to start with for getting objects.
-   * @returns {BatchRequest} `this`
+   * @returns {Context} `this`
    */
 
   marker(marker) {
@@ -42,11 +42,11 @@ class Context {
   }
 
   /**
-   * Sets the encoding to use when getting s3 objects. If noe set, the
-   * default is 'utf8'.
+   * Sets the encoding to use when getting s3 objects with
+   * `object.Body.toString(encoding)`. If not set, 'utf8' is used.
    *
    * @param {String} encoding - The encoding
-   * @returns {BatchRequest} `this`
+   * @returns {Context} `this`
    */
 
   encode(encoding) {
@@ -55,10 +55,11 @@ class Context {
   }
 
   /**
-   * Sets a transformation function to use when getting objects from s3.
+   * Sets a transformation function to be used when getting objects from s3. If
+   * set, this takes precedence over using `this.encoding`.
    *
    * @param {Function} transformer - The function to use to transform the object.
-   * @returns {BatchRequest} `this`
+   * @returns {Context} `this`
    */
 
   transform(transformer) {
@@ -67,10 +68,12 @@ class Context {
   }
 
   /**
-   * Move the context from s3 objects to objects split by a delimiter.
+   * Split each s3 object by `delimiter` when getting them for batch operations.
+   * This effectively moves the working context to lines of text instead of s3
+   * objects.
    *
    * @param {String} delimiter='\n' The character to split the document objects by
-   * @returns {BatchRequest} `this`
+   * @returns {Context} `this`
    */
 
   split(delimiter) {
@@ -84,7 +87,7 @@ class Context {
    * themselves.
    *
    * @param {String} target - The location to send the output of map or filter
-   * @return {BatchRequest} `this`
+   * @return {Context} `this`
    */
 
   target(target) {
