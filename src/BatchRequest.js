@@ -3,10 +3,14 @@
 const Context = require('./Context');
 
 /**
- * Contains batch functions.
+ * Self-contained batch request object, created by {@link S3renity#context}.
  */
 
 class BatchRequest extends Context {
+
+  /**
+   * @extends Context
+   */
 
   constructor(s3renity, bucket, key, marker) {
     super(s3renity, bucket, key, marker);

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Documentation Class: BatchRequest</title>
+	<title>Documentation Class: Context</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -62,16 +62,16 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Class: BatchRequest</h1>
+	<h1 class="page-title">Class: Context</h1>
 <section>
 
 <header>
     
         <h2>
-        BatchRequest
+        Context
         </h2>
         
-            <div class="class-description">Self-contained batch request object, created by <a href="S3renity.html#context">S3renity#context</a>.</div>
+            <div class="class-description">A `Context` enables you to chain set conditions for batch functions. Contexts are reusable.</div>
         
     
 </header>
@@ -83,19 +83,182 @@
         
 <hr>
 <dt>
-    <h4 class="name" id="BatchRequest"><span class="type-signature"></span>new BatchRequest()</h4>
+    <h4 class="name" id="Context"><span class="type-signature"></span>new Context(s3renity, bucket, prefix, <span class="optional">marker</span>)</h4>
     
     
 </dt>
 <dd>
 
     
-
+    <div class="description">
+        Creates a new `Context` to perform batch operations with. You can
+either supply an s3 path s3://bucket/path/to/folder or a bucket and prefix
+    </div>
     
 
     
 
     
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>s3renity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="S3renity.html">S3renity</a></span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The s3renity instance used for internal requests</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>bucket</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The bucket to use</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>prefix</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The prefix (folder) to use</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>marker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The key to start at when getting objects</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -254,15 +417,6 @@
 	
 
 	
-	<dt class="inherited-from method-doc-label method-doc-details-label">Inherited From:</dt>
-	<dd class="inherited-from">
-		<ul class="dummy">
-			<li>
-				<a href="Context.html#encode">Context#encode</a>
-			</li>
-		</ul>
-	</dd>
-	
 
     
 
@@ -321,531 +475,6 @@
     <dd>
         
 <span class="param-type"><a href="Context.html">Context</a></span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="filter"><span class="type-signature"></span>filter(func, isAsync)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Filter the objects in the working context.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>func</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The function to filter objects by, returning true for
-objects that should not be filtered and false for those that should. If
-isAsync is set to true, func returns a promise that resolves to true or
-false.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isAsync</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Optional, defaults to false. If set to true, this
-indicates that func returns a promise.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="join"><span class="type-signature"></span>join(delimiter)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Join the objects in the working context by the given delimiter and return the
-result.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>delimiter</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                    '\n'
-                
-                </td>
-            
-
-            <td class="description last">The character used to join the s3 objects</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    The joined body.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="map"><span class="type-signature"></span>map(func, <span class="optional">isAsync</span>)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Maps a function over the objects in the working context, replaceing each
-with the return value.  If an output is specified, the objects will not be
-overwritten, but rather copied to the target location.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Argument</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>func</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">The function to map over each object in the working
-context. Func takes the object as a parameter and returns the value that
-should replace it.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isAsync</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-
-            <td class="description last">If set to true, this indicates that func is async and returns a promise.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
 
 
 
@@ -940,15 +569,6 @@ should replace it.</td>
 	
 
 	
-	<dt class="inherited-from method-doc-label method-doc-details-label">Inherited From:</dt>
-	<dd class="inherited-from">
-		<ul class="dummy">
-			<li>
-				<a href="Context.html#marker">Context#marker</a>
-			</li>
-		</ul>
-	</dd>
-	
 
     
 
@@ -1007,215 +627,6 @@ should replace it.</td>
     <dd>
         
 <span class="param-type"><a href="Context.html">Context</a></span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="reduce"><span class="type-signature"></span>reduce(func, initialValue, isAsync)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Reduce the objects in the working context to a single value.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>func</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Function to execute on each value in the array, taking
-three arguments:
-  previousValue - The value previously returned in the last invocation of
-  func
-  currentValue  - The current entry being processed
-  key           - The key of the current object being processed
-  func either returns the updated value, or a promise that resolves to the
-  updated value.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>initialValue</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Optional.  Value to use as the first argument to
-the first call of func.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isAsync</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Optional, defaults to false. If set to true, this
-indicates that func returns a promise.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    Returns the reduced result.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">promise</span>
 
 
 
@@ -1319,15 +730,6 @@ objects.
 
 	
 
-	
-	<dt class="inherited-from method-doc-label method-doc-details-label">Inherited From:</dt>
-	<dd class="inherited-from">
-		<ul class="dummy">
-			<li>
-				<a href="Context.html#split">Context#split</a>
-			</li>
-		</ul>
-	</dd>
 	
 
     
@@ -1483,15 +885,6 @@ themselves.
 	
 
 	
-	<dt class="inherited-from method-doc-label method-doc-details-label">Inherited From:</dt>
-	<dd class="inherited-from">
-		<ul class="dummy">
-			<li>
-				<a href="Context.html#target">Context#target</a>
-			</li>
-		</ul>
-	</dd>
-	
 
     
 
@@ -1644,15 +1037,6 @@ set, this takes precedence over using `this.encoding`.
 
 	
 
-	
-	<dt class="inherited-from method-doc-label method-doc-details-label">Inherited From:</dt>
-	<dd class="inherited-from">
-		<ul class="dummy">
-			<li>
-				<a href="Context.html#transform">Context#transform</a>
-			</li>
-		</ul>
-	</dd>
 	
 
     

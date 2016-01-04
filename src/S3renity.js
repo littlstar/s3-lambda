@@ -19,14 +19,14 @@ const BatchRequest = require('./BatchRequest');
 class S3renity {
 
   /**
-   * @param {Object} [config] - Options to initialize s3renity with. If `access_key_id`
-   * and `secret_access_key` are left out, the aws sdk will attempt
+   * @param {Object} config - Options to initialize s3renity with. If <code>access_key_id</code>
+   * and <code>secret_access_key</code> are left out, the aws sdk will attempt
    * to use the computer's default credentials.
-   * @param {String} config.access_key_id=null AWS Access Key
-   * @param {String} config.secret_access_key=null AWS Secret Key
-   * @param {Integer} config.timeout=120 Timeout allowed for aws api requests
-   * @param {Integer} config.maxRetries=30 Max retries allowed for aws api requets
-   * @param {Boolean} config.verbose=false Whether to use verbose mode when making requets
+   * @param {String} [config.access_key_id=null] AWS Access Key
+   * @param {String} [config.secret_access_key=null] AWS Secret Key
+   * @param {Integer} [config.timeout=120] Timeout allowed for aws api requests
+   * @param {Integer} [config.maxRetries=30] Max retries allowed for aws api requets
+   * @param {Boolean} [config.verbose=false] Whether to use verbose mode when making requets
    */
 
   constructor(config) {
@@ -64,12 +64,13 @@ class S3renity {
   }
 
   /**
-   * Creates a new `BatchRequest` to perform batch operations with. You can
-   * either supply an s3 path s3://bucket/path/to/folder or a bucket and prefix
+   * Creates a new {@link BatchRequest} context to perform batch operations with. You can
+   * either supply an s3 path like <code>s3://bucket/path/to/folder</code> or a bucket and prefix
    *
    * @param {String} bucket - The bucket to use
    * @param {String} prefix - The prefix (folder) to use
-   * @param {String} [marker] - The key to start at when getting objects
+   * @param {String} [marker] - The key to start from
+   * @returns {BatchRequest} A new batch request.
    */
 
   context(bucket, key, marker) {
