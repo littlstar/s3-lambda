@@ -1,5 +1,5 @@
 ## S3renity
-A powerful toolbelt for batch operations in S3.  S3renity provides `forEach`, `map`, `reduce`, `filter`, as well as a friendly promise-based wrapper around the S3 api.  
+Promise-based S3 toolbelt that enables you to manipulate S3 objects with `forEach`, `map`, `reduce`, and `filter`.  
 
 - Quickly prototype MapReduce jobs
 - Clean or organize dirty log files
