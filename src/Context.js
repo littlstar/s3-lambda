@@ -33,7 +33,7 @@ class Context {
    * Sets the marker.
    *
    * @param {String} marker - The marker to start with for getting objects.
-   * @returns {Context} `this`
+   * @returns {Context} <code>this</code>
    */
 
   marker(marker) {
@@ -46,7 +46,7 @@ class Context {
    * `object.Body.toString(encoding)`. If not set, 'utf8' is used.
    *
    * @param {String} encoding - The encoding
-   * @returns {Context} `this`
+   * @returns {Context} <code>this</code>
    */
 
   encode(encoding) {
@@ -59,7 +59,7 @@ class Context {
    * set, this takes precedence over using `this.encoding`.
    *
    * @param {Function} transformer - The function to use to transform the object.
-   * @returns {Context} `this`
+   * @returns {Context} <code>this</code>
    */
 
   transform(transformer) {
@@ -73,7 +73,7 @@ class Context {
    * objects.
    *
    * @param {String} delimiter='\n' The character to split the document objects by
-   * @returns {Context} `this`
+   * @returns {Context} <code>this</code>
    */
 
   split(delimiter) {
@@ -87,7 +87,7 @@ class Context {
    * themselves.
    *
    * @param {String} target - The location to send the output of map or filter
-   * @return {Context} `this`
+   * @return {Context} <code>this</code>
    */
 
   target(target) {

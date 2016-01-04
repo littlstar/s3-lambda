@@ -23,7 +23,7 @@ class BatchRequest extends Context {
    * @param {Function} func The function to perform over the working context
    * @param {Boolean} [isAsync=false] Set to true if `func` is async (returns a
    * Promise).
-   * @returns {Promise}
+   * @return {Promise}
    */
 
   forEach(func, isAsync) {
@@ -122,7 +122,7 @@ class BatchRequest extends Context {
    * context. Func takes the object as a parameter and returns the value that
    * should replace it.
    * @param {Boolean} [isAsync=false] If set to true, this indicates that func is async and returns a promise.
-   * @returns {Promise}
+   * @return {Promise}
    */
 
   map(func, isAsync) {

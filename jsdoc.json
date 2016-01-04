@@ -12,7 +12,12 @@
     "readme": "README.md"
   },
   "templates": {
+    "systemName": "S3renity",
+    "footer": "Little Star Media, 2015",
+    "includeDate": true,
     "theme": "cosmo",
-    "navType": "vertical"
+    "inverseNav": false,
+    "navType": "inline",
+    "sort": false
   }
 }
