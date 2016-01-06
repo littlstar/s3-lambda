@@ -64,13 +64,15 @@ class S3renity {
   }
 
   /**
-   * Creates a new {@link BatchRequest} context to perform batch operations with. You can
-   * either supply an s3 path like <code>s3://bucket/path/to/folder</code> or a bucket and prefix
+   * Creates a new {@link BatchRequest} context to perform batch operations
+   * with. You can either supply an s3 path like <code>s3://bucket/path/to/folder</code>
+   * or a bucket and prefix.
    *
-   * @param {String} bucket - The bucket to use
-   * @param {String} prefix - The prefix (folder) to use
+   * @param {String} bucket - The bucket to use, or a valid s3 path
+   * @param {String} prefix - The prefix (folder) to use. Leave null if you
+   * gave an s3 path
    * @param {String} [marker] - The key to start from
-   * @returns {BatchRequest} A new batch request.
+   * @returns {BatchRequest} A new batch request instance.
    */
 
   context(bucket, key, marker) {
@@ -78,11 +80,21 @@ class S3renity {
   }
 
   /**
-   * Resolves a key into a s3 file path. TODO(wells) used?
+   * @ignore
+   * @typedef Target
+   * @type Object
+   * @property {String} bucket The target bucket
+   * @property {String} prefix The target prefix
+   * @property {String} file The local file, if any
+   * @property {String} type 's3' or 'file'
+   */
+
+  /**
+   * Resolves a key into a s3 file path.
    *
    * @private
    * @param {String} key An s3 key or local file path
-   * @return {Object} An object wity keys: bucket, prefix, file, and type
+   * @return {Target} The target object.
    */
 
   resolveKey(key) {
@@ -192,10 +204,10 @@ class S3renity {
    * Copies an object in S3.
    *
    * @public
-   * @param {String} bucket The source bucket.
-   * @param {String} key The source key.
-   * @param {String} targetBucket The target bucket.
-   * @param {String} targetKey The target key.
+   * @param {String} bucket The source bucket
+   * @param {String} key The source key
+   * @param {String} targetBucket The target bucket
+   * @param {String} targetKey The target key
    * @return {Promise}
    */
 
@@ -209,7 +221,7 @@ class S3renity {
         if (err) {
           fail(err);
         } else {
-          success(res);
+          success();
         }
       });
     });
@@ -221,7 +233,7 @@ class S3renity {
    * @public
    * @param {String} bucket - The bucket
    * @param {String|Array} key - The key to delete or an array of keys to delete
-   * @returns {Promise}
+   * @returns {Promise} The key (or array of keys) that was deleted.
    */
 
   delete(bucket, key) {
@@ -236,7 +248,7 @@ class S3renity {
         if (err) {
           fail(err);
         } else {
-          success(res);
+          success(key);
           if (this.verbose) {
             console.info(`DELETE OBJECT s3://${bucket}/${key}`);
           }
@@ -246,17 +258,17 @@ class S3renity {
   }
 
   /**
-   * Deletes a list of objects in S3
+   * Deletes a list of objects in S3.
    *
    * @private
-   * @param {String} bucket The s3 bucket to use
-   * @param {Array} keys The keys of the objects to delete
-   * @returns {Promise} Fulfilled when objects are deleted. Returns response.
+   * @param {String} bucket - The s3 bucket to use
+   * @param {Array} keys - The keys of the objects to delete
+   * @returns {Promise}
    */
 
   deleteObjects(bucket, keys) {
     return new Promise((success, fail) => {
-      // creates input with format: { Key: key }
+      // creates input with format: { Key: key } required by s3
       let input = [];
       keys.forEach((key, i, arr) => {
         input.push({
@@ -290,7 +302,7 @@ class S3renity {
    * @param {String} bucket - The bucket
    * @param {String} prefix - The prefix for the folder to list keys for
    * @param {String} [marker] - The key to start listing from, alphabetically
-   * @returns {Promise} Array containing all the keys in `s3://bucket/prefix`
+   * @returns {Promise} an array containing all the keys in <code>s3://<bucket>/<prefix></code>.
    */
 
   list(bucket, prefix, marker) {
@@ -327,16 +339,14 @@ class S3renity {
    * TODO(wells) don't do the second lookup if # results < 1000
    *
    * @private
-   * @param {String} bucket - The bucket to get the keys from.
-   * @param {String} prefix - The prefix for the folder where the keys are.
-   * @param {String} marker - Optional. The key to start listing from.
+   * @param {String} bucket - The bucket to get the keys from
+   * @param {String} prefix - The prefix for the folder where the keys are
+   * @param {String} [marker] - The key to start listing from
    * @returns {Promise}
    */
 
   listObjects(bucket, prefix, marker) {
-    if (marker == null) {
-      marker = '';
-    }
+    marker = marker || '';
     return new Promise((success, fail) => {
       if (prefix[prefix.length - 1] != '/') {
         prefix += '/';
@@ -369,21 +379,17 @@ class S3renity {
    * Splits an S3 object by a delimiter.
    *
    * @private
-   * @param {String} bucket - The s3 bucket to use.
-   * @param {String} key - The key to the object.
+   * @param {String} bucket - The s3 bucket to use
+   * @param {String} key - The key to the object
    * @param {String} delimiter - Optional, default is \n. The character to use in
-   * the split over the object's body.
-   * @param {String} encoding - Optional, default is utf8.
-   * @returns {Promise} An array that is the split of the object.
+   * the split over the object's body
+   * @param {String} encoding - Optional, default is utf8
+   * @returns {Promise} An array that is the split object.
    */
 
   splitObject(bucket, key, delimiter, encoding) {
-    if (delimiter == null) {
-      delimiter = '\n';
-    }
-    if (encoding == null) {
-      encoding = 'utf8';
-    }
+    delimiter = delimiter || '\n';
+    encoding = encoding || 'utf8'
     return new Promise((success, fail) => {
       this.get(bucket, key, encoding).then(body => {
         if (body == '') {

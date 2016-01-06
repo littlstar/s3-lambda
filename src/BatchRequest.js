@@ -10,10 +10,14 @@ class BatchRequest extends Context {
 
   /**
    * @extends Context
+   * @param {S3renity} s3 - The S3renity instance to use for making s3 requests
+   * @param {String} bucket The bucket
+   * @param {String} key The key
+   * @param {String} [marker] The key to start from
    */
 
-  constructor(s3renity, bucket, key, marker) {
-    super(s3renity, bucket, key, marker);
+  constructor(s3, bucket, key, marker) {
+    super(s3, bucket, key, marker);
   }
 
   /**
@@ -23,25 +27,37 @@ class BatchRequest extends Context {
    * @param {Function} func The function to perform over the working context
    * @param {Boolean} [isAsync=false] Set to true if `func` is async (returns a
    * Promise).
-   * @return {Promise}
+   * @returns {Promise<string>} The last key iterated over.
    */
 
   forEach(func, isAsync) {
 
-    if (isAsync == null) {
-      isAsync = false;
-    }
+    isAsync = isAsync || false;
+    var self = this;
 
-    const _eachObject = (keys, callback) => {
+    return new Promise((success, fail) => {
+      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
+        var lastKey = keys[keys.length - 1];
+        iterateObjectsRecurvive(keys, err => {
+          if (err) {
+            fail(err);
+          } else {
+            success(lastKey);
+          }
+        });
+      }).catch(fail);
+    });
+
+    function iterateObjectsRecurvive(keys, callback) {
       if (keys.length == 0) {
         callback(null);
         return;
       }
       const key = keys.shift();
-      this.s3.get(this.bucket, key).then(body => {
+      self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
           func(body).then(_ => {
-            _eachObject(keys, callback);
+            iterateObjectsRecurvive(keys, callback);
           }).catch(callback);
         } else {
           try {
@@ -50,66 +66,10 @@ class BatchRequest extends Context {
             callback(e);
             return;
           }
-          _eachObject(keys, callback);
+          iterateObjectsRecurvive(keys, callback);
         }
       }).catch(callback);
-    };
-
-    const _splitObjects = (keys, callback) => {
-      if (keys.length == 0) {
-        callback(null);
-        return;
-      }
-      const key = keys.shift();
-      this.s3.splitObject(this.bucket, key, this.delimiter, this.encoding)
-        .then(entries => {
-          _eachSplit(entries).then(_ => {
-            _splitObjects(keys, callback);
-          }).catch(callback);
-        }).catch(callback);
-    };
-
-    const _eachSplit = entries => {
-      return new Promise((success, fail) => {
-        if (isAsync) {
-          let updates = [];
-          entries.forEach(entry => {
-            updates.push(func(entry));
-          });
-          Promise.all(updates).then(success).catch(fail);
-        } else {
-          try {
-            entries.forEach(func);
-            success();
-          } catch (err) {
-            fail(err);
-          }
-        }
-      });
-    };
-
-    return new Promise((success, fail) => {
-      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        var lastKey = keys[keys.length - 1];
-        if (this.delimiter == null) {
-          _eachObject(keys, err => {
-            if (err) {
-              fail(err);
-            } else {
-              success(lastKey);
-            }
-          });
-        } else {
-          _splitObjects(keys, err => {
-            if (err) {
-              fail(err);
-            } else {
-              success(lastKey);
-            }
-          });
-        }
-      }).catch(fail);
-    });
+    }
   }
 
   /**
@@ -119,119 +79,77 @@ class BatchRequest extends Context {
    *
    * @public
    * @param {Function} func The function to map over each object in the working
-   * context. Func takes the object as a parameter and returns the value that
-   * should replace it.
+   * context. <code>func</code> takes a string as a parameter and should return a
+   * string that will replace the given s3 object.
    * @param {Boolean} [isAsync=false] If set to true, this indicates that func is async and returns a promise.
    * @return {Promise}
    */
 
   map(func, isAsync) {
 
-    if (isAsync == null) {
-      isAsync = false;
-    }
+    isAsync = isAsync || false;
+    var index = 0;
+    var self = this;
 
-    const isSplit = this.delimiter != null;
+    return new Promise((success, fail) => {
+      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
+        var lastKey = keys[keys.length - 1];
+        mapObjects(keys, err => {
+          if (err) {
+            fail(err);
+          } else {
+            success(lastKey);
+          }
+        });
+      }).catch(fail);
+    });
 
-    const _mapObject = (keys, callback) => {
+    function mapObjects(keys, callback) {
       if (keys.length == 0) {
         callback(null);
         return;
       }
-      let key = keys.shift();
-      this.s3.get(this.bucket, key).then(body => {
+      var key = keys.shift();
+      self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body)
-            .then(newBody => _output(key, newBody, keys, callback))
+          func(body, index)
+            .then(newBody => {
+              index++;
+              outputMapResult(key, newBody, keys, callback);
+            })
             .catch(callback);
         } else {
           try {
-            let newBody = func(body);
-            _output(key, newBody, keys, callback);
+            var newBody = func(body, index);
           } catch (e) {
             callback(e);
             return;
           }
+          index++;
+          outputMapResult(key, newBody, keys, callback);
         }
       }).catch(callback);
-    };
+    }
 
-    const _splitObjects = (keys, callback) => {
-      if (keys.length == 0) {
-        callback(null);
-        return;
+    function outputMapResult(key, body, keys, callback) {
+      if (body == null) {
+        throw new Error('your mapper function must return a value');
       }
-      let key = keys.shift();
-      this.s3.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
-        entries => {
-          _mapSplit(entries).then(newEntries => {
-            let newBody = newEntries.join(this.delimiter);
-            _output(key, newBody, keys, callback);
-          }).catch(callback);
-        }).catch(callback);
-    };
-
-    const _mapSplit = entries => {
-      return new Promise((success, fail) => {
-        if (isAsync) {
-          let entryUpdates = [];
-          entries.forEach(entry => {
-            entryUpdates.push(func(entry));
-          });
-          Promise.all(entryUpdates).then(success).catch(fail);
-        } else {
-          try {
-            success(entries.map(func));
-          } catch (err) {
-            fail(err);
-          }
-        }
-      });
-    };
-
-    const _output = (key, body, keys, callback) => {
-      if (this.target != null) {
-        this
-          .put(this.target.bucket, this.target.prefix + this.s3.getFileName(key), body)
-          .then(_ => _continue(keys, callback))
+      if (self.target != null) {
+        let filename = self.s3.getFileName(key);
+        let targetKey = `${self.target.prefix}${filename}`;
+        self.s3
+          .put(self.target.bucket, targetKey, body, self.encoding)
+          .then(() => mapObjects(keys, callback))
           .catch(callback);
       } else {
-        this.put(this.bucket, key, body)
-          .then(_ => _continue(keys, callback))
+        console.log(self.bucket, key, body, self.encoding);
+        self.s3
+          .put(self.bucket, key, body, self.encoding)
+          .then(() => mapObjects(keys, callback))
           .catch(callback);
       }
-    };
-
-    const _continue = (keys, callback) => {
-      if (isSplit) {
-        _splitObjects(keys, callback);
-      } else {
-        _mapObject(keys, callback);
-      }
-    };
-
-    return new Promise((success, fail) => {
-      this.list().then(keys => {
-        var lastKey = keys[keys.length - 1];
-        if (isSplit) {
-          _mapObject(keys, err => {
-            if (err) {
-              fail(err);
-            } else {
-              success(lastKey);
-            }
-          });
-        } else {
-          _splitObjects(keys, err => {
-            if (err) {
-              fail(err)
-            } else {
-              success(lastKey);
-            }
-          });
-        }
-      }).catch(fail);
-    });
+    }
   }
 
   /**
@@ -254,91 +172,39 @@ class BatchRequest extends Context {
 
   reduce(func, initialValue, isAsync) {
 
-    if (isAsync == null) {
-      isAsync = false;
-    }
-
+    isAsync = isAsync || false;
     var value = initialValue;
 
-    const _reduceObjects = (keys, callback) => {
+    return new Promise((success, fail) => {
+      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
+        reduceObjects(keys, (err, result) => {
+          if (err) {
+            fail(err);
+          } else {
+            success(result);
+          }
+        });
+      }).catch(fail);
+    });
+
+    function reduceObjects(keys, callback) {
       if (keys.length == 0) {
         callback(null, value);
         return;
       }
       let key = keys.shift();
-      this.get(this.bucket, key).then(body => {
+      self.get(self.bucket, key).then(body => {
         if (isAsync) {
           func(value, body, key).then(newValue => {
             value = newValue;
-            _reduceObjects(keys, callback);
+            reduceObjects(keys, callback);
           }).catch(e => callback(e, null));
         } else {
           value = func(value, body, key);
-          _reduceObjects(keys, callback);
+          reduceObjects(keys, callback);
         }
       }).catch(e => callback(e, null));
-    };
-
-    const _splitAndReduceObjects = (keys, callback) => {
-      if (keys.length == 0) {
-        callback(null, value);
-        return;
-      }
-      key = keys.shift();
-      this.splitObject(this.bucket, key, this.delimiter, this.encoding).then(
-        entries => {
-          _reduceSplitEntries(key, entries, err => {
-            if (err) {
-              callback(err, null);
-              return;
-            }
-            _splitAndReduceObjects(keys, callback);
-          });
-        }).catch(e => callback(e, null));
-    };
-
-    const _reduceSplitEntries = (key, entries, done) => {
-      if (entries.length == 0) {
-        done();
-        return;
-      }
-      let entry = entries.shift();
-      if (isAsync) {
-        func(value, entry, key).then(newValue => {
-          value = newValue;
-          _reduceSplitEntries(key, entries, done);
-        }).catch(done);
-      } else {
-        try {
-          value = func(value, entry, key);
-          _reduceSplitEntries(key, entries, done);
-        } catch (e) {
-          done(e);
-        }
-      }
-    };
-
-    return new Promise((success, fail) => {
-      this.list().then(keys => {
-        if (this.delimiter == null) {
-          _reduceObjects(keys, (err, result) => {
-            if (err) {
-              fail(err);
-            } else {
-              success(result);
-            }
-          });
-        } else {
-          _splitAndReduceObjects(keys, (err, result) => {
-            if (err) {
-              fail(err);
-            } else {
-              success(result);
-            }
-          });
-        }
-      }).catch(fail);
-    });
+    }
   }
 
   /**
@@ -355,21 +221,31 @@ class BatchRequest extends Context {
 
   filter(func, isAsync) {
 
-    if (isAsync == null) {
-      isAsync = false;
-    }
-
+    isAsync = isAsync || false;
     var removeObjects = [];
     var keepObjects = [];
+    var self = this;
+
+    return new Promise((success, fail) => {
+      this.list(this.bucket, this.prefix, this.marker).then(keys => {
+        filterObjects(keys, err => {
+          if (err) {
+            fail(err);
+          } else {
+            success();
+          }
+        });
+      }).catch(fail);
+    });
 
     // recursively get all objects and run filter function
-    const _filterObjects = (keys, callback) => {
+    function filterObjects(keys, callback) {
       if (keys.length == 0) {
-        _finish(callback);
+        finish(callback);
         return;
       }
       let key = keys.shift();
-      this.get(this.bucket, key).then(body => {
+      self.get(self.bucket, key).then(body => {
         if (isAsync) {
           func(body).then(result => {
             checkResult(result);
@@ -378,7 +254,7 @@ class BatchRequest extends Context {
             } else {
               removeObjects.push(key);
             }
-            _filterObjects(keys, callback);
+            filterObjects(keys, callback);
           }).catch(callback);
         } else {
           try {
@@ -393,105 +269,34 @@ class BatchRequest extends Context {
           } else {
             removeObjects.push(key);
           }
-          _filterObjects(keys, callback);
+          filterObjects(keys, callback);
         }
       }).catch(callback);
-    };
+    }
 
-    const _finish = callback => {
-      if (this.hasTarget) {
+    // output result to `target` or filter results destructively
+    function finish(callback) {
+      if (self.hasTarget) {
         let promises = [];
         keepObjects.forEach(key => {
-          let fileName = this.s3.getFileName(key);
-          promises.push(this.copy(this.bucket, key, this.targetBucket, this.targetPrefix + fileName));
+          let fileName = self.s3.getFileName(key);
+          promises.push(self.copy(self.bucket, key, self.targetBucket, self.targetPrefix + fileName));
         });
         Promise.all(promises).then(_ => {
-          callback();
+          callback(null);
         }).catch(callback);
       } else {
-        this.delete(this.bucket, removeObjects).then(_ => {
+        self.delete(self.bucket, removeObjects).then(_ => {
           callback(null);
         }).catch(callback);
       }
-    };
+    }
 
-    const _splitObjects = (keys, callback) => {
-      if (keys.length == 0) {
-        callback(null);
-        return;
-      }
-      let key = keys.shift();
-      this.splitObject(this.bucket, key, this.delimiter, this.encoding)
-        .then(entries => {
-          _filterSplitObject(entries).then(newEntries => {
-            var targetBucket, targetKey;
-            let newBody = newEntries.join(this.delimiter);
-            if (this.hasTarget) {
-              targetBucket = this.targetBucket;
-              targetKey = this.targetPrefix + this.s3.getFileName(key);
-            } else {
-              targetBucket = this.bucket;
-              targetKey = key;
-            }
-            this.put(targetBucket, targetKey, newBody).then(_ => {
-              _splitObjects(keys, callback);
-            }).catch(callback);
-          }).catch(callback);
-        }).catch(callback);
-    };
-
-    // runs the filter function on a split (containing entries)
-    const _filterSplitObject = entries => new Promise((success, fail) => {
-      if (isAsync) {
-        promises = [];
-        entries.forEach(entry => {
-          promises.push(func(entry));
-        });
-        Promise.all(promises).then(results => {
-          let newSplitEntries = [];
-          results.forEach((pass, i) => {
-            if (pass) {
-              newSplitEntries.push(entries[i]);
-            }
-            success(newSplitEntries);
-          });
-        }).catch(fail);
-      } else {
-        try {
-          success(entries.filter(func));
-        } catch (err) {
-          fail(err);
-        }
-      }
-    });
-
-    const checkResult = result => {
+    function checkResult(result) {
       if (typeof result != 'boolean') {
         throw new TypeError('Filter function must return a boolean');
       }
-    };
-
-    return new Promise((success, fail) => {
-      this.list().then(keys => {
-        if (this.delimiter == null) {
-          _filterObjects(keys, err => {
-            if (err) {
-              fail(err);
-            } else {
-              success();
-            }
-          });
-        } else {
-          _splitObjects(keys, err => {
-            if (err) {
-              fail(err);
-            } else {
-              success();
-            }
-          });
-        }
-      }).catch(fail);
-    });
+    }
   }
 
   /**
@@ -504,9 +309,9 @@ class BatchRequest extends Context {
    */
 
   join(delimiter) {
-    if (delimiter == null) delimiter = '\n';
+    delimiter = delimiter || '\n';
     return new Promise((success, fail) => {
-      this.list().then(keys => {
+      this.list(this.bucket, this.prefix, this.marker).then(keys => {
         let getPromises = [];
         keys.forEach(key => {
           getPromises.push(this.get(this.bucket, key));
