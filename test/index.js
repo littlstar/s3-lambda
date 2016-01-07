@@ -39,10 +39,8 @@ test('s3renity.put, s3renity.list, s3renity.get, s3renity.delete', t => {
       t.ok(keys[0] == name, 's3renity.list');
       s.get(bucket, name).then(object => {
         t.ok(object == 'hello world', 's3renity.get');
-        console.log(bucket, name);
         s.delete(bucket, name).then(_ => {
           s.list(bucket, prefix).then(keys => {
-            console.log(keys);
             t.ok(keys.length == 0, 's3renity.delete');
           }).catch(console.error);
         }).catch(console.error);
@@ -98,32 +96,21 @@ test('context.map sync & async', t => {
     s.list(bucket, prefix).then(keys => {
       keys.forEach(key => {
         s.get(bucket, key).then(result => {
-          var num = result.slice(-1);
-          console.log(num);
-          console.log('result', result);
+          var num = key.slice(-1);
+          t.ok(result == 'hello world ' + num, 's3renity.map()');
         }).catch(e => console.log(e.stack));
       })
     }).catch(e => console.log(e.stack));
   }).catch(e => console.log(e.stack));
-
-  // let sum2 = '';
-  // s.context(bucket, prefix).map(line => {
-  //   return new Promise((success, fail) => {
-  //     sum2 += line;
-  //     success();
-  //   });
-  // }, true).then(_ => {
-  //   t.ok(sum2 == answer, `s.context.forEach(func, true) - async`);
-  // }).catch(console.error);
 });
 
 test('s3renity.delete(bucket, [target1, target2, target3])', t => {
-  // t.plan(1);
-  // s.list(bucket, prefix).then(keys => {
-  //   s.delete(bucket, keys).then(_ => {
-  //     s.list(bucket, prefix).then(keys => {
-  //       t.ok(keys.length == 0, 's3renity.delete([key, key2, key3])')
-  //     }).catch(console.error);
-  //   }).catch(console.error);
-  // });
+  t.plan(1);
+  s.list(bucket, prefix).then(keys => {
+    s.delete(bucket, keys).then(_ => {
+      s.list(bucket, prefix).then(keys => {
+        t.ok(keys.length == 0, 's3renity.delete([key, key2, key3])')
+      }).catch(console.error);
+    }).catch(console.error);
+  });
 });
