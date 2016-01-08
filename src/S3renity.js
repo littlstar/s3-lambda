@@ -75,9 +75,10 @@ class S3renity {
    * @returns {BatchRequest} A new batch request instance.
    */
 
-  context(bucket, key, marker) {
+  context(bucket, prefix, marker) {
     marker = marker || '';
-    return new BatchRequest(this, bucket, key, marker);
+    prefix = prefix[prefix.length-1] == '/' ? prefix : prefix + '/';
+    return new BatchRequest(this, bucket, prefix, marker);
   }
 
   /**
@@ -287,7 +288,6 @@ class S3renity {
         } else {
           success(res);
           if (this.verbose) {
-            console.info('DELETE OBJECTS');
             keys.forEach(key => {
               console.info(`s3://${bucket}/${key}`);
             });
@@ -309,9 +309,7 @@ class S3renity {
   list(bucket, prefix, marker) {
 
     let self = this;
-    if (marker == null) {
-      marker = '';
-    }
+    marker = marker || '';
 
     return new Promise((success, fail) => {
       listRecursive(marker, success, fail);
@@ -349,9 +347,6 @@ class S3renity {
   listObjects(bucket, prefix, marker) {
     marker = marker || '';
     return new Promise((success, fail) => {
-      if (prefix[prefix.length - 1] != '/') {
-        prefix += '/';
-      }
       this.s3.listObjects({
         Bucket: bucket,
         Prefix: prefix,

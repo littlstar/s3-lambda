@@ -9,13 +9,14 @@ const s = new s3renity({
 
 const bucket = 'ls-playground';
 const prefix = 's3renity-test';
+const outputPrefix = 's3renity-test2';
 const fileName = 'test';
 const name = `${prefix}/${fileName}`;
 const body = 'hello world';
 
 test('clean up', t => {
-  t.plan(1);
-  s.list(bucket, prefix).then(keys => {
+  t.plan(2);
+  s.list(bucket, prefix + '/').then(keys => {
     if (keys.length == 0) {
       t.ok(true, '(nothing to do)');
     } else {
@@ -24,7 +25,18 @@ test('clean up', t => {
       }).catch(console.error);
     }
   }).catch(e => {
-    t.ok(true, '(nothing to do)');
+    console.log(e);
+  });
+  s.list(bucket, outputPrefix + '/').then(keys => {
+    if (keys.length == 0) {
+      t.ok(true, '(nothing to do)');
+    } else {
+      s.delete(bucket, keys).then(() => {
+        t.ok(true, 's3renity.delete');
+      }).catch(console.error);
+    }
+  }).catch(e => {
+    console.log(e);
   });
 });
 
@@ -36,6 +48,7 @@ test('s3renity.put, s3renity.list, s3renity.get, s3renity.delete', t => {
   s.put(bucket, name, body).then(_ => {
     t.ok(true, 's3renity.put');
     s.list(bucket, prefix).then(keys => {
+      console.log(keys[0], name);
       t.ok(keys[0] == name, 's3renity.list');
       s.get(bucket, name).then(object => {
         t.ok(object == 'hello world', 's3renity.get');
@@ -91,15 +104,12 @@ test('map sync', t => {
   t.plan(3);
 
   s.context(bucket, prefix).map((line, i) => {
-    console.log(line, i);
     return line + i;
   }).then(_ => {
     s.list(bucket, prefix).then(keys => {
       keys.forEach(key => {
-        console.log(key);
         s.get(bucket, key).then(result => {
           var num = key.slice(-1);
-          console.log(result);
           t.ok(result.trim() == 'hello world ' + String(num) + '' + String(num - 1), 's3renity.map sync');
         }).catch(e => console.log(e.stack));
       })
@@ -124,6 +134,35 @@ test('map async', t => {
     }).catch(e => console.log(e.stack));
   }).catch(e => console.log(e.stack));
 })
+
+test('map with output', t => {
+  t.plan(4);
+  var count = 0;
+  s.context(bucket, prefix)
+    .output(bucket, outputPrefix)
+    .map((line, i) => {
+      return new Promise((success, fail) => {
+        success(line + i);
+      });
+    }, true).then(_ => {
+      s.list(bucket, outputPrefix).then(keys => {
+        keys.forEach(key => {
+          s.get(bucket, key).then(result => {
+            var num = key.slice(-1);
+            t.ok(result.trim() == 'hello world ' + String(num) + String(num - 1) + String(num - 1) + String(num - 1), 's3renity.map with output ' + count);
+            count++;
+            if (count == 3) {
+              s.list(bucket, outputPrefix).then(keys => {
+                s.delete(bucket, keys).then(() => {
+                  t.ok(true, 's3renity.delete');
+                }).catch(console.error);
+              })
+            }
+          }).catch(e => console.log(e.stack));
+        });
+      }).catch(e => console.log(e.stack));
+    }).catch(e => console.log(e.stack));
+});
 
 test('reduce sync', t => {
   t.plan(1);
@@ -186,5 +225,33 @@ test('filter async', t => {
       var answer = ['s3renity-test/test1', 's3renity-test/test3'];
       t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter');
     }).catch(e => console.log(e.stack));
+  }).catch(e => console.log(e.stack));
+});
+
+test('filter with output', t => {
+  t.plan(1);
+  s.context(bucket, prefix)
+    .output(bucket, outputPrefix)
+    .filter(obj => {
+      if (obj == 'hello world 211') {
+        return false;
+      } else {
+        return true;
+      }
+    }).then(() => {
+      s.list(bucket, outputPrefix).then(keys => {
+        var answer = ['s3renity-test2/test1', 's3renity-test2/test3'];
+        t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter with output');
+      }).catch(e => console.log(e.stack));
+    }).catch(e => console.log(e.stack));
+});
+
+test('join', t => {
+  t.plan(1);
+  s.context(bucket, prefix)
+  .join('\n')
+  .then(result => {
+    var answer = 'hello world 100\nhello world 322';
+    t.ok(result == answer, 'join');
   }).catch(e => console.log(e.stack));
 });

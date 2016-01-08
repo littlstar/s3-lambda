@@ -133,7 +133,7 @@ class BatchRequest extends Context {
 
     function outputMapResult(key, body, keys, callback) {
       if (body == null) {
-        throw new Error('your mapper function must return a value');
+        throw new Error('your mapper function must return a string to use for the s3 object body');
       }
       if (self.target != null) {
         let filename = self.s3.getFileName(key);
@@ -276,11 +276,11 @@ class BatchRequest extends Context {
 
     // output result to `target` or filter results destructively
     function finish(callback) {
-      if (self.hasTarget) {
+      if (self.target != null) {
         let promises = [];
         keepObjects.forEach(key => {
           let fileName = self.s3.getFileName(key);
-          promises.push(self.copy(self.bucket, key, self.targetBucket, self.targetPrefix + fileName));
+          promises.push(self.s3.copy(self.bucket, key, self.target.bucket, self.target.prefix + fileName));
         });
         Promise.all(promises).then(_ => {
           callback(null);
@@ -311,10 +311,10 @@ class BatchRequest extends Context {
   join(delimiter) {
     delimiter = delimiter || '\n';
     return new Promise((success, fail) => {
-      this.list(this.bucket, this.prefix, this.marker).then(keys => {
+      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
         let getPromises = [];
         keys.forEach(key => {
-          getPromises.push(this.get(this.bucket, key));
+          getPromises.push(this.s3.get(this.bucket, key));
         });
         Promise.all(getPromises).then(objects => {
           success(objects.join(delimiter));

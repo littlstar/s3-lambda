@@ -70,7 +70,9 @@ class Context {
    * Sets a transformation function to be used when getting objects from s3.
    * Using <code>transform</code> takes precedence over <code>encode</code>.
    *
-   * @param {Function} transformer - The function to use to transform the object. The transforation function takes an s3 object as a parameter and should return the file's contents as a string.
+   * @param {Function} transformer - The function to use to transform the
+   * object. The transforation function takes an s3 object as a parameter
+   * and should return the file's contents as a string.
    * @returns {Context} <code>this</code>
    */
 
@@ -84,24 +86,17 @@ class Context {
    * filter write to that location instead of changing the original objects
    * themselves.
    *
-   * @param {String} target - The location to send the output of map or filter
+   * @param {String} bucket - The target bucket.
+   * @param {String} prefix - The target prefix (folder) where the output will go.
    * @return {Context} <code>this</code>
    */
 
-  target(target) {
-    this._target = this.s3.resolveKey(target);
+  output(bucket, prefix) {
+    prefix = prefix[prefix.length-1] == '/' ? prefix : prefix + '/';
+    this.target = {};
+    this.target.bucket = bucket;
+    this.target.prefix = prefix;
     return this;
-  }
-
-  /**
-   * Getter for target
-   *
-   * @ignore
-   * @returns {String} The target.
-   */
-
-  get target() {
-    return this._target;
   }
 }
 
