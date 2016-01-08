@@ -23,7 +23,6 @@ class BatchRequest extends Context {
   /**
    * Run a function over s3 objects in a for-each construct.
    *
-   * @private
    * @param {Function} func The function to perform over the working context
    * @param {Boolean} [isAsync=false] Set to true if `func` is async (returns a
    * Promise).

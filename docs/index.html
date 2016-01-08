@@ -10,7 +10,7 @@
 	<![endif]-->
 	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
 
-	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+	<link type="text/css" rel="stylesheet" href="styles/site.simplex.css">
 
 </head>
 
@@ -83,16 +83,29 @@
 
 
     <section class="readme-section">
-        <article><h2>S3renity</h2><p>Promise-based S3 toolbelt that enables you to manipulate S3 objects with <code>forEach</code>, <code>map</code>, <code>reduce</code>, and <code>filter</code>.  </p>
+        <article><h2>S3renity</h2><p>S3renity allows you to treat <code>S3</code> directories like arrays, and lets you perform batch operations on them.</p>
+<p>Some use cases...</p>
 <ul>
 <li>Quickly prototype MapReduce jobs</li>
 <li>Clean or organize dirty log files</li>
 <li>Perform sync or async functions over each file with forEach, map, reduce, and filter</li>
 <li>Many more...</li>
 </ul>
-<h2>Getting started</h2><p>Install S3renity  </p>
-<pre class="prettyprint source lang-bash"><code>npm install s3renity --save</code></pre><p>Quick Example</p>
-<pre class="prettyprint source lang-javascript"><code>var S3renity = require('s3renity');
+<h2>Install</h2><pre class="prettyprint source lang-bash"><code>npm install s3renity --save</code></pre><h2>Batch Functions</h2><ul>
+<li>forEach</li>
+<li>map</li>
+<li>reduce</li>
+<li>filter</li>
+<li>join</li>
+</ul>
+<h2>Extra Functionality</h2><ul>
+<li>list</li>
+<li>get</li>
+<li>put</li>
+<li>delete</li>
+<li>splitObject</li>
+</ul>
+<h2>Example</h2><pre class="prettyprint source lang-javascript"><code>var S3renity = require('s3renity');
 
 var s3renity = new S3renity({
   access_key_id: 'your access key',
@@ -100,133 +113,15 @@ var s3renity = new S3renity({
 });
 
 // Print out the contents of every file in an S3 directory
-var folder = 's3://&lt;bucket>/path/to/folder/';
-var print = body => console.log('this is a s3 object:', body);
+var bucket = 'my-bucket';
+var prefix = 'path/to/files';
+var print = body => console.log(body);
 
 s3renity
-  .context(folder)                 // sets the directory in S3
+  .context(bucket, prefix)         // sets the directory context in S3
   .forEach(print)                  // function to perform over each s3 object
-  .then(_ => console.log('done!')) // continue
-  .catch(e => console.log(e))      // handle error</code></pre><h2>Options</h2><pre class="prettyprint source"><code>{
-  verbose: true,  // default: false
-}</code></pre><h2>Input</h2><p>Before operating over S3 files, you must tell S3renity where to get the S3 objects and how to treat them.  There are a few functions you can use before calling a batch function.</p>
-<p><strong>S3renity.context(dir)</strong><br>Required<br>Sets the directory in S3 to work on.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity.context('s3://&lt;bucket>/path/to/dir')...</code></pre><p><strong>S3renity.marker(start)</strong><br>Optional<br>Tells S3renity which file to start on, proceeding alphabetically from <code>start</code>.  This is the same way <code>marker</code> works in <a href="http://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGET.html">getObject()</a> in the S3 spec.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context('s3://&lt;bucket>/path/to/dir/')
-  .marker('1234.text')
-  ...</code></pre><p><strong>S3renity.encode(encoding)</strong><br>Otional<br>Tells S3renity what encoding to use when calling <code>toString()</code> on the S3 object body (default is 'utf8').  Alternatively, you can use <code>S3renity.transform</code> to do something else to load the file.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context('s3://&lt;bucket>/path/to/dir/')
-  .encode('ascii')
-  ...</code></pre><p><strong>S3renity.transform(func)</strong><br>Optional<br>Tells S3renity to run <code>func</code> over S3 objects before using them.  For example, you may want to use <code>zlib</code> to unzip files before processing.</p>
-<pre class="prettyprint source lang-javascript"><code>var zlib = require('zlib');
-
-S3renity
-  .context('s3://&lt;bucket>/path/to/dir/')
-  .transform(obj => zlib.gunzipSync(obj).toString('utf8'))
-  ...</code></pre><p><strong>S3renity.split(delimiter)</strong><br>Optional<br>Tells S3renity to work over the deliminations of objects instead of the objects themselves.  For example, calling <code>S3renity.split('\n')</code> would tell S3renity to perform operations over each line in each file. </p>
-<pre class="prettyprint source lang-javascript"><code>S3renity
-  .context('s3//&lt;bucket>/path/to/dir/')
-  .split('\n')
-  .forEach(line => console.log(line))</code></pre><h2>Batch Functions</h2><ul>
-<li>forEach</li>
-<li>map</li>
-<li>reduce</li>
-<li>filter</li>
-</ul>
-<p><strong>forEach(func[, isAsync])</strong><br>Perform <code>func</code> on every item in the working context.  If <code>split</code> is called, <code>func</code> takes a string.  Otherwise, it takes an S3 object.  <code>func</code> either performs a synchronous action on the argument, or returns a promise.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .forEach(func)
-  .then(_ => {})
-  .catch(e => {})
-
-s3renity
-  .context(path)
-  .split('\n')
-  .forEach(func)
-  .then(_ => {})
-  .catch(e => {})</code></pre><p><strong>map(func[, isAsync])</strong><br>Destructuve (unless <code>output</code> is specified)<br>Perform <code>func</code> on every item in the working context, replacing each in place.  If <code>split</code> is called, <code>func</code> takes a string.  Otherwise, it takes an S3 object.  <code>func</code> is either synchronous that returns the new object (or item) or returns a promise that resolves to the new object.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .output(outputFolder)  // optional
-  .map(func)
-  .then(_ => {})
-  .catch(e => {})
-
-s3renity
-  .context(path)
-  .split('\n')
-  .map(func)
-  .then(_ => {})
-  .catch(e => {})</code></pre><p><strong>reduce(func[, initialValue, isAsync])</strong><br>Reduce the working context to a single value with <code>func</code>. <code>func</code> takes three arguments: <code>previousValue</code>, <code>currentValue</code>, and <code>key</code> (the key of the current S3 object), and returns the updated object.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .reduce(func)
-  .then(result => {})
-  .catch(e => {})
-
-s3renity
-  .context(path)
-  .split('\n')
-  .reduce(func)
-  .then(result => {})
-  .catch(e => {})</code></pre><p><strong>filter(func)</strong><br>Destructive (unless <code>output</code> is specified)<br>Filter the working context with <code>func</code>, removing all objects or entries that don't pass the test.  <em>This function is destructive unless if you specify an output</em>.  If <code>split</code> is called, <code>func</code> takes a string.  Otherwise, it takes an S3 object.  <code>func</code> is either synchronous or returns a promise, and returns false if the item should be filtered.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .output(outputFolder) // optional
-  .filter(func)
-  .then(_ => {})
-  .catch(e)
-
-s3renity
-  .context(path)
-  .split('\n')
-  .filter(func)
-  .then(_ => ...)
-  .catch(e)</code></pre><h2>Extra Functionality</h2><ul>
-<li>list</li>
-<li>get</li>
-<li>put</li>
-<li>delete</li>
-<li>join</li>
-<li>write</li>
-<li>splitObject</li>
-</ul>
-<p><strong>list()</strong><br>List all the keys in the working context.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .list()
-  .then(keys => {})
-  .catch(e => {})</code></pre><p><strong>get(arg1[, arg2])</strong><br>Get an object from S3 either by specifying a valid key, or separate them into two arguments key and bucket.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .get('bucket', 'path/to/object')
-  .then(object => {})
-  .catch(e => {})
-
-s3renity
-  .get('s3://path/to/object')
-  .then(object => ...)
-  .catch(e => ...)</code></pre><p><strong>put(bucket, key, body)</strong><br>Put an object in S3.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .put(bucket, key, body)
-  .then(_ => ...)
-  .catch(e => ...)</code></pre><p><strong>delete(bucket, key)</strong><br>Delete an object or list of objects from S3.  Key can be a string key, the object to delete, or an array of keys to delete.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity.delete('bucket', 'path/to/file.txt')
-s3renity.delete('bucket', ['s3://bucket/path/to/thing', 's3://bucket/path/to/thing2'])</code></pre><p><strong>join(delimiter)</strong><br>Joins the objects in the working context by <code>delimiter</code> and returns the result.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .join('\n')
-  .then(result => console.log(result))
-  .catch(e => ...)</code></pre><p><strong>write(body, targets)</strong><br>Output the working context to a file or location in s3. Targets can be a string (single target) or an array of targets.  Targets can be local files or valid S3 paths.</p>
-<pre class="prettyprint source lang-javascript"><code>var text = 'blah';
-s3renity.write(text, ['s3://bucket/path/to/file.txt', 'localfile.txt']);</code></pre><p><strong>splitObject(bucket, key[, delimiter, encoding])</strong><br>Split a single (text) object in S3 by a delimiter. Default delimiter is \n and encoding is utf8.</p>
-<pre class="prettyprint source lang-javascript"><code>s3renity
-  .context(path)
-  .splitObject('bucket', 'path/to/object', '\t');
-  .then(result => {}) // do something with result
-  .catch(console.log)</code></pre><h2>Advanced Examples</h2><p>Perform an asynchronous db lookup for every line of JSON in every file in the working context.</p>
+  .then(() => console.log('done')) // continue
+  .catch(e => console.log(e))      // handle error</code></pre><h2>Advanced Examples</h2><p>Perform an asynchronous db lookup for every line of JSON in every file in the working context.</p>
 <pre class="prettyprint source lang-javascript"><code>const lookupId = line => {
   line = JSON.parse(line);
   return new Promise((success, fail) => {
@@ -307,7 +202,7 @@ s3renity
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
 	
-		on 2016-01-08T13:52:01-05:00
+		on 2016-01-08T22:23:52-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
