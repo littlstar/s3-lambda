@@ -86,31 +86,105 @@ test('context.forEach sync & async', t => {
 
 });
 
-test('context.map sync & async', t => {
+test('map sync', t => {
 
   t.plan(3);
 
   s.context(bucket, prefix).map((line, i) => {
+    console.log(line, i);
     return line + i;
   }).then(_ => {
     s.list(bucket, prefix).then(keys => {
       keys.forEach(key => {
+        console.log(key);
         s.get(bucket, key).then(result => {
           var num = key.slice(-1);
-          t.ok(result == 'hello world ' + num, 's3renity.map()');
+          console.log(result);
+          t.ok(result.trim() == 'hello world ' + String(num) + '' + String(num - 1), 's3renity.map sync');
         }).catch(e => console.log(e.stack));
       })
     }).catch(e => console.log(e.stack));
   }).catch(e => console.log(e.stack));
 });
 
-test('s3renity.delete(bucket, [target1, target2, target3])', t => {
+test('map async', t => {
+  t.plan(3);
+  s.context(bucket, prefix).map((line, i) => {
+    return new Promise((success, fail) => {
+      success(line + i);
+    });
+  }, true).then(_ => {
+    s.list(bucket, prefix).then(keys => {
+      keys.forEach(key => {
+        s.get(bucket, key).then(result => {
+          var num = key.slice(-1);
+          t.ok(result.trim() == 'hello world ' + String(num) + String(num - 1) + String(num - 1), 's3renity.map async');
+        }).catch(e => console.log(e.stack));
+      })
+    }).catch(e => console.log(e.stack));
+  }).catch(e => console.log(e.stack));
+})
+
+test('reduce sync', t => {
   t.plan(1);
-  s.list(bucket, prefix).then(keys => {
-    s.delete(bucket, keys).then(_ => {
-      s.list(bucket, prefix).then(keys => {
-        t.ok(keys.length == 0, 's3renity.delete([key, key2, key3])')
-      }).catch(console.error);
-    }).catch(console.error);
-  });
+  s.context(bucket, prefix).reduce((prev, cur, key) => {
+    if (prev == null) {
+      return cur + key;
+    } else {
+      return prev + cur + key;
+    }
+  }).then((result) => {
+    var answer = 'hello world 100s3renity-test/test1hello world 211s3renity-test/test2hello world 322s3renity-test/test3';
+    t.ok(result == answer, 'reduce sync');
+  }).catch(e => console.log(e.stack));
+});
+
+test('reduce async', t => {
+  t.plan(1);
+  s.context(bucket, prefix).reduce((prev, cur, key) => {
+    return new Promise((success, fail) => {
+      if (prev == null) {
+        success(cur + key);
+      } else {
+        success(prev + cur + key);
+      }
+    });
+  }, null, true).then(result => {
+    var answer = 'hello world 100s3renity-test/test1hello world 211s3renity-test/test2hello world 322s3renity-test/test3';
+    t.ok(result == answer, 'reduce sync');
+  }).catch(e => console.log(e.stack));
+});
+
+test('filter sync', t => {
+  t.plan(1);
+  s.context(bucket, prefix).filter(obj => {
+    if (obj == 'hello world 211') {
+      return false;
+    } else {
+      return true;
+    }
+  }).then(() => {
+    s.list(bucket, prefix).then(keys => {
+      var answer = ['s3renity-test/test1', 's3renity-test/test3'];
+      t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter');
+    }).catch(e => console.log(e.stack));
+  }).catch(e => console.log(e.stack));
+});
+
+test('filter async', t => {
+  t.plan(1);
+  s.context(bucket, prefix).filter(obj => {
+    return new Promise((success, fail) => {
+      if (obj == 'hello world 211') {
+        success(false);
+      } else {
+        success(true);
+      }
+    });
+  }, true).then(() => {
+    s.list(bucket, prefix).then(keys => {
+      var answer = ['s3renity-test/test1', 's3renity-test/test3'];
+      t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter');
+    }).catch(e => console.log(e.stack));
+  }).catch(e => console.log(e.stack));
 });

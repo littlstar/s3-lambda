@@ -143,7 +143,6 @@ class BatchRequest extends Context {
           .then(() => mapObjects(keys, callback))
           .catch(callback);
       } else {
-        console.log(self.bucket, key, body, self.encoding);
         self.s3
           .put(self.bucket, key, body, self.encoding)
           .then(() => mapObjects(keys, callback))
@@ -174,6 +173,7 @@ class BatchRequest extends Context {
 
     isAsync = isAsync || false;
     var value = initialValue;
+    var self = this;
 
     return new Promise((success, fail) => {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
@@ -193,7 +193,7 @@ class BatchRequest extends Context {
         return;
       }
       let key = keys.shift();
-      self.get(self.bucket, key).then(body => {
+      self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
           func(value, body, key).then(newValue => {
             value = newValue;
@@ -227,7 +227,7 @@ class BatchRequest extends Context {
     var self = this;
 
     return new Promise((success, fail) => {
-      this.list(this.bucket, this.prefix, this.marker).then(keys => {
+      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
         filterObjects(keys, err => {
           if (err) {
             fail(err);
@@ -245,7 +245,7 @@ class BatchRequest extends Context {
         return;
       }
       let key = keys.shift();
-      self.get(self.bucket, key).then(body => {
+      self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
           func(body).then(result => {
             checkResult(result);
@@ -286,7 +286,7 @@ class BatchRequest extends Context {
           callback(null);
         }).catch(callback);
       } else {
-        self.delete(self.bucket, removeObjects).then(_ => {
+        self.s3.delete(self.bucket, removeObjects).then(_ => {
           callback(null);
         }).catch(callback);
       }

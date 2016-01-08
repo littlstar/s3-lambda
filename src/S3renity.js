@@ -76,6 +76,7 @@ class S3renity {
    */
 
   context(bucket, key, marker) {
+    marker = marker || '';
     return new BatchRequest(this, bucket, key, marker);
   }
 

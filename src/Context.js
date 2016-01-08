@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * A `Context` enables you to chain set conditions for batch functions. Contexts are reusable.
+ * A <code>Context</code> enables you to chain set conditions for batch functions. Contexts are reusable.
  */
 
 class Context {
@@ -43,6 +43,16 @@ class Context {
   }
 
   /**
+   * Getter for marker
+   * @ignore
+   * @returns {String} The marker
+   */
+
+  get marker() {
+    return this._marker;
+  }
+
+  /**
    * Sets the encoding to use when getting s3 objects with
    * <code>object.Body.toString(encoding)</code>. If not set, <code>utf8</code>
    * is used.
@@ -57,10 +67,10 @@ class Context {
   }
 
   /**
-   * Sets a transformation function to be used when getting objects from s3. If
-   * set, this takes precedence over using <code>this.encoding</code>.
+   * Sets a transformation function to be used when getting objects from s3.
+   * Using <code>transform</code> takes precedence over <code>encode</code>.
    *
-   * @param {Function} transformer - The function to use to transform the object
+   * @param {Function} transformer - The function to use to transform the object. The transforation function takes an s3 object as a parameter and should return the file's contents as a string.
    * @returns {Context} <code>this</code>
    */
 
@@ -81,6 +91,17 @@ class Context {
   target(target) {
     this._target = this.s3.resolveKey(target);
     return this;
+  }
+
+  /**
+   * Getter for target
+   *
+   * @ignore
+   * @returns {String} The target.
+   */
+
+  get target() {
+    return this._target;
   }
 }
 
