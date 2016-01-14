@@ -7,8 +7,6 @@
 const aws = require('aws-sdk');
 const awsM = require('mock-aws-s3');
 const fs = require('fs');
-const TYPE_S3 = 's3';
-const TYPE_FILE = 'file';
 const BatchRequest = require('./BatchRequest');
 
 /**
@@ -90,31 +88,6 @@ class S3renity {
    * @property {String} file The local file, if any
    * @property {String} type 's3' or 'file'
    */
-
-  /**
-   * Resolves a key into a s3 file path.
-   *
-   * @private
-   * @param {String} key An s3 key or local file path
-   * @return {Target} The target object.
-   */
-
-  resolveKey(key) {
-    var target = {};
-    if (key.indexOf('s3://') == 0) {
-      key = key.substr(5, key.length - 1);
-      target.bucket = key.split('/')[0];
-      target.prefix = key.substr(key.indexOf('/') + 1, key.length);
-      target.file = null;
-      target.type = TYPE_S3;
-    } else {
-      target.bucket = null;
-      target.prefix = null;
-      target.file = key;
-      target.type = TYPE_FILE;
-    }
-    return target;
-  }
 
   /**
    * Returns the filename (last part of the key) from an S3 key. TODO(wells) used?
@@ -308,7 +281,7 @@ class S3renity {
 
   list(bucket, prefix, marker) {
 
-    let self = this;
+    var self = this;
     marker = marker || '';
 
     return new Promise((success, fail) => {

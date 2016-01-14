@@ -4,12 +4,18 @@ const Context = require('./Context');
 
 /**
  * Self-contained batch request object, created by {@link S3renity#context}.
+ * Once created, you can chain settings commands together before executing
+ * a batch request.
  */
 
 class BatchRequest extends Context {
 
   /**
+   * A {@link BatchRequest} can only be created by calling
+   * {@link S3renity#context}.
+   *
    * @extends Context
+   * @private
    * @param {S3renity} s3 - The S3renity instance to use for making s3 requests
    * @param {String} bucket The bucket
    * @param {String} key The key

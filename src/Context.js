@@ -2,6 +2,7 @@
 
 /**
  * A <code>Context</code> enables you to chain set conditions for batch functions. Contexts are reusable.
+ * @ignore
  */
 
 class Context {
@@ -18,14 +19,8 @@ class Context {
    */
 
   constructor(s3, bucket, prefix, marker) {
-    let context = s3.resolveKey(bucket);
-    if (context.type == 's3') {
-      this.bucket = context.bucket;
-      this.prefix = context.prefix;
-    } else {
-      this.bucket = bucket;
-      this.prefix = prefix;
-    }
+    this.bucket = bucket;
+    this.prefix = prefix;
     this._marker = marker;
     this.s3 = s3;
   }
