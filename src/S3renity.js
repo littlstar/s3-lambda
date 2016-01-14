@@ -10,8 +10,8 @@ const fs = require('fs');
 const BatchRequest = require('./BatchRequest');
 
 /**
- * A S3renity instance allows you to create contexts for batch requests.  It
- * also gives you a promise-based wrapper around the S3 api.
+ * S3renity allows you to run {@link BatchRequest}, as well as interact with s3
+ * objects directly through a promise-based api.
  */
 
 class S3renity {
@@ -62,9 +62,7 @@ class S3renity {
   }
 
   /**
-   * Creates a new {@link BatchRequest} context to perform batch operations
-   * with. You can either supply an s3 path like <code>s3://bucket/path/to/folder</code>
-   * or a bucket and prefix.
+   * Creates a new {@link BatchRequest} context.
    *
    * @param {String} bucket - The bucket to use, or a valid s3 path
    * @param {String} prefix - The prefix (folder) to use. Leave null if you
@@ -276,7 +274,7 @@ class S3renity {
    * @param {String} bucket - The bucket
    * @param {String} prefix - The prefix for the folder to list keys for
    * @param {String} [marker] - The key to start listing from, alphabetically
-   * @returns {Promise} an array containing all the keys in <code>s3://<bucket>/<prefix></code>.
+   * @returns {Promise} An array containing all the keys in <code>s3://bucket/prefix</code>.
    */
 
   list(bucket, prefix, marker) {
