@@ -383,7 +383,7 @@ class S3renity {
    * @returns {Promise} An array that is the split object.
    */
 
-  splitObject(bucket, key, delimiter, encoding) {
+  split(bucket, key, delimiter, encoding) {
     delimiter = delimiter || '\n';
     encoding = encoding || 'utf8'
     return new Promise((success, fail) => {

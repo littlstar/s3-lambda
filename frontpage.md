@@ -1,5 +1,5 @@
 ## S3renity
-S3renity allows you to treat `S3` directories like arrays, and lets you perform batch operations on them.
+S3renity allows you to treat S3 files like arrays, and lets you perform batch operations on them.
 
 Some use cases...
 - Quickly prototype MapReduce jobs
@@ -13,20 +13,23 @@ npm install s3renity --save
 ```
 
 ## Batch Functions
-- [forEach](/S3renity/docs/BatchRequest.html#forEach__anchor
+Perform sync or async functions over each file in a directory.
+- forEach
 - map
 - reduce
 - filter
 - join
 
-## Extra Functionality
+## S3 Object Functions
+Promise-based wrapper around common S3 methods.
 - list
 - get
 - put
 - delete
-- splitObject
+- split
 
-## Example
+## forEach
+Loop over a directory and print the contents of each file
 ```javascript
 var S3renity = require('s3renity');
 
