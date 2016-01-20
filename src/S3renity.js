@@ -88,7 +88,7 @@ class S3renity {
    */
 
   /**
-   * Returns the filename (last part of the key) from an S3 key. TODO(wells) used?
+   * Returns the filename (last part of the key) from an S3 key.
    *
    * @private
    * @param {String} key - The S3 key to get the file name for
