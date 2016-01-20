@@ -14,9 +14,9 @@
     "docs": "rm -rf docs/ && node_modules/jsdoc/jsdoc.js -c jsdoc.json -R frontpage.md"
   },
   "dependencies": {
-    "aws-sdk": "^2.2.17",
+    "aws-sdk": "^2.2.31",
     "ink-docstrap": "^1.1.0",
-    "mock-aws-s3": "^2.0.0"
+    "mock-aws-s3": "^2.1.0"
   },
   "devDependencies": {
     "jsdoc": "^3.4.0",
