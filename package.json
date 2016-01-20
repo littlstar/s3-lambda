@@ -1,6 +1,6 @@
 {
   "name": "s3renity",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Promise-based S3 api wrapper with batch operations (forEach, map, reduce, filter)",
   "main": "src/index.js",
   "author": "Wells Johnston",
