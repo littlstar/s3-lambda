@@ -22,8 +22,8 @@ class S3renity {
    * to use the computer's default credentials.
    * @param {String} [config.access_key_id=null] AWS Access Key
    * @param {String} [config.secret_access_key=null] AWS Secret Key
+   * @param {Integer} [config.max_retries=30] Max retries allowed for aws api requets
    * @param {Integer} [config.timeout=120] Timeout allowed for aws api requests
-   * @param {Integer} [config.maxRetries=30] Max retries allowed for aws api requets
    * @param {Boolean} [config.verbose=false] Whether to use verbose mode when making requets
    */
 
@@ -48,15 +48,13 @@ class S3renity {
         });
       }
 
-      let s3opts = {};
-      if (config.timeout) {
-        s3opts.httpOptions = {
-          timeout: config.timeout
-        };
-      }
-      if (config.maxRetries) {
-        s3opts.maxRetries = config.maxRetries;
-      }
+      let s3opts = {
+        maxRetries: config.max_retries || 30,
+        httpOptions: {
+          timeout: config.timeout || 120
+        }
+      };
+
       this.s3 = new aws.S3(s3opts);
     }
   }
