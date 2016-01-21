@@ -2,7 +2,6 @@
 
 /**
  * A <code>Context</code> enables you to chain set conditions for batch functions. Contexts are reusable.
- * @ignore
  */
 
 class Context {

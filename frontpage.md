@@ -18,6 +18,51 @@ Promise-based wrapper around common S3 methods.
 - delete
 - split
 
+## Examples
+Quick examples of each `s3renity` function for reference. Refer to the class spec for more details.
+<br/><br/>
+#### forEach
+Loops over each file in a s3 directory and performs a function.
+```javascript
+s3renity
+  .context('bucket', 'path/to/folder')
+  .forEach(obj => {
+    // do something with obj
+  })
+  .then(() => {
+    console.log('done!');
+  })
+  .catch(console.error);
+```
+<br/>
+#### map
+**Destructive**. Maps a function over each file in an s3 directory, replacing each file with what is returned
+from the mapper function.  Optionally you can make this *non-destructive* by specifying an `output` directory.
+```javascript
+// update s3 files inline
+s3renity
+  .context('bucket', 'path/to/folder')
+  .map(obj => {
+    return obj + 'altered!';
+  })
+  .then(() => {
+    console.log('done!');
+  })
+  .catch(console.error);
+
+// leaves s3 files be and redirects output
+s3renity
+  .context('bucket', 'path/to/folder')
+  .output('bucket', 'path/to/output')
+  .map(obj => {
+    return obj + 'altered!';
+  })
+  .then(() => {
+    console.log('done!');
+  })
+  .catch(console.error);
+```
+
 ## Quick Example
 ```javascript
 var S3renity = require('s3renity');
