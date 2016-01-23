@@ -37,19 +37,9 @@ Perform sync or async functions over each file in a directory.
 - join
 
 <br/>
-#### context(bucket, prefix[, marker])
-Sets the working context for a batch request, so s3renity knows where the files are in s3.  If a `marker` is specified, the working context is every file after that file alphabetically.
-```javascript
-const bucket = 'my-bucket';
-const prefix = 'path/to/files/';
-const marker = 'path/to/files/file3';  // only operate on files after `file3`
+#### forEach
+forEach(func[, isAsync])  
 
-s3renity
-  .context(bucket, prefix, marker)
-  // .forEach() || .map || .reduce() || .filter() || .join()
-```
-<br/>
-#### forEach(func[, isAsync])
 Loops over each file in a s3 directory and performs `func`.  If `isAsync` is true, `func` should return a Promise.
 ```javascript
 s3renity
@@ -59,7 +49,9 @@ s3renity
   .catch(console.error);
 ```
 <br/>
-#### map(func[, isAsync])
+#### map
+map(func[, isAsync])  
+
 **Destructive**. Maps `func` over each file in an s3 directory, replacing each file with what is returned
 from the mapper function. If `isAsync` is true, `func` should return a Promise. 
 ```javascript
@@ -81,7 +73,9 @@ s3renity
   .catch(console.error)
 ```
 <br/>
-#### reduce(func[, isAsync])
+#### reduce
+reduce(func[, isAsync])  
+
 Reduces the objects in the working context to a single value.
 ```javascript
 // concatonates all the files
@@ -92,11 +86,13 @@ const reducer = (previousValue, currentValue, key) => {
 s3renity
   .context(bucket, prefix)
   .reduce(reducer)
-  .then(result => { /* do something with result */)
+  .then(result => { /* do something with result */ })
   .catch(console.error);
 ```
 <br/>
-#### filter(func[, isAsync])
+#### filter
+filter(func[, isAsync])  
+
 **Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isAsync` is true, `func` returns a Promise.
 ```javascript
 // filters empty files
@@ -118,7 +114,9 @@ s3renity
   .catch(console.error();
 ```
 <br/>
-#### join(delimiter)
+#### join
+join(delimiter)  
+
 Joins objects in s3 to a single value.
 ```javascript
 s3renity
@@ -136,7 +134,9 @@ Promise-based wrapper around common S3 methods.
 - delete
 
 <br/>
-#### list(bucket, prefix[, marker])
+#### list
+list(bucket, prefix[, marker])  
+
 Returns an array of keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
 ```javascript
 s3renity
@@ -145,7 +145,9 @@ s3renity
   .catch(console.error);
 ```
 <br/>
-#### get(bucket, key[, encoding[, transformer]])
+#### get
+get(bucket, key[, encoding[, transformer]])  
+
 Gets an object in s3, calling `toString(encoding` on objects.
 ```javascript
 s3renity
@@ -167,7 +169,9 @@ s3renity
   .catch(console.error);
 ```
 <br/>
-#### put(bucket, key, object[, encoding])
+#### put
+put(bucket, key, object[, encoding])  
+
 Puts an object in s3.  Default encoding is `utf8`.
 ```javascript
 s3renity
@@ -175,7 +179,9 @@ s3renity
   .then(console.log('done!').catch(console.error);
 ```
 <br/>
-#### copy(bucket, key, targetBucket, targetKey)
+#### copy
+copy(bucket, key, targetBucket, targetKey)  
+
 Copies an object in s3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
 ```javascript
 s3renity
@@ -183,7 +189,9 @@ s3renity
   .then(console.log('done!').catch(console.error);
 ```
 <br/>
-#### delete(bucket, key)
+#### delete
+delete(bucket, key)  
+
 Deletes an object in s3 (`s3://bucket/key`).
 ```javascript
 s3renity
