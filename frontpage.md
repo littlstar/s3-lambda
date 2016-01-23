@@ -145,7 +145,7 @@ s3renity
   .put(bucket, key, 'hello world!')
   .then(console.log('done!').catch(console.error);
 ```
-#### copy(sourceBucket, sourceKey, targetBucket, targetKey)
+#### copy(bucket, key, targetBucket, targetKey)
 Copies an object in s3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
 ```javascript
 s3renity
