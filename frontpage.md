@@ -29,54 +29,53 @@ s3renity
   .context(bucket, prefix)
   // .forEach() ...
 ```
-<br/><br/>
-#### forEach
+#### forEach(func[, isAsync])
 Loops over each file in a s3 directory and performs a function.
 ```javascript
 s3renity
   .context(bucket, prefix)
-  .forEach(obj => {
-    // do something with obj
+  .forEach(object => {
+    // do something with `object`
   })
-  .then(() => {
-    console.log('done!');
-  })
+  .then(console.log('done!')
   .catch(console.error);
 ```
 <br/>
-#### map
+#### map(func[, isAsync])
 **Destructive**. Maps a function over each file in an s3 directory, replacing each file with what is returned
 from the mapper function.  Optionally you can make this *non-destructive* by specifying an `output` directory.
 ```javascript
+const addSmiley = object => object + ':)';
+
 // update s3 files inline
 s3renity
   .context(bucket, prefix)
-  .map(obj => {
-    return obj + 'altered!';
-  })
-  .then(() => {
-    console.log('done!');
-  })
+  .map(addSmiley)
+  .then(console.log('done!'))
   .catch(console.error);
 
-// leaves s3 files be and redirects output
+// leaves original s3 files and redirects output
 s3renity
   .context(bucket, prefix)
   .output(bucket, outputPrefix)
-  .map(obj => {
-    return obj + 'altered!';
-  })
-  .then(() => {
-    console.log('done!');
-  })
+  .map(addSmiley)
+  .then(console.log('done!'))
   .catch(console.error);
 ```
 <br/>
-#### reduce
+#### reduce(func[, isAsync])
 Reduces the objects in the working context to a single value.
 ```javascript
+// concatonates all the files
+const reducer = (previousValue, currentValue, key) => {
+  return previousValue + currentValue
+};
+
 s3renity
-  .context(bucket
+  .context(bucket, prefix)
+  .reduce(reducer)
+  .then(console.log('done!')
+  .catch(console.error);
 ```
 
 ## Quick Example
