@@ -13,9 +13,8 @@
   },
   "templates": {
     "systemName": "S3renity",
-    "footer": "Little Star Media, 2015",
     "includeDate": true,
-    "theme": "simplex",
+    "theme": "cyborg",
     "inverseNav": false,
     "navType": "inline",
     "sort": false
