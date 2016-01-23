@@ -83,7 +83,7 @@
 
 
     <section class="readme-section">
-        <article><h2>S3renity</h2><p>S3renity is an <a href="https://aws.amazon.com/s3/">S3</a> toolbelt for <a href="https://nodejs.org/en/">Node</a> that enables you to treat directories like arrays of S3 objects, and perform batch functions on them. It also provides extra functionality around handling s3 objects. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.</p>
+        <article><h2>S3renity</h2><p>S3renity is an <a href="https://aws.amazon.com/s3/">S3</a> toolbelt for Node.js that enables you to treat directories like arrays of S3 objects, and perform batch functions on them. It also provides a promise-based wrapper around the s3 api. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.</p>
 <h2>Batch Functions</h2><p>Perform sync or async functions over each file in a directory.</p>
 <ul>
 <li>forEach</li>
@@ -92,67 +92,96 @@
 <li>filter</li>
 <li>join</li>
 </ul>
-<h2>S3 Functions</h2><p>Promise-based wrapper around common S3 methods.</p>
+<h4>context(bucket, prefix[, marker])</h4><p>Sets the working context for a batch request, so s3renity knows where the files are in s3.  If a <code>marker</code> is specified, the working context is every file after that file alphabetically.</p>
+<pre class="prettyprint source lang-javascript"><code>const bucket = 'my-bucket';
+const prefix = 'path/to/files/';
+const marker = 'path/to/files/file3';  // only operate on files after `file3`
+
+s3renity
+  .context(bucket, prefix, marker)
+  // .forEach() || .map || .reduce() || .filter() || .join()</code></pre><h4>forEach(func[, isAsync])</h4><p>Loops over each file in a s3 directory and performs <code>func</code>.  If <code>isAsync</code> is true, <code>func</code> should return a Promise.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .context(bucket, prefix)
+  .forEach(object => { /* do something with object */ })
+  .then(console.log('done!')
+  .catch(console.error);</code></pre><h4>map(func[, isAsync])</h4><p><strong>Destructive</strong>. Maps <code>func</code> over each file in an s3 directory, replacing each file with what is returned
+from the mapper function. If <code>isAsync</code> is true, <code>func</code> should return a Promise. </p>
+<pre class="prettyprint source lang-javascript"><code>const addSmiley = object => object + ':)';
+
+s3renity
+  .context(bucket, prefix)
+  .map(addSmiley)
+  .then(console.log('done!'))
+  .catch(console.error);</code></pre><p>You can make this <em>non-destructive</em> by specifying an <code>output</code> directory.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .context(bucket, prefix)
+  .output(outputBucket, outputPrefix)
+  .map(addSmiley)
+  // ...</code></pre><h4>reduce(func[, isAsync])</h4><p>Reduces the objects in the working context to a single value.</p>
+<pre class="prettyprint source lang-javascript"><code>// concatonates all the files
+const reducer = (previousValue, currentValue, key) => {
+  return previousValue + currentValue
+};
+
+s3renity
+  .context(bucket, prefix)
+  .reduce(reducer)
+  .then(result => { /* do something with result */)
+  .catch(console.error);</code></pre><h4>filter(func[, isAsync])</h4><p><strong>Destructive</strong>.  Filters (deletes) files in s3. <code>func</code> should return <code>true</code> to keep the object, and <code>false</code> to delete it. If <code>isAsync</code> is true, <code>func</code> returns a Promise.</p>
+<pre class="prettyprint source lang-javascript"><code>// filters empty files
+const filter = object => object.length > 0;
+
+s3renity
+  .context(bucket, prefix)
+  .filter(filter)
+  .then(console.log('done!')
+  .catch(console.error);</code></pre><p>Just like in <code>map</code>, you can make this <em>non-destructive</em> by specifying an <code>output</code> directory.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .context(bucket, prefix)
+  .output(outputBucket, outputPrefix)
+  .filter(filter)
+  .then(console.log('done!'))
+  .catch(console.error();</code></pre><h4>join(delimiter)</h4><p>Joins objects in s3 to a single value.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .context(bucket, prefix)
+  .join('\n')
+  .then(result => { /* do something with result */ }
+  .catch(console.error);</code></pre><h2>S3 Functions</h2><p>Promise-based wrapper around common S3 methods.</p>
 <ul>
 <li>list</li>
 <li>get</li>
 <li>put</li>
 <li>copy</li>
 <li>delete</li>
-<li>split</li>
 </ul>
-<h2>Examples</h2><p>Quick examples of each <code>s3renity</code> function for reference. Refer to the class spec for more details.
-<br/><br/></p>
-<h4>forEach</h4><p>Loops over each file in a s3 directory and performs a function.</p>
+<h4>list(bucket, prefix[, marker])</h4><p>Returns an array of keys in <code>s3://bucket/prefix</code>.  If you use a marker, the s3renity will start listing alphabetically from there.</p>
 <pre class="prettyprint source lang-javascript"><code>s3renity
-  .context('bucket', 'path/to/folder')
-  .forEach(obj => {
-    // do something with obj
-  })
-  .then(() => {
-    console.log('done!');
-  })
-  .catch(console.error);</code></pre><p><br/></p>
-<h4>map</h4><p><strong>Destructive</strong>. Maps a function over each file in an s3 directory, replacing each file with what is returned
-from the mapper function.  Optionally you can make this <em>non-destructive</em> by specifying an <code>output</code> directory.</p>
-<pre class="prettyprint source lang-javascript"><code>// update s3 files inline
-s3renity
-  .context('bucket', 'path/to/folder')
-  .map(obj => {
-    return obj + 'altered!';
-  })
-  .then(() => {
-    console.log('done!');
-  })
-  .catch(console.error);
+  .list(bucket, prefix)
+  .then(keys => { /* do something with keys */ }
+  .catch(console.error);</code></pre><h4>get(bucket, key[, encoding[, transformer]])</h4><p>Gets an object in s3, calling <code>toString(encoding</code> on objects.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .get(bucket, key)
+  .then(object => { /* do something with object */ }
+  .catch(console.error);</code></pre><p>Optionally you can supply your own transformer function to use when retrieving objects.</p>
+<pre class="prettyprint source lang-javascript"><code>const zlib = require('zlib');
 
-// leaves s3 files be and redirects output
-s3renity
-  .context('bucket', 'path/to/folder')
-  .output('bucket', 'path/to/output')
-  .map(obj => {
-    return obj + 'altered!';
-  })
-  .then(() => {
-    console.log('done!');
-  })
-  .catch(console.error);</code></pre><h2>Quick Example</h2><pre class="prettyprint source lang-javascript"><code>var S3renity = require('s3renity');
-
-var s3renity = new S3renity({
-  access_key_id: 'your access key',
-  secret_access_key: 'your secret key'
-});
-
-// Print out the contents of every file in an S3 directory
-var bucket = 'my-bucket';
-var prefix = 'path/to/files';
-var print = body => console.log(body);
+const transformer = object => {
+  return zlib.gunzipSync(object).toString('utf8');
+}
 
 s3renity
-  .context(bucket, prefix)         // sets the directory context in S3
-  .forEach(print)                  // loop over every object and print it
-  .then(() => console.log('done')) // callback function (resolved promise)
-  .catch(e => console.log(e))      // handle error</code></pre><h2>Install</h2><pre class="prettyprint source lang-bash"><code>npm install s3renity --save</code></pre></article>
+  .get(bucket, key, null, transformer)
+  .then(object => { /* do something with object */ }
+  .catch(console.error);</code></pre><h4>put(bucket, key, object[, encoding])</h4><p>Puts an object in s3.  Default encoding is <code>utf8</code>.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .put(bucket, key, 'hello world!')
+  .then(console.log('done!').catch(console.error);</code></pre><h4>copy(sourceBucket, sourceKey, targetBucket, targetKey)</h4><p>Copies an object in s3 from <code>s3://sourceBucket/sourceKey</code> to <code>s3://targetBucket/targetKey</code>.</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .copy(sourceBucket, sourceKey, targetBucket, targetKey)
+  .then(console.log('done!').catch(console.error);</code></pre><h4>delete(bucket, key)</h4><p>Deletes an object in s3 (<code>s3://bucket/key</code>).</p>
+<pre class="prettyprint source lang-javascript"><code>s3renity
+  .delete(bucket, key)
+  .then(console.log('done!').catch(console.error);</code></pre><h2>Install</h2><pre class="prettyprint source lang-bash"><code>npm install s3renity --save</code></pre></article>
     </section>
 
 
@@ -198,7 +227,7 @@ s3renity
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
 	
-		on 2016-01-21T11:39:50-05:00
+		on 2016-01-23T08:04:54-05:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
