@@ -20,7 +20,7 @@ s3renity
   // .forEach() ...
 ```
 #### forEach(func[, isAsync])
-Loops over each file in a s3 directory and performs `func`.  If `isAsync` is true, `func` should return a `Promise`.
+Loops over each file in a s3 directory and performs `func`.  If `isAsync` is true, `func` should return a Promise.
 ```javascript
 s3renity
   .context(bucket, prefix)
@@ -32,7 +32,7 @@ s3renity
 ```
 #### map(func[, isAsync])
 **Destructive**. Maps `func` over each file in an s3 directory, replacing each file with what is returned
-from the mapper function. If `isAsync` is true, `func` should return a `Promise`. 
+from the mapper function. If `isAsync` is true, `func` should return a Promise. 
 ```javascript
 const addSmiley = object => object + ':)';
 
@@ -66,7 +66,7 @@ s3renity
 ```
 
 #### filter(func[, isAsync])
-**Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isAsync` is true, `func` returns a `Promise`.
+**Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isAsync` is true, `func` returns a Promise.
 ```javascript
 // filters empty files
 const filter = object => object.length > 0;
@@ -86,6 +86,15 @@ s3renity
   // ...
 ```
 
+#### join(delimiter)
+Joins objects in s3 to a single value.
+```javascript
+s3renity
+  .context(bucket, prefix)
+  .join('\n')
+  .then(result => { /* do something with result */ }
+  .catch(console.error);
+```
 ## S3 Functions
 Promise-based wrapper around common S3 methods.
 - list
@@ -94,6 +103,36 @@ Promise-based wrapper around common S3 methods.
 - copy
 - delete
 - split
+
+#### list(bucket, prefix[, marker])
+Returns an array of keys in `s3://bucket/prefix`.
+```javascript
+s3renity
+  .list(bucket, prefix)
+  .then(keys => { /* do something with keys */ }
+  .catch(console.error);
+```
+
+#### get(bucket, prefix[, encoding[, transformer]])
+Gets an object in s3, calling `toString(encoding` on objects.
+```javascript
+s3renity
+  .get(bucket, prefix)
+  .then(object => { /* do something with object */ }
+  .catch(console.error);
+```
+Optionally you can supply your own transformer function to use when retrieving objects.
+```javascript
+const zlib = require('zlib');
+
+const transformer = object => {
+  return zlib.gunzipSync(object).toString('utf8');
+}
+
+s3renity
+  .get(bucket, prefix, null, transformer)
+  // ...
+```
 
 ## Install
 ```bash
