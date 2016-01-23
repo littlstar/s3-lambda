@@ -8,7 +8,7 @@ Perform sync or async functions over each file in a directory.
 - reduce
 - filter
 - join
-
+<br/>
 #### context(bucket, prefix[, marker])
 Sets the working context for a batch request, so s3renity knows where the files are in s3.  If a `marker` is specified, the working context is every file after that file alphabetically.
 ```javascript
@@ -20,6 +20,7 @@ s3renity
   .context(bucket, prefix, marker)
   // .forEach() || .map || .reduce() || .filter() || .join()
 ```
+<br/>
 #### forEach(func[, isAsync])
 Loops over each file in a s3 directory and performs `func`.  If `isAsync` is true, `func` should return a Promise.
 ```javascript
@@ -29,6 +30,7 @@ s3renity
   .then(console.log('done!')
   .catch(console.error);
 ```
+<br/>
 #### map(func[, isAsync])
 **Destructive**. Maps `func` over each file in an s3 directory, replacing each file with what is returned
 from the mapper function. If `isAsync` is true, `func` should return a Promise. 
@@ -47,8 +49,10 @@ s3renity
   .context(bucket, prefix)
   .output(outputBucket, outputPrefix)
   .map(addSmiley)
-  // ...
+  .then(console.log('done!')
+  .catch(console.error)
 ```
+<br/>
 #### reduce(func[, isAsync])
 Reduces the objects in the working context to a single value.
 ```javascript
@@ -63,7 +67,7 @@ s3renity
   .then(result => { /* do something with result */)
   .catch(console.error);
 ```
-
+<br/>
 #### filter(func[, isAsync])
 **Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isAsync` is true, `func` returns a Promise.
 ```javascript
@@ -85,7 +89,7 @@ s3renity
   .then(console.log('done!'))
   .catch(console.error();
 ```
-
+<br/>
 #### join(delimiter)
 Joins objects in s3 to a single value.
 ```javascript
