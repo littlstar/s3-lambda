@@ -30,14 +30,12 @@ s3renity
   .then(console.log('done!')
   .catch(console.error);
 ```
-<br/>
 #### map(func[, isAsync])
 **Destructive**. Maps `func` over each file in an s3 directory, replacing each file with what is returned
 from the mapper function. If `isAsync` is true, `func` should return a `Promise`. 
 ```javascript
 const addSmiley = object => object + ':)';
 
-// update s3 files inline
 s3renity
   .context(bucket, prefix)
   .map(addSmiley)
@@ -46,15 +44,12 @@ s3renity
 ```
 You can make this *non-destructive* by specifying an `output` directory.
 ```javascript
-// leaves original s3 files and redirects output
 s3renity
   .context(bucket, prefix)
-  .output(bucket, outputPrefix)
+  .output(outputBucket, outputPrefix)
   .map(addSmiley)
-  .then(console.log('done!'))
-  .catch(console.error);
+  // ...
 ```
-<br/>
 #### reduce(func[, isAsync])
 Reduces the objects in the working context to a single value.
 ```javascript
@@ -66,8 +61,29 @@ const reducer = (previousValue, currentValue, key) => {
 s3renity
   .context(bucket, prefix)
   .reduce(reducer)
+  .then(result => { /* do something with result */)
+  .catch(console.error);
+```
+
+#### filter(func[, isAsync])
+**Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isAsync` is true, `func` returns a `Promise`.
+```javascript
+// filters empty files
+const filter = object => object.length > 0;
+
+s3renity
+  .context(bucket, prefix)
+  .filter(filter)
   .then(console.log('done!')
   .catch(console.error);
+```
+Just like in `map`, you can make this *non-destructive* by specifying an `output` directory.
+```javascript
+s3renity
+  .context(bucket, prefix)
+  .output(outputBucket, outputPrefix)
+  .filter(filter)
+  // ...
 ```
 
 ## S3 Functions
