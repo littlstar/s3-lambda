@@ -135,6 +135,7 @@ Promise-based wrapper around common S3 methods.
 - copy
 - delete
 
+<br/><br/>
 #### list(bucket, prefix[, marker])
 Returns an array of keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
 ```javascript
