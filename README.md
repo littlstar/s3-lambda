@@ -135,7 +135,7 @@ Promise-based wrapper around common S3 methods.
 - copy
 - delete
 
-<br/><br/>
+<br/>
 #### list(bucket, prefix[, marker])
 Returns an array of keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
 ```javascript
@@ -144,7 +144,7 @@ s3renity
   .then(keys => { /* do something with keys */ }
   .catch(console.error);
 ```
-
+<br/>
 #### get(bucket, key[, encoding[, transformer]])
 Gets an object in s3, calling `toString(encoding` on objects.
 ```javascript
@@ -166,6 +166,7 @@ s3renity
   .then(object => { /* do something with object */ }
   .catch(console.error);
 ```
+<br/>
 #### put(bucket, key, object[, encoding])
 Puts an object in s3.  Default encoding is `utf8`.
 ```javascript
@@ -173,6 +174,7 @@ s3renity
   .put(bucket, key, 'hello world!')
   .then(console.log('done!').catch(console.error);
 ```
+<br/>
 #### copy(bucket, key, targetBucket, targetKey)
 Copies an object in s3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
 ```javascript
@@ -180,6 +182,7 @@ s3renity
   .copy(sourceBucket, sourceKey, targetBucket, targetKey)
   .then(console.log('done!').catch(console.error);
 ```
+<br/>
 #### delete(bucket, key)
 Deletes an object in s3 (`s3://bucket/key`).
 ```javascript
