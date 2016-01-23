@@ -8,6 +8,7 @@ Perform sync or async functions over each file in a directory.
 - reduce
 - filter
 - join
+
 <br/>
 #### context(bucket, prefix[, marker])
 Sets the working context for a batch request, so s3renity knows where the files are in s3.  If a `marker` is specified, the working context is every file after that file alphabetically.
