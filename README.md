@@ -6,8 +6,8 @@ S3renity is an [S3](https://aws.amazon.com/s3/) toolbelt for Node.js that enable
 const S3renity = require('s3renity');
 
 const s3renity = new S3renity({
-  aws_access_key: '',
-  aws_secret_key: '',
+  aws_access_key: 'aws-access-key',
+  aws_secret_key: 'aws-secret-key',
   max_retries: 30, // optional
   timeout: 120,    // optional
   verbose: true    // optional
