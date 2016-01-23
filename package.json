@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "node test",
-    "docs": "rm -rf docs/ && node_modules/jsdoc/jsdoc.js -c jsdoc.json -R README.md"
+    "docs": "node_modules/jsdoc/jsdoc.js -c jsdoc.json -R docs/README.md"
   },
   "dependencies": {
     "aws-sdk": "^2.2.31",

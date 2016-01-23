@@ -8,8 +8,7 @@
   },
   "opts": {
     "template": "./node_modules/ink-docstrap/template",
-    "destination": "docs",
-    "readme": "README.md"
+    "destination": "docs"
   },
   "templates": {
     "systemName": "S3renity",

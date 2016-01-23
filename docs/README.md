@@ -1,8 +1,6 @@
 ## S3renity
 S3renity is an [S3](https://aws.amazon.com/s3/) toolbelt for Node.js that enables you to treat directories like arrays of S3 objects, and perform batch functions on them. It also provides a promise-based wrapper around the s3 api. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.
 
-Full documentation can be found [here](http://developer.littlstar.com/s3renity/docs/index.html).
-
 ## Quick Example
 ```javascript
 const S3renity = require('s3renity');
