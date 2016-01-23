@@ -14,7 +14,7 @@
   "templates": {
     "systemName": "S3renity",
     "includeDate": true,
-    "theme": "cyborg",
+    "theme": "yeti",
     "inverseNav": false,
     "navType": "inline",
     "sort": false
