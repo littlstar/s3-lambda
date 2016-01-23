@@ -1,5 +1,5 @@
 ## S3renity
-S3renity is an [S3](https://aws.amazon.com/s3/) toolbelt for [Node](https://nodejs.org/en/) that enables you to treat directories like arrays of S3 objects, and perform batch functions on them. It also provides extra functionality around handling s3 objects. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.
+S3renity is an [S3](https://aws.amazon.com/s3/) toolbelt for Node.js that enables you to treat directories like arrays of S3 objects, and perform batch functions on them. It also provides extra functionality for handling s3 objects. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.
 
 ## Batch Functions
 Perform sync or async functions over each file in a directory.
@@ -18,14 +18,23 @@ Promise-based wrapper around common S3 methods.
 - delete
 - split
 
-## Examples
-Quick examples of each `s3renity` function for reference. Refer to the class spec for more details.
+## Reference
+#### Setting Context
+The `context` method enables you to issue a new batch request by telling s3renity where the files are in s3.
+```javascript
+var bucket = 'my-bucket';
+var prefix = 'path/to/files/';
+
+s3renity
+  .context(bucket, prefix)
+  // .forEach() ...
+```
 <br/><br/>
 #### forEach
 Loops over each file in a s3 directory and performs a function.
 ```javascript
 s3renity
-  .context('bucket', 'path/to/folder')
+  .context(bucket, prefix)
   .forEach(obj => {
     // do something with obj
   })
@@ -41,7 +50,7 @@ from the mapper function.  Optionally you can make this *non-destructive* by spe
 ```javascript
 // update s3 files inline
 s3renity
-  .context('bucket', 'path/to/folder')
+  .context(bucket, prefix)
   .map(obj => {
     return obj + 'altered!';
   })
@@ -52,8 +61,8 @@ s3renity
 
 // leaves s3 files be and redirects output
 s3renity
-  .context('bucket', 'path/to/folder')
-  .output('bucket', 'path/to/output')
+  .context(bucket, prefix)
+  .output(bucket, outputPrefix)
   .map(obj => {
     return obj + 'altered!';
   })
@@ -61,6 +70,13 @@ s3renity
     console.log('done!');
   })
   .catch(console.error);
+```
+<br/>
+#### reduce
+Reduces the objects in the working context to a single value.
+```javascript
+s3renity
+  .context(bucket
 ```
 
 ## Quick Example
