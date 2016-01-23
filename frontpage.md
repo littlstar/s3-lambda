@@ -9,24 +9,23 @@ Perform sync or async functions over each file in a directory.
 - filter
 - join
 
-#### Setting Context
-The `context` method enables you to issue a new batch request by telling s3renity where the files are in s3.
+#### context(bucket, prefix[, marker])
+Sets the working context for a batch request, so s3renity knows where the files are in s3.  If a `marker` is specified, the working context is every file after that file alphabetically.
 ```javascript
-var bucket = 'my-bucket';
-var prefix = 'path/to/files/';
+const bucket = 'my-bucket';
+const prefix = 'path/to/files/';
+const marker = 'path/to/files/file3';  // only operate on files after `file3`
 
 s3renity
-  .context(bucket, prefix)
-  // .forEach() ...
+  .context(bucket, prefix, marker)
+  // .forEach() || .map || .reduce() || .filter() || .join()
 ```
 #### forEach(func[, isAsync])
 Loops over each file in a s3 directory and performs `func`.  If `isAsync` is true, `func` should return a Promise.
 ```javascript
 s3renity
   .context(bucket, prefix)
-  .forEach(object => {
-    // do something with `object`
-  })
+  .forEach(object => { /* do something with object */ })
   .then(console.log('done!')
   .catch(console.error);
 ```
@@ -83,7 +82,8 @@ s3renity
   .context(bucket, prefix)
   .output(outputBucket, outputPrefix)
   .filter(filter)
-  // ...
+  .then(console.log('done!'))
+  .catch(console.error();
 ```
 
 #### join(delimiter)
@@ -102,10 +102,9 @@ Promise-based wrapper around common S3 methods.
 - put
 - copy
 - delete
-- split
 
 #### list(bucket, prefix[, marker])
-Returns an array of keys in `s3://bucket/prefix`.
+Returns an array of keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
 ```javascript
 s3renity
   .list(bucket, prefix)
@@ -113,11 +112,11 @@ s3renity
   .catch(console.error);
 ```
 
-#### get(bucket, prefix[, encoding[, transformer]])
+#### get(bucket, key[, encoding[, transformer]])
 Gets an object in s3, calling `toString(encoding` on objects.
 ```javascript
 s3renity
-  .get(bucket, prefix)
+  .get(bucket, key)
   .then(object => { /* do something with object */ }
   .catch(console.error);
 ```
@@ -130,8 +129,30 @@ const transformer = object => {
 }
 
 s3renity
-  .get(bucket, prefix, null, transformer)
-  // ...
+  .get(bucket, key, null, transformer)
+  .then(object => { /* do something with object */ }
+  .catch(console.error);
+```
+#### put(bucket, key, object[, encoding])
+Puts an object in s3.  Default encoding is `utf8`.
+```javascript
+s3renity
+  .put(bucket, key, 'hello world!')
+  .then(console.log('done!').catch(console.error);
+```
+#### copy(sourceBucket, sourceKey, targetBucket, targetKey)
+Copies an object in s3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
+```javascript
+s3renity
+  .copy(sourceBucket, sourceKey, targetBucket, targetKey)
+  .then(console.log('done!').catch(console.error);
+```
+#### delete(bucket, key)
+Deletes an object in s3 (`s3://bucket/key`).
+```javascript
+s3renity
+  .delete(bucket, key)
+  .then(console.log('done!').catch(console.error);
 ```
 
 ## Install
