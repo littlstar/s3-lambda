@@ -38,11 +38,12 @@ class BatchRequest extends Context {
   forEach(func, isAsync) {
 
     isAsync = isAsync || false;
-    var self = this;
+    let self = this;
+    let index = 0;
 
     return new Promise((success, fail) => {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        var lastKey = keys[keys.length - 1];
+        let lastKey = keys[keys.length - 1];
         iterateObjectsRecurvive(keys, err => {
           if (err) {
             fail(err);
@@ -61,7 +62,7 @@ class BatchRequest extends Context {
       const key = keys.shift();
       self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body).then(_ => {
+          func(body, index++).then(() => {
             iterateObjectsRecurvive(keys, callback);
           }).catch(callback);
         } else {
@@ -93,12 +94,12 @@ class BatchRequest extends Context {
   map(func, isAsync) {
 
     isAsync = isAsync || false;
-    var index = 0;
-    var self = this;
+    let index = 0;
+    let self = this;
 
     return new Promise((success, fail) => {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        var lastKey = keys[keys.length - 1];
+        let lastKey = keys[keys.length - 1];
         mapObjects(keys, err => {
           if (err) {
             fail(err);
@@ -114,23 +115,22 @@ class BatchRequest extends Context {
         callback(null);
         return;
       }
-      var key = keys.shift();
+      let key = keys.shift();
       self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body, index)
+          func(body, index++)
             .then(newBody => {
-              index++;
               outputMapResult(key, newBody, keys, callback);
             })
             .catch(callback);
         } else {
+          let newBody = null;
           try {
-            var newBody = func(body, index);
+            newBody = func(body, index++);
           } catch (e) {
             callback(e);
             return;
           }
-          index++;
           outputMapResult(key, newBody, keys, callback);
         }
       }).catch(callback);
@@ -177,8 +177,8 @@ class BatchRequest extends Context {
   reduce(func, initialValue, isAsync) {
 
     isAsync = isAsync || false;
-    var value = initialValue;
-    var self = this;
+    let value = initialValue;
+    let self = this;
 
     return new Promise((success, fail) => {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
@@ -227,9 +227,10 @@ class BatchRequest extends Context {
   filter(func, isAsync) {
 
     isAsync = isAsync || false;
-    var removeObjects = [];
-    var keepObjects = [];
-    var self = this;
+    let removeObjects = [];
+    let keepObjects = [];
+    let index = 0;
+    let self = this;
 
     return new Promise((success, fail) => {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
@@ -252,7 +253,7 @@ class BatchRequest extends Context {
       let key = keys.shift();
       self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body).then(result => {
+          func(body, index++).then(result => {
             checkResult(result);
             if (result) {
               keepObjects.push(key);
@@ -262,8 +263,9 @@ class BatchRequest extends Context {
             filterObjects(keys, callback);
           }).catch(callback);
         } else {
+          let result = null;
           try {
-            var result = func(body);
+            result = func(body, index++);
           } catch (e) {
             callback(e);
             return;

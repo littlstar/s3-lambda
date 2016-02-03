@@ -277,7 +277,7 @@ class S3renity {
 
   list(bucket, prefix, marker) {
 
-    var self = this;
+    let self = this;
     marker = marker || '';
 
     return new Promise((success, fail) => {
