@@ -9,7 +9,7 @@ const s = new s3renity({
 
 const bucket = 'ls-playground';
 const prefix = 's3renity-test';
-const outputPrefix = 's3renity-test2';
+const outputPrefix = 'output-s3renity-test';
 const fileName = 'test';
 const name = `${prefix}/${fileName}`;
 const body = 'hello world';
@@ -25,7 +25,7 @@ test('clean up', t => {
       }).catch(console.error);
     }
   }).catch(e => {
-    console.log(e);
+    console.error(e);
   });
   s.list(bucket, outputPrefix + '/').then(keys => {
     if (keys.length == 0) {
@@ -36,7 +36,7 @@ test('clean up', t => {
       }).catch(console.error);
     }
   }).catch(e => {
-    console.log(e);
+    console.error(e);
   });
 });
 
@@ -48,7 +48,6 @@ test('s3renity.put, s3renity.list, s3renity.get, s3renity.delete', t => {
   s.put(bucket, name, body).then(_ => {
     t.ok(true, 's3renity.put');
     s.list(bucket, prefix).then(keys => {
-      console.log(keys[0], name);
       t.ok(keys[0] == name, 's3renity.list');
       s.get(bucket, name).then(object => {
         t.ok(object == 'hello world', 's3renity.get');
@@ -103,53 +102,58 @@ test('map sync', t => {
 
   t.plan(3);
 
-  s.context(bucket, prefix).map((line, i) => {
-    return line + i;
+  let answer = 's3renity-test/test';
+  let index = 1;
+
+  s.context(bucket, prefix).map((line, key) => {
+    return key;
   }).then(_ => {
     s.list(bucket, prefix).then(keys => {
       keys.forEach(key => {
         s.get(bucket, key).then(result => {
-          var num = key.slice(-1);
-          t.ok(result.trim() == 'hello world ' + String(num) + '' + String(num - 1), 's3renity.map sync');
-        }).catch(e => console.log(e.stack));
+          t.ok(result == key, 's3renity.map sync');
+        }).catch(e => console.error(e.stack));
       })
-    }).catch(e => console.log(e.stack));
-  }).catch(e => console.log(e.stack));
+    }).catch(e => console.error(e.stack));
+  }).catch(e => console.error(e.stack));
 });
 
 test('map async', t => {
+
   t.plan(3);
-  s.context(bucket, prefix).map((line, i) => {
+
+  s.context(bucket, prefix).map((line, key) => {
     return new Promise((success, fail) => {
-      success(line + i);
+      success(key);
     });
   }, true).then(_ => {
     s.list(bucket, prefix).then(keys => {
       keys.forEach(key => {
         s.get(bucket, key).then(result => {
-          var num = key.slice(-1);
-          t.ok(result.trim() == 'hello world ' + String(num) + String(num - 1) + String(num - 1), 's3renity.map async');
-        }).catch(e => console.log(e.stack));
+          t.ok(result == key, 's3renity.map async');
+        }).catch(e => console.error(e.stack));
       })
-    }).catch(e => console.log(e.stack));
-  }).catch(e => console.log(e.stack));
+    }).catch(e => console.error(e.stack));
+  }).catch(e => console.error(e.stack));
 })
 
 test('map with output', t => {
+
   t.plan(4);
-  var count = 0;
+
+  let count = 0;
   s.context(bucket, prefix)
     .output(bucket, outputPrefix)
-    .map((line, i) => {
+    .map((line, key) => {
       return new Promise((success, fail) => {
-        success(line + i);
+        success(key);
       });
     }, true).then(_ => {
-      s.list(bucket, outputPrefix).then(keys => {
+
+      s.list(bucket, prefix).then(keys => {
         keys.forEach(key => {
           s.get(bucket, key).then(result => {
-            var num = key.slice(-1);
-            t.ok(result.trim() == 'hello world ' + String(num) + String(num - 1) + String(num - 1) + String(num - 1), 's3renity.map with output ' + count);
+            t.ok(result == key, 's3renity.map with output ' + count);
             count++;
             if (count == 3) {
               s.list(bucket, outputPrefix).then(keys => {
@@ -158,63 +162,73 @@ test('map with output', t => {
                 }).catch(console.error);
               })
             }
-          }).catch(e => console.log(e.stack));
+          }).catch(e => console.error(e.stack));
         });
-      }).catch(e => console.log(e.stack));
-    }).catch(e => console.log(e.stack));
+      }).catch(e => console.error(e.stack));
+    }).catch(e => console.error(e.stack));
 });
 
 test('reduce sync', t => {
+
   t.plan(1);
+
   s.context(bucket, prefix).reduce((prev, cur, key) => {
     if (prev == null) {
-      return cur + key;
+      return key;
     } else {
-      return prev + cur + key;
+      return prev + key;
     }
   }).then((result) => {
-    var answer = 'hello world 100s3renity-test/test1hello world 211s3renity-test/test2hello world 322s3renity-test/test3';
+    let answer = 's3renity-test/test1s3renity-test/test2s3renity-test/test3';
     t.ok(result == answer, 'reduce sync');
-  }).catch(e => console.log(e.stack));
+  }).catch(e => console.error(e.stack));
 });
 
 test('reduce async', t => {
+
   t.plan(1);
+
   s.context(bucket, prefix).reduce((prev, cur, key) => {
     return new Promise((success, fail) => {
       if (prev == null) {
-        success(cur + key);
+        success(key);
       } else {
-        success(prev + cur + key);
+        success(prev + key);
       }
     });
   }, null, true).then(result => {
-    var answer = 'hello world 100s3renity-test/test1hello world 211s3renity-test/test2hello world 322s3renity-test/test3';
-    t.ok(result == answer, 'reduce sync');
-  }).catch(e => console.log(e.stack));
+    console.error(result);
+    let answer = 's3renity-test/test1s3renity-test/test2s3renity-test/test3';
+    t.ok(result == answer, 'reduce async');
+  }).catch(e => console.error(e.stack));
 });
 
 test('filter sync', t => {
+
   t.plan(1);
+
   s.context(bucket, prefix).filter(obj => {
-    if (obj == 'hello world 211') {
+    if (obj == 's3renity-test/test1') {
       return false;
     } else {
       return true;
     }
   }).then(() => {
+
     s.list(bucket, prefix).then(keys => {
-      var answer = ['s3renity-test/test1', 's3renity-test/test3'];
+      let answer = ['s3renity-test/test2', 's3renity-test/test3'];
       t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter');
-    }).catch(e => console.log(e.stack));
-  }).catch(e => console.log(e.stack));
+    }).catch(e => console.error(e.stack));
+  }).catch(e => console.error(e.stack));
 });
 
 test('filter async', t => {
+
   t.plan(1);
+
   s.context(bucket, prefix).filter(obj => {
     return new Promise((success, fail) => {
-      if (obj == 'hello world 211') {
+      if (obj == 's3renity-test/test2') {
         success(false);
       } else {
         success(true);
@@ -222,28 +236,30 @@ test('filter async', t => {
     });
   }, true).then(() => {
     s.list(bucket, prefix).then(keys => {
-      var answer = ['s3renity-test/test1', 's3renity-test/test3'];
-      t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter');
-    }).catch(e => console.log(e.stack));
-  }).catch(e => console.log(e.stack));
+      var answer = ['s3renity-test/test3'];
+      t.ok(keys[0] == answer[0] && keys.length == answer.length, 'filter');
+    }).catch(e => console.error(e.stack));
+  }).catch(e => console.error(e.stack));
 });
 
 test('filter with output', t => {
+
   t.plan(1);
+
   s.context(bucket, prefix)
     .output(bucket, outputPrefix)
-    .filter(obj => {
-      if (obj == 'hello world 211') {
+    .filter((obj, key) => {
+      console.error('OBJ', obj);
+      if (obj == 's3renity-test/test3') {
         return false;
       } else {
         return true;
       }
     }).then(() => {
       s.list(bucket, outputPrefix).then(keys => {
-        var answer = ['s3renity-test2/test1', 's3renity-test2/test3'];
-        t.ok(keys[0] == answer[0] && keys[1] == answer[1] && keys.length == answer.length, 'filter with output');
-      }).catch(e => console.log(e.stack));
-    }).catch(e => console.log(e.stack));
+        t.ok(keys.length == 0, 'filter with output');
+      }).catch(e => console.error(e.stack));
+    }).catch(e => console.error(e.stack));
 });
 
 test('join', t => {
@@ -251,7 +267,7 @@ test('join', t => {
   s.context(bucket, prefix)
   .join('\n')
   .then(result => {
-    var answer = 'hello world 100\nhello world 322';
+    var answer = 's3renity-test/test3';
     t.ok(result == answer, 'join');
-  }).catch(e => console.log(e.stack));
+  }).catch(e => console.error(e.stack));
 });

@@ -39,7 +39,6 @@ class BatchRequest extends Context {
 
     isAsync = isAsync || false;
     let self = this;
-    let index = 0;
 
     return new Promise((success, fail) => {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
@@ -62,12 +61,12 @@ class BatchRequest extends Context {
       const key = keys.shift();
       self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body, index++).then(() => {
+          func(body, key).then(() => {
             iterateObjectsRecurvive(keys, callback);
           }).catch(callback);
         } else {
           try {
-            func(body);
+            func(body, key);
           } catch (e) {
             callback(e);
             return;
@@ -94,7 +93,6 @@ class BatchRequest extends Context {
   map(func, isAsync) {
 
     isAsync = isAsync || false;
-    let index = 0;
     let self = this;
 
     return new Promise((success, fail) => {
@@ -118,7 +116,7 @@ class BatchRequest extends Context {
       let key = keys.shift();
       self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body, index++)
+          func(body, key)
             .then(newBody => {
               outputMapResult(key, newBody, keys, callback);
             })
@@ -126,7 +124,7 @@ class BatchRequest extends Context {
         } else {
           let newBody = null;
           try {
-            newBody = func(body, index++);
+            newBody = func(body, key);
           } catch (e) {
             callback(e);
             return;
@@ -229,7 +227,6 @@ class BatchRequest extends Context {
     isAsync = isAsync || false;
     let removeObjects = [];
     let keepObjects = [];
-    let index = 0;
     let self = this;
 
     return new Promise((success, fail) => {
@@ -253,7 +250,7 @@ class BatchRequest extends Context {
       let key = keys.shift();
       self.s3.get(self.bucket, key).then(body => {
         if (isAsync) {
-          func(body, index++).then(result => {
+          func(body, key).then(result => {
             checkResult(result);
             if (result) {
               keepObjects.push(key);
@@ -265,7 +262,7 @@ class BatchRequest extends Context {
         } else {
           let result = null;
           try {
-            result = func(body, index++);
+            result = func(body, key);
           } catch (e) {
             callback(e);
             return;
