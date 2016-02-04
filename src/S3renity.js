@@ -192,6 +192,9 @@ class S3renity {
         if (err) {
           fail(err);
         } else {
+          if (this.verbose) {
+            console.info(`COPY OBJECT s3://${bucket}/${key} --> s3://${targetBucket}/${targetKey}`);
+          }
           success();
         }
       });
