@@ -202,6 +202,25 @@ class S3renity {
   }
 
   /**
+   * Moves an object in S3 (copy then delete).
+   *
+   * @public
+   * @param {String} bucket The source bucket
+   * @param {String} key The source key
+   * @param {String} targetBucket The target bucket
+   * @param {String} targetKey The target key
+   * @return {Promise}
+   */
+
+  move(bucket, key, targetBucket, targetKey) {
+    return new Promise((success, fail) => {
+      this.copy(bucket, key, targetBucket, targetKey).then(() => {
+        this.delete(bucket, key).catch(fail);
+      }).catch(fail);
+    });
+  }
+
+  /**
    * Deletes an object or array of objects in S3.
    *
    * @public
@@ -222,7 +241,7 @@ class S3renity {
         if (err) {
           fail(err);
         } else {
-          success(key);
+          success();
           if (this.verbose) {
             console.info(`DELETE OBJECT s3://${bucket}/${key}`);
           }
@@ -242,12 +261,11 @@ class S3renity {
 
   deleteObjects(bucket, keys) {
     return new Promise((success, fail) => {
-      // creates input with format: { Key: key } required by s3
-      let input = [];
-      keys.forEach((key, i, arr) => {
-        input.push({
+      /* creates input with format: { Key: key } required by s3 */
+      let input = keys.map(key => {
+        return {
           Key: key
-        });
+        };
       });
       this.s3.deleteObjects({
         Bucket: bucket,
@@ -261,7 +279,7 @@ class S3renity {
           success(res);
           if (this.verbose) {
             keys.forEach(key => {
-              console.info(`s3://${bucket}/${key}`);
+              console.info(`DELETE OBJECT s3://${bucket}/${key}`);
             });
           }
         }
