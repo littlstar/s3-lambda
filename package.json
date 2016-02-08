@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.2.31",
+    "fs-extra": "^0.26.5",
     "ink-docstrap": "^1.1.0",
     "mock-aws-s3": "^2.1.0"
   },
