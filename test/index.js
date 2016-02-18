@@ -368,6 +368,25 @@ test('s3renity.context.output.filter (async)', t => {
   .catch(e => console.error(e.stack));
 });
 
+test('s3renity.join', t => {
+
+  reset();
+  t.plan(1);
+
+  let names = ['test1', 'test2', 'test3'];
+  let keys = names.map(key => `${prefix}/${key}`);
+  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
+
+  let answer = names.join('\n');
+
+  s3.context(bucket, prefix)
+  .join('\n')
+  .then(result => {
+    t.ok(result == answer, 's3renity.join 3 files');
+  });
+
+});
+
 test('end', t => {
   reset();
   t.end();
