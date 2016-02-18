@@ -284,6 +284,44 @@ test('s3renity.context.reduce (async)', t => {
 
 test('s3renity.context.filter (sync)', t => {
 
+  reset();
+  t.plan(1);
+
+  let names = ['test1', 'test2', 'test3'];
+  let keys = names.map(key => `${prefix}/${key}`);
+  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
+  let answer = 'test1';
+
+  s3.context(bucket, prefix)
+  .filter(obj => {
+    return obj == 'test1';
+  })
+  .then(() => {
+    t.ok(fs.readdirSync(path) == answer, 'filter 3 files to 1');
+  })
+  .catch(e => console.error(e.stack));
+});
+
+test('s3renity.context.filter (async)', t => {
+
+  reset();
+  t.plan(1);
+
+  let names = ['test1', 'test2', 'test3'];
+  let keys = names.map(key => `${prefix}/${key}`);
+  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
+  let answer = 'test1';
+
+  s3.context(bucket, prefix)
+  .filter(obj => {
+    return new Promise((success, fail) => {
+      success(obj == 'test1');
+    });
+  }, true)
+  .then(() => {
+    t.ok(fs.readdirSync(path) == answer, 'filter 3 files to 1');
+  })
+  .catch(e => console.error(e.stack));
 });
 
 test('end', t => {
