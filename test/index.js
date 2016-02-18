@@ -389,6 +389,7 @@ test('s3renity.join', t => {
 
 test('end', t => {
   reset();
+  fs.removeSync(`${__dirname}/buckets`);
   t.end();
 })
 
