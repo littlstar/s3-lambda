@@ -49,9 +49,9 @@ class S3renity {
       }
 
       let s3opts = {
-        maxRetries: config.max_retries || 30,
+        maxRetries: config.max_retries || 10,
         httpOptions: {
-          timeout: config.timeout || 120
+          timeout: config.timeout || 1000
         }
       };
 
