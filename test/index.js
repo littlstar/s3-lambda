@@ -6,12 +6,14 @@ const s3renity = require(`${__dirname}/../src/S3renity.js`);
 
 const s3 = new s3renity({
   local_path: `${__dirname}/buckets/`
-    // verbose: true
+  // verbose: true
 });
 
 const bucket = 's3renity';
-const prefix = 'files';
+const prefix = 'files1';
+const prefix2 = 'files2';
 const path = `${__dirname}/buckets/s3renity/${prefix}`;
+const path2 = `${__dirname}/buckets/s3renity/${prefix2}`;
 const outputPrefix = 'output-test';
 const outputPath = `${__dirname}/buckets/s3renity/${outputPrefix}`;
 
@@ -27,8 +29,33 @@ test('s3renity.list', t => {
   s3.list(bucket, prefix).then(keys => {
     let correct = (keys[0] == answer[0] && keys[1] == answer[1] && keys[2] == answer[2]);
     t.ok(correct, 'list objects');
-  });
+  }).catch(e => console.error(e.stack));
+});
 
+test('s3renity.list multiple sources', t => {
+
+  reset();
+  t.plan(1);
+
+  let keys = ['test1', 'test2', 'test3'];
+  let answer = keys.map(key => `${prefix}/${key}`)
+    .concat(keys.map(key => `${prefix2}/${key}`));
+
+  keys.forEach(key => fs.writeFileSync(`${path}/${key}`));
+  keys.forEach(key => fs.writeFileSync(`${path2}/${key}`));
+
+  let sources = [{
+    bucket: bucket,
+    prefix: prefix
+  }, {
+    bucket: bucket,
+    prefix: prefix2
+  }];
+
+  s3.list(sources).then(keys => {
+    let success = (answer.length == keys.length && answer[0] == keys[0] && answer[1] == keys[1] && answer[2] == keys[2] && answer[3] == keys[3] && answer[4] == keys[4] && answer[5] == keys[5] && answer[6] == keys[6]);
+    t.ok(success, 'list multiple sources');
+  }).catch(e => console.error(e.stack));
 });
 
 test('s3renity.put', t => {
@@ -108,10 +135,11 @@ test('s3renity.context.forEach (sync)', t => {
   s3.context(bucket, prefix).forEach((obj, key) => {
     results.push(key + obj);
   }).then(() => {
+    console.log(results);
     let answers = keys.map((key, i) => key + names[i]);
     let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
     t.ok(success, 'forEach sync over 3 objects')
-  });
+  }).catch(e => console.error(e.stack));
 });
 
 test('s3renity.context.forEach (async)', t => {
@@ -395,6 +423,8 @@ test('end', t => {
 
 function reset() {
   fs.removeSync(path);
+  fs.removeSync(path2);
   fs.removeSync(outputPath);
   fs.mkdirsSync(path);
+  fs.mkdirsSync(path2);
 }

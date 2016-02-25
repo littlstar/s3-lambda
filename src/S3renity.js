@@ -4,6 +4,7 @@
  */
 'use strict'
 
+const async = require('async');
 const aws = require('aws-sdk');
 const awsM = require('mock-aws-s3');
 const fs = require('fs');
@@ -71,7 +72,7 @@ class S3renity {
 
   context(bucket, prefix, marker) {
     marker = marker || '';
-    prefix = prefix[prefix.length-1] == '/' ? prefix : prefix + '/';
+    prefix = prefix[prefix.length - 1] == '/' ? prefix : prefix + '/';
     return new BatchRequest(this, bucket, prefix, marker);
   }
 
@@ -299,66 +300,71 @@ class S3renity {
   list(bucket, prefix, marker) {
 
     let self = this;
-    marker = marker || '';
+    let sources = bucket;
+    let allKeys = [];
+
+    if (typeof sources != 'object') {
+      sources = [{
+        bucket: bucket,
+        prefix: prefix,
+        marker: marker
+      }];
+    }
 
     return new Promise((success, fail) => {
-      listRecursive(marker, success, fail);
+
+      let funcs = [];
+
+      sources.forEach(source => {
+        funcs.push(callback => {
+          recurse(source.bucket, source.prefix, source.marker, callback);
+        });
+      });
+
+      async.series(funcs, err => {
+        if (err) {
+          fail(err);
+        } else {
+          success(allKeys);
+        }
+      });
     });
 
-    function listRecursive(marker, success, fail, allKeys) {
-      if (allKeys == null) {
-        allKeys = [];
-      }
-      self.listObjects(bucket, prefix, marker).then(keys => {
-        if (keys.length == 0) {
-          success(allKeys);
-          return;
-        }
-        keys.forEach(key => {
-          allKeys.push(key.Key);
-          marker = key.Key;
-        });
-        listRecursive(marker, success, fail, allKeys);
-      }).catch(fail);
-    };
-  }
-
-  /**
-   * Return a promise that gets keys from s3 given a bucket, prefix and marker.
-   * TODO(wells) don't do the second lookup if # results < 1000
-   *
-   * @private
-   * @param {String} bucket - The bucket to get the keys from
-   * @param {String} prefix - The prefix for the folder where the keys are
-   * @param {String} [marker] - The key to start listing from
-   * @returns {Promise}
-   */
-
-  listObjects(bucket, prefix, marker) {
-    marker = marker || '';
-    return new Promise((success, fail) => {
-      this.s3.listObjects({
+    function recurse(bucket, prefix, marker, done) {
+      marker = marker || '';
+      self.s3.listObjects({
         Bucket: bucket,
         Prefix: prefix,
         Marker: marker
       }, (err, keys) => {
         if (err) {
-          fail(err);
+          done(err);
         } else {
-          if (this.verbose) {
+
+          if (self.verbose) {
             console.info(`LIST OBJECTS s3://${bucket}/${marker == '' ? prefix : marker}`);
           }
-          keys = keys.Contents;
 
-          // s3 sometimes returns the folder as a key for some reason,
-          // so shift it off
-          if (keys.length && keys[0].Key == prefix) {
+          keys = keys.Contents.map(key => {
+            return key.Key
+          });
+
+          /* ignore the folder itself */
+          if (keys.length && keys[0] == prefix) {
             keys.shift();
           }
-          success(keys);
+
+          marker = keys[keys.length-1];
+          allKeys = allKeys.concat(keys);
+
+          if (keys.length < 1000) {
+            done();
+          } else {
+            recurse(bucket, prefix, marker, done);
+          }
         }
       });
-    });
+    };
   }
 
   /**
