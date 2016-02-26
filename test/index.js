@@ -14,7 +14,7 @@ const prefix = 'files1';
 const prefix2 = 'files2';
 const path = `${__dirname}/buckets/s3renity/${prefix}`;
 const path2 = `${__dirname}/buckets/s3renity/${prefix2}`;
-const outputPrefix = 'output-test';
+const outputPrefix = 'output-test/';
 const outputPath = `${__dirname}/buckets/s3renity/${outputPrefix}`;
 
 test('s3renity.list', t => {

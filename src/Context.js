@@ -20,7 +20,8 @@ class Context {
   constructor(s3, bucket, prefix, marker) {
     this.bucket = bucket;
     this.prefix = prefix;
-    this._marker = marker;
+    this._marker = marker || '';
+    this.encoding = 'utf8';
     this.s3 = s3;
   }
 
@@ -86,7 +87,6 @@ class Context {
    */
 
   output(bucket, prefix) {
-    prefix = prefix[prefix.length-1] == '/' ? prefix : prefix + '/';
     this.target = {};
     this.target.bucket = bucket;
     this.target.prefix = prefix;

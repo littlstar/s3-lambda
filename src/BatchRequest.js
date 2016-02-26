@@ -18,12 +18,12 @@ class BatchRequest extends Context {
    * @private
    * @param {S3renity} s3 - The S3renity instance to use for making s3 requests
    * @param {String} bucket The bucket
-   * @param {String} key The key
+   * @param {String} prefix The prefix
    * @param {String} [marker] The key to start from
    */
 
-  constructor(s3, bucket, key, marker) {
-    super(s3, bucket, key, marker);
+  constructor(s3, bucket, prefix, marker) {
+    super(s3, bucket, prefix, marker);
   }
 
   /**
@@ -58,8 +58,8 @@ class BatchRequest extends Context {
         callback(null);
         return;
       }
-      const key = keys.shift();
-      self.s3.get(self.bucket, key).then(body => {
+      let key = keys.shift();
+      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
         if (isAsync) {
           func(body, key).then(() => {
             iterateObjectsRecurvive(keys, callback);
@@ -114,7 +114,7 @@ class BatchRequest extends Context {
         return;
       }
       let key = keys.shift();
-      self.s3.get(self.bucket, key).then(body => {
+      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
         if (isAsync) {
           func(body, key)
             .then(newBody => {
@@ -196,7 +196,7 @@ class BatchRequest extends Context {
         return;
       }
       let key = keys.shift();
-      self.s3.get(self.bucket, key).then(body => {
+      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
         if (isAsync) {
           func(value, body, key).then(newValue => {
             value = newValue;
@@ -248,7 +248,7 @@ class BatchRequest extends Context {
         return;
       }
       let key = keys.shift();
-      self.s3.get(self.bucket, key).then(body => {
+      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
         if (isAsync) {
           func(body, key).then(result => {
             checkResult(result);
@@ -290,7 +290,7 @@ class BatchRequest extends Context {
           callback(null);
         }).catch(callback);
       } else {
-        self.s3.delete(self.bucket, removeObjects).then(_ => {
+        self.s3.delete(self.bucket, removeObjects).then(() => {
           callback(null);
         }).catch(callback);
       }
@@ -318,7 +318,7 @@ class BatchRequest extends Context {
       this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
         let getPromises = [];
         keys.forEach(key => {
-          getPromises.push(this.s3.get(this.bucket, key));
+          getPromises.push(this.s3.get(this.bucket, key, this.encoding, this.transformer));
         });
         Promise.all(getPromises).then(objects => {
           success(objects.join(delimiter));

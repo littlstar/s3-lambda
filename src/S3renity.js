@@ -7,7 +7,6 @@
 const async = require('async');
 const aws = require('aws-sdk');
 const awsM = require('mock-aws-s3');
-const fs = require('fs');
 const BatchRequest = require('./BatchRequest');
 
 /**
@@ -29,19 +28,14 @@ class S3renity {
    */
 
   constructor(config) {
+
     config = config || {};
     this.verbose = config.verbose || false;
 
-    if (config.local_path != null) {
-
-      // use local files (using mock aws sdk)
-      awsM.config.basePath = config.local_path;
-      this.s3 = new awsM.S3();
-    } else {
+    if (config.local_path == null) {
 
       // use the aws sdk. attempt to use aws credentials in config.  if they
       // are not present, the aws sdk could pick them up in ~/.aws/credentials
-      // or elsewhere
       if (config.access_key_id && config.secret_access_key) {
         aws.config.update({
           accessKeyId: config.access_key_id,
@@ -57,6 +51,11 @@ class S3renity {
       };
 
       this.s3 = new aws.S3(s3opts);
+    } else {
+
+      /* use local files (using mock aws sdk) */
+      awsM.config.basePath = config.local_path;
+      this.s3 = new awsM.S3();
     }
   }
 
@@ -71,8 +70,6 @@ class S3renity {
    */
 
   context(bucket, prefix, marker) {
-    marker = marker || '';
-    prefix = prefix[prefix.length - 1] == '/' ? prefix : prefix + '/';
     return new BatchRequest(this, bucket, prefix, marker);
   }
 
@@ -95,6 +92,8 @@ class S3renity {
    */
 
   getFileName(key) {
+    //TODO(wells) this is not robust
+    // use this.prefix instead of lastIndex
     return key.substr(key.lastIndexOf('/') + 1, key.length);
   }
 
@@ -366,37 +365,6 @@ class S3renity {
       });
     };
   }
-
-  /**
-   * Splits an S3 object by a delimiter.
-   *
-   * @private
-   * @param {String} bucket - The s3 bucket to use
-   * @param {String} key - The key to the object
-   * @param {String} delimiter - Optional, default is \n. The character to use in
-   * the split over the object's body
-   * @param {String} encoding - Optional, default is utf8
-   * @returns {Promise} An array that is the split object.
-   */
-
-  split(bucket, key, delimiter, encoding) {
-    delimiter = delimiter || '\n';
-    encoding = encoding || 'utf8'
-    return new Promise((success, fail) => {
-      this.get(bucket, key, encoding).then(body => {
-        if (body == '') {
-          success([]);
-        } else {
-          try {
-            success(body.split(delimiter));
-          } catch (err) {
-            fail(err);
-          }
-        }
-      }).catch(fail);
-    });
-  }
-
 }
 
 module.exports = S3renity;
