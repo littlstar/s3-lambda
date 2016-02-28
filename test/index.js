@@ -5,8 +5,8 @@ const fs = require('fs-extra');
 const s3renity = require(`${__dirname}/../src/S3renity.js`);
 
 const s3 = new s3renity({
-  local_path: `${__dirname}/buckets/`
-  // verbose: true
+  local_path: `${__dirname}/buckets/`,
+  verbose: true
 });
 
 const bucket = 's3renity';

@@ -27,6 +27,7 @@ class BatchRequest {
 
   constructor(s3, sources) {
     this.s3 = s3;
+    this.verbose = s3.verbose;
     this.resolveSources = sources;
     this.encoding = 'utf8';
     this.c = Infinity;
@@ -120,9 +121,7 @@ class BatchRequest {
             if (isAsync) {
               func(body, source.key).then(() => {
                 done();
-              }).catch(e => {
-                done(e);
-              });
+              }).catch(done);
             } else {
               try {
                 func(body, source.key);
@@ -136,11 +135,11 @@ class BatchRequest {
       });
 
       /* update console on progress */
-      batch.on('progress', status => {
-        if (this.verbose) {
-          console.log(status);
-        }
-      });
+      if (this.verbose) {
+        batch.on('progress', status => {
+          console.info(status);
+        });
+      }
 
       batch.end(err => {
         if (err) {
@@ -203,11 +202,11 @@ class BatchRequest {
         });
       });
 
-      batch.on('progress', status => {
-        if (this.verbose) {
-          console.log(status);
-        }
-      });
+      if (this.verbose) {
+        batch.on('progress', status => {
+          console.info(status);
+        });
+      }
 
       batch.end(err => {
         if (err) {
@@ -227,9 +226,7 @@ class BatchRequest {
       if (self.target == null) {
         self.s3.put(bucket, key, body, self.encoding).then(() => {
           done();
-        }).catch(e => {
-          done(e);
-        });
+        }).catch(done);
       } else {
         self.s3.put(self.target.bucket, self.target.prefix + key, body).then(() => {
           done();
@@ -287,6 +284,12 @@ class BatchRequest {
           }).catch(done);
         });
       });
+
+      if (this.verbose) {
+        batch.on('progress', status => {
+          console.info(status);
+        });
+      }
 
       batch.end(err => {
         if (err) {
@@ -369,6 +372,12 @@ class BatchRequest {
         });
       });
 
+      if (this.verbose) {
+        batch.on('progress', status => {
+          console.info(status);
+        });
+      }
+
       batch.end(err => {
 
         if (err) {
@@ -390,6 +399,12 @@ class BatchRequest {
             });
           });
 
+          if (this.verbose) {
+            b.on('progress', status => {
+              console.info(status);
+            });
+          }
+
           b.end(err => {
             if (err) {
               deferred.reject(err);
@@ -410,6 +425,12 @@ class BatchRequest {
               });
             });
           });
+
+          if (this.verbose) {
+            b.on('progress', status => {
+              console.info(status);
+            });
+          }
 
           b.end(err => {
             if (err) {
