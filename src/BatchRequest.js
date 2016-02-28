@@ -1,6 +1,10 @@
+/**
+ * @author Wells Johnston <wells@littlstar.com>
+ */
+
 'use strict'
 
-const Context = require('./Context');
+const Batch = require('batch');
 
 /**
  * Self-contained batch request object, created by {@link S3renity#context}.
@@ -8,22 +12,80 @@ const Context = require('./Context');
  * a batch request.
  */
 
-class BatchRequest extends Context {
+class BatchRequest {
 
   /**
-   * A {@link BatchRequest} can only be created by calling
-   * {@link S3renity#context}.
+   * Creates a new <code>Context</code> to perform batch operations with. You can
+   * either supply an s3 path like <code>s3://<bucket>/path/to/folder</code>
+   * or a bucket and prefix.
    *
-   * @extends Context
-   * @private
-   * @param {S3renity} s3 - The S3renity instance to use for making s3 requests
-   * @param {String} bucket The bucket
-   * @param {String} prefix The prefix
-   * @param {String} [marker] The key to start from
+   * @param {S3renity} s3 - The s3renity instance used for internal requests
+   * @param {Promise} sources - The keys for the given context
    */
 
-  constructor(s3, bucket, prefix, marker) {
-    super(s3, bucket, prefix, marker);
+  constructor(s3, sources) {
+    this.s3 = s3;
+    this.resolveSources = sources;
+    this.encoding = 'utf8';
+    this.c = Infinity;
+  }
+
+  /**
+   * Sets the encoding to use when getting s3 objects with
+   * <code>object.Body.toString(encoding)</code>. If not set, <code>utf8</code>
+   * is used.
+   *
+   * @param {String} encoding - The encoding
+   * @returns {Context} <code>this</code>
+   */
+
+  encode(encoding) {
+    this.encoding = encoding;
+    return this;
+  }
+
+  /**
+   * Sets a transformation function to be used when getting objects from s3.
+   * Using <code>transform</code> takes precedence over <code>encode</code>.
+   *
+   * @param {Function} transformer - The function to use to transform the
+   * object. The transforation function takes an s3 object as a parameter
+   * and should return the file's contents as a string.
+   * @returns {Context} <code>this</code>
+   */
+
+  transform(transformer) {
+    this.transformer = transformer;
+    return this;
+  }
+
+  /**
+   * Sets the concurrency for batch requests
+   *
+   * @param {Integer} c The concurrency level.
+   */
+
+  concurrency(c) {
+    this.c = c;
+    return this;
+  }
+
+  /**
+   * Sets the output directory for map or filter.  If a target is set, map and
+   * filter write to that location instead of changing the original objects
+   * themselves.
+   *
+   * @param {String} bucket - The target bucket.
+   * @param {String} prefix - The target prefix (folder) where the output will go.
+   * @return {Context} <code>this</code>
+   */
+
+  output(bucket, prefix) {
+    this.target = {
+      bucket: bucket,
+      prefix: prefix
+    };
+    return this;
   }
 
   /**
@@ -38,43 +100,55 @@ class BatchRequest extends Context {
   forEach(func, isAsync) {
 
     isAsync = isAsync || false;
-    let self = this;
 
-    return new Promise((success, fail) => {
-      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        let lastKey = keys[keys.length - 1];
-        iterateObjectsRecurvive(keys, err => {
-          if (err) {
-            fail(err);
-          } else {
-            success(lastKey);
-          }
+    let deferred = Promise.defer();
+    let batch = new Batch;
+    batch.concurrency(this.c);
+
+    this.resolveSources.then(sources => {
+
+      let last = sources[sources.length - 1];
+
+      /* create functions array */
+      sources.forEach(source => {
+
+        batch.push(done => {
+
+          this.s3.get(source.bucket, source.key, this.encoding, this.transformer).then(body => {
+            if (isAsync) {
+              func(body, source.key).then(() => {
+                done();
+              }).catch(e => {
+                done(e);
+              });
+            } else {
+              try {
+                func(body, source.key);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            }
+          });
         });
-      }).catch(fail);
+      });
+
+      batch.on('progress', e => {
+        //TODO if verbose show progress
+      });
+
+      batch.end(err => {
+        if (err) {
+          deferred.reject(err);
+        }
+        deferred.resolve(last);
+      });
+
+    }).catch(e => {
+      deferred.reject(e);
     });
 
-    function iterateObjectsRecurvive(keys, callback) {
-      if (keys.length == 0) {
-        callback(null);
-        return;
-      }
-      let key = keys.shift();
-      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
-        if (isAsync) {
-          func(body, key).then(() => {
-            iterateObjectsRecurvive(keys, callback);
-          }).catch(callback);
-        } else {
-          try {
-            func(body, key);
-          } catch (e) {
-            callback(e);
-            return;
-          }
-          iterateObjectsRecurvive(keys, callback);
-        }
-      }).catch(callback);
-    }
+    return deferred.promise;
   }
 
   /**
@@ -93,65 +167,72 @@ class BatchRequest extends Context {
   map(func, isAsync) {
 
     isAsync = isAsync || false;
-    let self = this;
 
-    return new Promise((success, fail) => {
-      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        let lastKey = keys[keys.length - 1];
-        mapObjects(keys, err => {
-          if (err) {
-            fail(err);
-          } else {
-            success(lastKey);
-          }
+    let self = this;
+    let deferred = Promise.defer();
+    let batch = new Batch;
+    batch.concurrency(this.c);
+
+    this.resolveSources.then(keys => {
+
+      let lastKey = keys[keys.length - 1];
+
+      keys.forEach(source => {
+        batch.push(done => {
+          this.s3.get(source.bucket, source.key, this.encoding, this.transformer).then(body => {
+            if (isAsync) {
+              func(body, source.key).then(newBody => {
+                output(source.bucket, source.key, newBody, done);
+              }).catch(e => {
+                deferred.reject(e);
+              })
+            } else {
+              try {
+                let newBody = func(body, source.key);
+                output(source.bucket, source.key, newBody, done);
+              } catch (e) {
+                deferred.reject(e);
+              }
+            }
+          });
         });
-      }).catch(fail);
+      });
+
+      batch.on('progress', e => {
+        //TODO if verbose show progress
+      });
+
+      batch.end(err => {
+        if (err) {
+          deferred.reject(err);
+        }
+        deferred.resolve(lastKey);
+      });
+
+    }).catch(e => {
+      deferred.reject(e);
     });
 
-    function mapObjects(keys, callback) {
-      if (keys.length == 0) {
-        callback(null);
-        return;
+    function output(bucket, key, body, done) {
+      if (body == null) {
+        throw new Error('mapper function must return a value');
       }
-      let key = keys.shift();
-      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
-        if (isAsync) {
-          func(body, key)
-            .then(newBody => {
-              outputMapResult(key, newBody, keys, callback);
-            })
-            .catch(callback);
-        } else {
-          let newBody = null;
-          try {
-            newBody = func(body, key);
-          } catch (e) {
-            callback(e);
-            return;
-          }
-          outputMapResult(key, newBody, keys, callback);
-        }
-      }).catch(callback);
+      if (self.target == null) {
+        self.s3.put(bucket, key, body, self.encoding).then(() => {
+          done();
+        }).catch(e => {
+          done(e);
+        });
+      } else {
+        self.s3.put(self.target.bucket, self.target.prefix + key, body).then(() => {
+          done();
+        }).catch(e => {
+          done(e);
+        })
+      }
     }
 
-    function outputMapResult(key, body, keys, callback) {
-      if (body == null) {
-        throw new Error('your mapper function must return a string to use for the s3 object body');
-      }
-      if (self.target != null) {
-        let filename = self.s3.getFileName(key);
-        let targetKey = `${self.target.prefix}${filename}`;
-        self.s3
-          .put(self.target.bucket, targetKey, body, self.encoding)
-          .then(() => mapObjects(keys, callback))
-          .catch(callback);
-      } else {
-        self.s3
-          .put(self.bucket, key, body, self.encoding)
-          .then(() => mapObjects(keys, callback))
-          .catch(callback);
-      }
-    }
+    return deferred.promise;
   }
 
   /**
@@ -165,8 +246,7 @@ class BatchRequest extends Context {
    *   key           - The key of the current object being processed
    *   func either returns the updated value, or a promise that resolves to the
    *   updated value.
-   * @param {string} initialValue Optional.  Value to use as the first argument to
-   * the first call of func.
+   * @param {string} value Optional.  Initial value to use as the first argument
    * @param {boolean} isAsync Optional, defaults to false. If set to true, this
    * indicates that func returns a promise.
    * @return {promise} Returns the reduced result.
@@ -174,40 +254,43 @@ class BatchRequest extends Context {
 
   reduce(func, initialValue, isAsync) {
 
-    isAsync = isAsync || false;
-    let value = initialValue;
     let self = this;
+    let value = initialValue;
+    let deferred = Promise.defer();
+    isAsync = isAsync || false;
 
-    return new Promise((success, fail) => {
-      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        reduceObjects(keys, (err, result) => {
-          if (err) {
-            fail(err);
-          } else {
-            success(result);
-          }
-        });
-      }).catch(fail);
+    this.resolveSources.then(sources => {
+      recurse(sources, (err, result) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(result);
+        }
+      });
+    }).catch(e => {
+      deferred.reject(e);
     });
 
-    function reduceObjects(keys, callback) {
-      if (keys.length == 0) {
-        callback(null, value);
+    function recurse(sources, done) {
+      if (sources.length == 0) {
+        done(null, value);
         return;
       }
-      let key = keys.shift();
-      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
+      let source = sources.shift();
+      self.s3.get(source.bucket, source.key, self.encoding, self.transformer).then(body => {
         if (isAsync) {
-          func(value, body, key).then(newValue => {
+          func(value, body, source.key).then(newValue => {
             value = newValue;
-            reduceObjects(keys, callback);
-          }).catch(e => callback(e, null));
+            recurse(sources, done);
+          }).catch(e => done(e, null));
         } else {
-          value = func(value, body, key);
-          reduceObjects(keys, callback);
+          value = func(value, body, source.key);
+          recurse(sources, done);
         }
-      }).catch(e => callback(e, null));
+      }).catch(e => done(e, null));
     }
+
+    return deferred.promise;
   }
 
   /**
@@ -224,107 +307,120 @@ class BatchRequest extends Context {
 
   filter(func, isAsync) {
 
-    isAsync = isAsync || false;
-    let removeObjects = [];
-    let keepObjects = [];
     let self = this;
+    let keep = [];
+    let remove = [];
+    let deferred = Promise.defer();
+    let batch = new Batch;
+    isAsync = isAsync || false;
 
-    return new Promise((success, fail) => {
-      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        filterObjects(keys, err => {
-          if (err) {
-            fail(err);
-          } else {
-            success();
-          }
-        });
-      }).catch(fail);
-    });
+    this.resolveSources.then(sources => {
 
-    // recursively get all objects and run filter function
-    function filterObjects(keys, callback) {
-      if (keys.length == 0) {
-        finish(callback);
-        return;
-      }
-      let key = keys.shift();
-      self.s3.get(self.bucket, key, self.encoding, self.transformer).then(body => {
-        if (isAsync) {
-          func(body, key).then(result => {
-            checkResult(result);
-            if (result) {
-              keepObjects.push(key);
+      /**
+       * loop over every key and run the filter function on each object. keep
+       * track of files to keep and remove.
+       */
+      sources.forEach(source => {
+
+        batch.push(done => {
+
+          this.s3.get(source.bucket, source.key, self.encoding, self.transformer).then(body => {
+            if (isAsync) {
+              func(body, source).then(result => {
+                check(result);
+                if (result) {
+                  keep.push(source);
+                } else {
+                  remove.push(source);
+                }
+                done();
+              }).catch(e => {
+                done(e);
+              });
             } else {
-              removeObjects.push(key);
+              let result = null;
+              try {
+                result = func(body, source);
+              } catch (e) {
+                done(e);
+                return;
+              }
+              check(result);
+              if (result) {
+                keep.push(source);
+              } else {
+                remove.push(source);
+              }
+              done();
             }
-            filterObjects(keys, callback);
-          }).catch(callback);
-        } else {
-          let result = null;
-          try {
-            result = func(body, key);
-          } catch (e) {
-            callback(e);
-            return;
-          }
-          checkResult(result);
-          if (result) {
-            keepObjects.push(key);
-          } else {
-            removeObjects.push(key);
-          }
-          filterObjects(keys, callback);
+          }).catch(e => {
+            done(e);
+          });
+        });
+      });
+
+      batch.end(err => {
+
+        if (err) {
+          deferred.reject(err);
         }
-      }).catch(callback);
-    }
 
-    // output result to `target` or filter results destructively
-    function finish(callback) {
-      if (self.target != null) {
-        let promises = [];
-        keepObjects.forEach(key => {
-          let fileName = self.s3.getFileName(key);
-          promises.push(self.s3.copy(self.bucket, key, self.target.bucket, self.target.prefix + fileName));
-        });
-        Promise.all(promises).then(_ => {
-          callback(null);
-        }).catch(callback);
-      } else {
-        self.s3.delete(self.bucket, removeObjects).then(() => {
-          callback(null);
-        }).catch(callback);
-      }
-    }
+        if (this.target == null) {
 
-    function checkResult(result) {
-      if (typeof result != 'boolean') {
-        throw new TypeError('Filter function must return a boolean');
-      }
-    }
-  }
+          /* no output, so delete files that didn't pass the test */
+          let b = new Batch;
 
-  /**
-   * Join the objects in the working context by the given delimiter and return the
-   * result.
-   *
-   * @public
-   * @param {String} delimiter='\n' The character used to join the s3 objects
-   * @returns {Promise} The joined body.
-   */
+          remove.forEach(source => {
+            b.push(done => {
+              this.s3.delete(source.bucket, source.key).then(() => {
+                done();
+              }).catch(e => {
+                done(e);
+              });
+            });
+          });
 
-  join(delimiter) {
-    delimiter = delimiter || '\n';
-    return new Promise((success, fail) => {
-      this.s3.list(this.bucket, this.prefix, this.marker).then(keys => {
-        let getPromises = [];
-        keys.forEach(key => {
-          getPromises.push(this.s3.get(this.bucket, key, this.encoding, this.transformer));
-        });
-        Promise.all(getPromises).then(objects => {
-          success(objects.join(delimiter));
-        }).catch(fail);
-      }).catch(fail);
+          b.end(err => {
+            if (err) {
+              deferred.reject(err);
+            }
+            deferred.resolve();
+          });
+        } else {
+
+          /* output is specified, so copy all the files that did pass */
+          let b = new Batch;
+
+          keep.forEach(source => {
+            b.push(done => {
+              this.s3.copy(source.bucket, source.key, this.target.bucket, this.target.prefix + source.file).then(() => {
+                done();
+              }).catch(e => {
+                done(e);
+              });
+            });
+          });
+
+          b.end(err => {
+            if (err) {
+              deferred.reject(err);
+            }
+            deferred.resolve();
+          })
+        }
+      });
+
+    }).catch(e => {
+      deferred.reject(e);
     });
+
+    function check(result) {
+      if (typeof result != 'boolean') {
+        throw new TypeError('filter function must return a boolean');
+      }
+    }
+
+    return deferred.promise;
   }
 }
 

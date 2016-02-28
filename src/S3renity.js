@@ -4,7 +4,7 @@
  */
 'use strict'
 
-const async = require('async');
+const Batch = require('batch');
 const aws = require('aws-sdk');
 const awsM = require('mock-aws-s3');
 const BatchRequest = require('./BatchRequest');
@@ -70,7 +70,55 @@ class S3renity {
    */
 
   context(bucket, prefix, marker) {
-    return new BatchRequest(this, bucket, prefix, marker);
+
+    let sources = null;
+    let getKeys = [];
+    let batch = new Batch;
+    let deferred = Promise.defer();
+
+    if (typeof bucket == 'object') {
+      sources = bucket;
+    } else {
+      sources = [{
+        bucket: bucket,
+        prefix: prefix,
+        marker: marker
+      }];
+    }
+
+    sources.forEach(source => {
+      batch.push(done => {
+        this.list(source.bucket, source.prefix, source.marker).then(files => {
+
+          /* format sources and ignore empty files (directories) */
+          let sources = files.map(file => {
+            return {
+              bucket: source.bucket,
+              prefix: source.prefix,
+              file: file,
+              key: `${source.prefix}${file}`
+            };
+          }).filter(source => source.file.length > 0);
+
+          done(null, sources);
+        }).catch(e => {
+          done(e);
+        });
+      });
+    });
+
+    batch.end((err, sources) => {
+      if (err) {
+        deferred.reject(err);
+      }
+      sources = sources.reduce((prev, cur) => {
+        if (!prev) prev = [];
+        return prev.concat(cur);
+      });
+      deferred.resolve(sources);
+    })
+
+    return new BatchRequest(this, deferred.promise);
   }
 
   /**
@@ -110,32 +158,36 @@ class S3renity {
    */
 
   get(bucket, key, encoding, transformer) {
-    if (encoding == null) {
-      encoding = 'utf8';
+
+    encoding = encoding || 'utf8';
+    let deferred = Promise.defer();
+
+    /* default transform is to assume a utf8 encoded text file */
+    if (transformer == null) {
+      transformer = obj => {
+        return obj.Body.toString(encoding);
+      };
     }
-    return new Promise((success, fail) => {
-      this.s3.getObject({
-        Bucket: bucket,
-        Key: key
-      }, (err, object) => {
-        if (err) {
-          fail(err);
-        } else {
-          try {
-            if (transformer != null) {
-              success(transformer(object));
-            } else {
-              success(object.Body.toString(encoding));
-            }
-            if (this.verbose) {
-              console.info(`GET OBJECT s3://${bucket}/${key}`);
-            }
-          } catch (e) {
-            fail(e);
+
+    this.s3.getObject({
+      Bucket: bucket,
+      Key: key
+    }, (err, object) => {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        try {
+          deferred.resolve(transformer(object));
+          if (this.verbose) {
+            console.info(`GET OBJECT s3://${bucket}/${key}`);
           }
+        } catch (e) {
+          deferred.reject(e);
         }
-      });
+      }
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -149,9 +201,7 @@ class S3renity {
    */
 
   put(bucket, key, body, encoding) {
-    if (encoding == null) {
-      encoding = 'utf8';
-    }
+    encoding = encoding || 'utf8';
     return new Promise((success, fail) => {
       this.s3.putObject({
         Bucket: bucket,
@@ -225,14 +275,11 @@ class S3renity {
    *
    * @public
    * @param {String} bucket - The bucket
-   * @param {String|Array} key - The key to delete or an array of keys to delete
+   * @param {String|Array} key - The key to delete
    * @returns {Promise} The key (or array of keys) that was deleted.
    */
 
   delete(bucket, key) {
-    if (typeof key == 'object') {
-      return this.deleteObjects(bucket, key);
-    }
     return new Promise((success, fail) => {
       this.s3.deleteObject({
         Bucket: bucket,
@@ -261,12 +308,14 @@ class S3renity {
 
   deleteObjects(bucket, keys) {
     return new Promise((success, fail) => {
+
       /* creates input with format: { Key: key } required by s3 */
       let input = keys.map(key => {
         return {
           Key: key
         };
       });
+
       this.s3.deleteObjects({
         Bucket: bucket,
         Delete: {
@@ -299,38 +348,19 @@ class S3renity {
   list(bucket, prefix, marker) {
 
     let self = this;
-    let sources = bucket;
     let allKeys = [];
+    let deferred = Promise.defer();
+    marker = marker || '';
 
-    if (typeof sources != 'object') {
-      sources = [{
-        bucket: bucket,
-        prefix: prefix,
-        marker: marker
-      }];
-    }
-
-    return new Promise((success, fail) => {
-
-      let funcs = [];
-
-      sources.forEach(source => {
-        funcs.push(callback => {
-          recurse(source.bucket, source.prefix, source.marker, callback);
-        });
-      });
-
-      async.series(funcs, err => {
-        if (err) {
-          fail(err);
-        } else {
-          success(allKeys);
-        }
-      });
+    recurse(bucket, prefix, marker, err => {
+      if (err) {
+        deferred.reject(err);
+      } else{
+        deferred.resolve(allKeys)
+      }
     });
 
     function recurse(bucket, prefix, marker, done) {
-      marker = marker || '';
       self.s3.listObjects({
         Bucket: bucket,
         Prefix: prefix,
@@ -345,13 +375,8 @@ class S3renity {
           }
 
           keys = keys.Contents.map(key => {
-            return key.Key
+            return key.Key.replace(prefix, '');
           });
-
-          /* ignore the folder itself */
-          if (keys.length && keys[0] == prefix) {
-            keys.shift();
-          }
 
           marker = keys[keys.length-1];
           allKeys = allKeys.concat(keys);
@@ -364,6 +389,8 @@ class S3renity {
         }
       });
     };
+
+    return deferred.promise;
   }
 }
 

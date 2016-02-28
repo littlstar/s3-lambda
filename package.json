@@ -15,11 +15,12 @@
   },
   "dependencies": {
     "aws-sdk": "^2.2.31",
-    "fs-extra": "^0.26.5",
+    "batch": "^0.5.3",
     "ink-docstrap": "^1.1.0",
     "mock-aws-s3": "^2.1.0"
   },
   "devDependencies": {
+    "fs-extra": "^0.26.5",
     "jsdoc": "^3.4.0",
     "tape": "^4.4.0"
   }
