@@ -122,30 +122,6 @@ class S3renity {
   }
 
   /**
-   * @ignore
-   * @typedef Target
-   * @type Object
-   * @property {String} bucket The target bucket
-   * @property {String} prefix The target prefix
-   * @property {String} file The local file, if any
-   * @property {String} type 's3' or 'file'
-   */
-
-  /**
-   * Returns the filename (last part of the key) from an S3 key.
-   *
-   * @private
-   * @param {String} key - The S3 key to get the file name for
-   * @return {String} - The filename from the S3 key
-   */
-
-  getFileName(key) {
-    //TODO(wells) this is not robust
-    // use this.prefix instead of lastIndex
-    return key.substr(key.lastIndexOf('/') + 1, key.length);
-  }
-
-  /**
    * Gets an object in s3.
    *
    * @param {String} bucket - The bucket to get from
@@ -201,24 +177,27 @@ class S3renity {
    */
 
   put(bucket, key, body, encoding) {
+
     encoding = encoding || 'utf8';
-    return new Promise((success, fail) => {
-      this.s3.putObject({
-        Bucket: bucket,
-        Key: key,
-        Body: body,
-        ContentEncoding: encoding
-      }, (err, res) => {
-        if (err) {
-          fail(err);
-        } else {
-          if (this.verbose) {
-            console.info(`PUT OBJECT s3://${bucket}/${key}`);
-          }
-          success(res);
+    let deferred = Promise.defer();
+
+    this.s3.putObject({
+      Bucket: bucket,
+      Key: key,
+      Body: body,
+      ContentEncoding: encoding
+    }, (err, res) => {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        if (this.verbose) {
+          console.info(`PUT OBJECT s3://${bucket}/${key}`);
         }
-      });
+        deferred.resolve(res);
+      }
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -233,22 +212,25 @@ class S3renity {
    */
 
   copy(bucket, key, targetBucket, targetKey) {
-    return new Promise((success, fail) => {
-      this.s3.copyObject({
-        Bucket: targetBucket,
-        Key: targetKey,
-        CopySource: `${bucket}/${key}`
-      }, (err, res) => {
-        if (err) {
-          fail(err);
-        } else {
-          if (this.verbose) {
-            console.info(`COPY OBJECT s3://${bucket}/${key} --> s3://${targetBucket}/${targetKey}`);
-          }
-          success();
+
+    let deferred = Promise.defer();
+
+    this.s3.copyObject({
+      Bucket: targetBucket,
+      Key: targetKey,
+      CopySource: `${bucket}/${key}`
+    }, (err, res) => {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        if (this.verbose) {
+          console.info(`COPY OBJECT s3://${bucket}/${key} --> s3://${targetBucket}/${targetKey}`);
         }
-      });
+        deferred.resolve();
+      }
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -263,11 +245,20 @@ class S3renity {
    */
 
   move(bucket, key, targetBucket, targetKey) {
-    return new Promise((success, fail) => {
-      this.copy(bucket, key, targetBucket, targetKey).then(() => {
-        this.delete(bucket, key).catch(fail);
-      }).catch(fail);
+
+    let deferred = Promise.defer();
+
+    this.copy(bucket, key, targetBucket, targetKey).then(() => {
+      this.delete(bucket, key).then(() => {
+        deferred.resolve();
+      }).catch(e => {
+        deferred.reject(e);
+      });
+    }).catch(e => {
+      deferred.reject(e);
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -280,21 +271,24 @@ class S3renity {
    */
 
   delete(bucket, key) {
-    return new Promise((success, fail) => {
-      this.s3.deleteObject({
-        Bucket: bucket,
-        Key: key
-      }, (err, res) => {
-        if (err) {
-          fail(err);
-        } else {
-          success();
-          if (this.verbose) {
-            console.info(`DELETE OBJECT s3://${bucket}/${key}`);
-          }
+
+    let deferred = Promise.defer();
+
+    this.s3.deleteObject({
+      Bucket: bucket,
+      Key: key
+    }, (err, res) => {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        deferred.resolve();
+        if (this.verbose) {
+          console.info(`DELETE OBJECT s3://${bucket}/${key}`);
         }
-      });
+      }
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -307,33 +301,35 @@ class S3renity {
    */
 
   deleteObjects(bucket, keys) {
-    return new Promise((success, fail) => {
 
-      /* creates input with format: { Key: key } required by s3 */
-      let input = keys.map(key => {
-        return {
-          Key: key
-        };
-      });
+    let deferred = Promise.defer();
 
-      this.s3.deleteObjects({
-        Bucket: bucket,
-        Delete: {
-          Objects: input
-        }
-      }, (err, res) => {
-        if (err) {
-          fail(err);
-        } else {
-          success(res);
-          if (this.verbose) {
-            keys.forEach(key => {
-              console.info(`DELETE OBJECT s3://${bucket}/${key}`);
-            });
-          }
-        }
-      });
+    /* creates input with format: { Key: key } required by s3 */
+    let input = keys.map(key => {
+      return {
+        Key: key
+      };
     });
+
+    this.s3.deleteObjects({
+      Bucket: bucket,
+      Delete: {
+        Objects: input
+      }
+    }, (err, res) => {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        deferred.resolve(res);
+        if (this.verbose) {
+          keys.forEach(key => {
+            console.info(`DELETE OBJECT s3://${bucket}/${key}`);
+          });
+        }
+      }
+    });
+
+    return deferred.promise;
   }
 
   /**
@@ -355,7 +351,7 @@ class S3renity {
     recurse(bucket, prefix, marker, err => {
       if (err) {
         deferred.reject(err);
-      } else{
+      } else {
         deferred.resolve(allKeys)
       }
     });
@@ -378,7 +374,7 @@ class S3renity {
             return key.Key.replace(prefix, '');
           });
 
-          marker = keys[keys.length-1];
+          marker = keys[keys.length - 1];
           allKeys = allKeys.concat(keys);
 
           if (keys.length < 1000) {

@@ -307,12 +307,13 @@ class BatchRequest {
 
   filter(func, isAsync) {
 
+    isAsync = isAsync || false;
+
     let self = this;
     let keep = [];
     let remove = [];
     let deferred = Promise.defer();
     let batch = new Batch;
-    isAsync = isAsync || false;
 
     this.resolveSources.then(sources => {
 
