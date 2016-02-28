@@ -1,4 +1,6 @@
 /**
+ * Batch requests in self-contained context
+ *
  * @author Wells Johnston <wells@littlstar.com>
  */
 
@@ -133,8 +135,11 @@ class BatchRequest {
         });
       });
 
-      batch.on('progress', e => {
-        //TODO if verbose show progress
+      /* update console on progress */
+      batch.on('progress', status => {
+        if (this.verbose) {
+          console.log(status);
+        }
       });
 
       batch.end(err => {
@@ -198,8 +203,10 @@ class BatchRequest {
         });
       });
 
-      batch.on('progress', e => {
-        //TODO if verbose show progress
+      batch.on('progress', status => {
+        if (this.verbose) {
+          console.log(status);
+        }
       });
 
       batch.end(err => {
@@ -252,43 +259,45 @@ class BatchRequest {
    * @return {promise} Returns the reduced result.
    */
 
-  reduce(func, initialValue, isAsync) {
+  reduce(func, val, isAsync) {
 
-    let self = this;
-    let value = initialValue;
-    let deferred = Promise.defer();
     isAsync = isAsync || false;
 
+    let self = this;
+    let deferred = Promise.defer();
+    let batch = new Batch;
+
+    /* reduce requires concurrency 1 */
+    batch.concurrency(1);
+
     this.resolveSources.then(sources => {
-      recurse(sources, (err, result) => {
+
+      sources.forEach(source => {
+        batch.push(done => {
+          self.s3.get(source.bucket, source.key, self.encoding, self.transformer).then(body => {
+            if (isAsync) {
+              func(val, body, source.key).then(newValue => {
+                val = newValue;
+                done();
+              }).catch(done);
+            } else {
+              val = func(val, body, source.key);
+              done();
+            }
+          }).catch(done);
+        });
+      });
+
+      batch.end(err => {
         if (err) {
           deferred.reject(err);
-        } else {
-          deferred.resolve(result);
         }
+        deferred.resolve(val);
       });
+
     }).catch(e => {
       deferred.reject(e);
     });
-
-    function recurse(sources, done) {
-      if (sources.length == 0) {
-        done(null, value);
-        return;
-      }
-      let source = sources.shift();
-      self.s3.get(source.bucket, source.key, self.encoding, self.transformer).then(body => {
-        if (isAsync) {
-          func(value, body, source.key).then(newValue => {
-            value = newValue;
-            recurse(sources, done);
-          }).catch(e => done(e, null));
-        } else {
-          value = func(value, body, source.key);
-          recurse(sources, done);
-        }
-      }).catch(e => done(e, null));
-    }
 
     return deferred.promise;
   }
