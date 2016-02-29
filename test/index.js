@@ -2,7 +2,7 @@
 
 const test = require('tape');
 const fs = require('fs-extra');
-const s3renity = require(`${__dirname}/../src/S3renity.js`);
+const s3renity = require(`${__dirname}/..`);
 
 const s3 = new s3renity({
   local_path: `${__dirname}/buckets/`,
@@ -106,7 +106,7 @@ test('s3renity.context.forEach (sync)', t => {
 
   let results = [];
 
-  s3.context(bucket, prefix).concurrency(1).forEach((obj, key) => {
+  s3.context(bucket, prefix).forEach((obj, key) => {
     results.push(key + obj);
   }).then(() => {
     let answers = keys.map((key, i) => key + names[i]);
@@ -126,7 +126,7 @@ test('s3renity.context.forEach (async)', t => {
 
   let results = [];
 
-  s3.context(bucket, prefix).concurrency(1).forEach((obj, key) => {
+  s3.context(bucket, prefix).forEach((obj, key) => {
     return new Promise((success, fail) => {
       results.push(key + obj);
       success();
