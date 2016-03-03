@@ -6,7 +6,7 @@ const s3renity = require(`${__dirname}/..`);
 
 const s3 = new s3renity({
   local_path: `${__dirname}/buckets/`,
-  verbose: true
+  verbose: false
 });
 
 const bucket = 's3renity';
@@ -292,14 +292,16 @@ test('s3renity.context.filter (sync)', t => {
   names.forEach(key => fs.writeFileSync(`${path}${key}`, key));
   let answer = 'test1';
 
-  s3.context(bucket, prefix)
+  let d = s3.context(bucket, prefix)
   .filter(obj => {
     return obj == 'test1';
   })
   .then(() => {
     t.ok(fs.readdirSync(path)[0] == answer, 'filter 3 files to 1');
   })
-  .catch(e => console.error(e.stack));
+  .catch(e => {
+    console.log(e || e.stack, 'URR');
+  });
 });
 
 test('s3renity.context.filter (async)', t => {
