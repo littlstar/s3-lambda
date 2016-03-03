@@ -13,10 +13,10 @@ npm install s3renity --save
 const S3renity = require('s3renity');
 
 const s3renity = new S3renity({
-  aws_access_key: 'aws-access-key',
-  aws_secret_key: 'aws-secret-key',
-  max_retries: 30, // optional
-  timeout: 120,    // optional
+  access_key_id: 'aws-access-key',
+  secret_access_key: 'aws-secret-key',
+  max_retries: 10, // optional
+  timeout: 1000,    // optional
   verbose: true    // optional
 });
 
@@ -25,7 +25,9 @@ const prefix = 'path/to/files/';
 
 s3renity
   .context(bucket, prefix)
-  .forEach(object => { /* do something with object */ })
+  .each(object => {
+    /* do something with object */
+  })
   .then(console.log('done!'))
   .catch(console.error);
 ```
