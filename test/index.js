@@ -17,7 +17,7 @@ const path2 = `${__dirname}/buckets/s3renity/${prefix2}`;
 const outputPrefix = 'output-test/';
 const outputPath = `${__dirname}/buckets/s3renity/${outputPrefix}`;
 
-test('s3renity.list', t => {
+test('s3renity.keys', t => {
 
   reset();
   t.plan(1);
@@ -26,9 +26,9 @@ test('s3renity.list', t => {
   let answer = keys;
   keys.forEach(key => fs.writeFileSync(`${path}/${key}`));
 
-  s3.list(bucket, prefix).then(keys => {
+  s3.keys(bucket, prefix).then(keys => {
     let correct = (keys[0] == answer[0] && keys[1] == answer[1] && keys[2] == answer[2]);
-    t.ok(correct, 'list objects');
+    t.ok(correct, 'keys');
   }).catch(e => console.error(e.stack));
 });
 
