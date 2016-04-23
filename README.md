@@ -1,7 +1,5 @@
 ## S3renity
-S3renity is an [S3](https://aws.amazon.com/s3/) toolbelt for Node.js that enables you to treat directories like arrays of S3 objects, and perform batch functions on them. It also provides a promise-based wrapper around the s3 api. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.
-
-[Documentation](http://developer.littlstar.com/s3renity/docs/index.html)
+Treat [S3](https://aws.amazon.com/s3/) directories as arrays of objects and perform batch functions on them. It also provides a promise-based wrapper around the S3 api. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.
 
 ## Install
 ```bash
@@ -15,9 +13,10 @@ const S3renity = require('s3renity');
 const s3renity = new S3renity({
   access_key_id: 'aws-access-key',
   secret_access_key: 'aws-secret-key',
-  max_retries: 10, // optional
-  timeout: 1000,    // optional
-  verbose: true    // optional
+  show_progress: true, // show a progress bar in the console
+  max_retries: 10,     // optional
+  timeout: 1000,       // optional
+  verbose: true        // optional
 });
 
 const bucket = 'my-bucket';
@@ -25,8 +24,8 @@ const prefix = 'path/to/files/';
 
 s3renity
   .context(bucket, prefix)
-  .each(object => {
-    /* do something with object */
+  .forEach(object => {
+    // do something with object
   })
   .then(console.log('done!'))
   .catch(console.error);
@@ -35,6 +34,7 @@ s3renity
 ## Batch Functions
 Perform sync or async functions over each file in a directory.
 - forEach
+- each
 - map
 - reduce
 - filter
@@ -42,22 +42,36 @@ Perform sync or async functions over each file in a directory.
 
 <br/>
 #### forEach
-forEach(func[, isAsync])  
+forEach(fn[, isasync])  
 
-Loops over each file in a s3 directory and performs `func`.  If `isAsync` is true, `func` should return a Promise.
+Iterates over each file in a s3 directory and performs `func`.  If `isasync` is true, `func` should return a Promise.
 ```javascript
 s3renity
   .context(bucket, prefix)
   .forEach(object => { /* do something with object */ })
-  .then(console.log('done!')
+  .then(_ => console.log('done!')
+  .catch(console.error);
+```
+<br/>
+#### each
+each(fn[, isasync])  
+
+Performs `fn` on each S3 object in parallel. You can set the concurrency level (defaults to `Infinity`).
+If `isasync` is true, `fn` should return a Promise;
+```javascript
+s3renity
+  .context(bucket, prefix)
+  .concurrency(5) // operates on 5 objects at a time
+  .each(object => console.log(object))
+  .then(_ => console.log('done!')
   .catch(console.error);
 ```
 <br/>
 #### map
-map(func[, isAsync])  
+map(fn[, isasync])  
 
-**Destructive**. Maps `func` over each file in an s3 directory, replacing each file with what is returned
-from the mapper function. If `isAsync` is true, `func` should return a Promise. 
+**Destructive**. Maps `fn` over each file in an s3 directory, replacing each file with what is returned
+from the mapper function. If `isasync` is true, `fn` should return a Promise. 
 ```javascript
 const addSmiley = object => object + ':)';
 
@@ -69,6 +83,9 @@ s3renity
 ```
 You can make this *non-destructive* by specifying an `output` directory.
 ```javascript
+const outputBucket = 'my-bucket';
+const outputPrefix = 'path/to/output/';
+
 s3renity
   .context(bucket, prefix)
   .output(outputBucket, outputPrefix)
@@ -78,7 +95,7 @@ s3renity
 ```
 <br/>
 #### reduce
-reduce(func[, isAsync])  
+reduce(func[, isasync])  
 
 Reduces the objects in the working context to a single value.
 ```javascript
@@ -95,17 +112,17 @@ s3renity
 ```
 <br/>
 #### filter
-filter(func[, isAsync])  
+filter(func[, isasync])  
 
-**Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isAsync` is true, `func` returns a Promise.
+**Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isasync` is true, `func` returns a Promise.
 ```javascript
 // filters empty files
-const filter = object => object.length > 0;
+const fn = object => object.length > 0;
 
 s3renity
   .context(bucket, prefix)
-  .filter(filter)
-  .then(console.log('done!')
+  .filter(fn)
+  .then(_ => console.log('done!')
   .catch(console.error);
 ```
 Just like in `map`, you can make this *non-destructive* by specifying an `output` directory.
@@ -132,6 +149,7 @@ s3renity
 ## S3 Functions
 Promise-based wrapper around common S3 methods.
 - list
+- keys
 - get
 - put
 - copy
@@ -141,12 +159,23 @@ Promise-based wrapper around common S3 methods.
 #### list
 list(bucket, prefix[, marker])  
 
-Returns an array of keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
+List all keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
 ```javascript
 s3renity
   .list(bucket, prefix)
-  .then(keys => { /* do something with keys */ }
+  .then(list => console.log(list))
   .catch(console.error);
+```
+<br/>
+#### keys
+keys(bucket, prefix[, marker])  
+
+Returns an array of keys for the given `bucket` and `prefix`.
+```javascript
+s3renity
+  .keys(bucket, prefix)
+  .then(keys => console.log(keys))
+  .catch(console.error)
 ```
 <br/>
 #### get
