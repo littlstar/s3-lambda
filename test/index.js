@@ -6,7 +6,8 @@ const s3renity = require(`${__dirname}/..`);
 
 const s3 = new s3renity({
   local_path: `${__dirname}/buckets/`,
-  verbose: false
+  verbose: false,
+  show_progress: false
 });
 
 const bucket = 's3renity';

@@ -15,7 +15,8 @@
   "dependencies": {
     "aws-sdk": "^2.2.31",
     "batch": "^0.5.3",
-    "mock-aws-s3": "^2.1.0"
+    "mock-aws-s3": "^2.1.0",
+    "progress": "^1.1.8"
   },
   "devDependencies": {
     "fs-extra": "^0.26.5",
