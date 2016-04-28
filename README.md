@@ -1,5 +1,7 @@
 ## S3renity
-Treat [S3](https://aws.amazon.com/s3/) directories as arrays of objects and perform batch functions on them. It also provides a promise-based wrapper around the S3 api. Some things we use S3renity for at Littlstar are prototyping MapReduce jobs and cleaning/organizing logs.
+S3renity lets you treat [S3](https://aws.amazon.com/s3/) directories as arrays of objects and perform batch functions on them. It also provides a promise-based wrapper around the S3 api.  
+
+At Littlstar, we use S3renity for data cleaning, exploration, and pipelining.
 
 ## Install
 ```bash
@@ -10,13 +12,14 @@ npm install s3renity --save
 ```javascript
 const S3renity = require('s3renity');
 
+// example options
 const s3renity = new S3renity({
   access_key_id: 'aws-access-key',
   secret_access_key: 'aws-secret-key',
-  show_progress: true, // show a progress bar in the console
-  max_retries: 10,     // optional
-  timeout: 1000,       // optional
-  verbose: true        // optional
+  show_progress: true,
+  verbose: true,
+  max_retries: 10,
+  timeout: 1000
 });
 
 const bucket = 'my-bucket';
@@ -40,8 +43,7 @@ Perform sync or async functions over each file in a directory.
 - filter
 - join
 
-<br/>
-#### forEach
+### forEach
 forEach(fn[, isasync])  
 
 Iterates over each file in a s3 directory and performs `func`.  If `isasync` is true, `func` should return a Promise.
@@ -52,8 +54,7 @@ s3renity
   .then(_ => console.log('done!')
   .catch(console.error);
 ```
-<br/>
-#### each
+### each
 each(fn[, isasync])  
 
 Performs `fn` on each S3 object in parallel. You can set the concurrency level (defaults to `Infinity`).
@@ -66,8 +67,7 @@ s3renity
   .then(_ => console.log('done!')
   .catch(console.error);
 ```
-<br/>
-#### map
+### map
 map(fn[, isasync])  
 
 **Destructive**. Maps `fn` over each file in an s3 directory, replacing each file with what is returned
@@ -93,8 +93,7 @@ s3renity
   .then(console.log('done!')
   .catch(console.error)
 ```
-<br/>
-#### reduce
+### reduce
 reduce(func[, isasync])  
 
 Reduces the objects in the working context to a single value.
@@ -110,8 +109,7 @@ s3renity
   .then(result => { /* do something with result */ })
   .catch(console.error);
 ```
-<br/>
-#### filter
+### filter
 filter(func[, isasync])  
 
 **Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isasync` is true, `func` returns a Promise.
@@ -134,8 +132,7 @@ s3renity
   .then(console.log('done!'))
   .catch(console.error();
 ```
-<br/>
-#### join
+### join
 join(delimiter)  
 
 Joins objects in s3 to a single value.
@@ -155,8 +152,7 @@ Promise-based wrapper around common S3 methods.
 - copy
 - delete
 
-<br/>
-#### list
+### list
 list(bucket, prefix[, marker])  
 
 List all keys in `s3://bucket/prefix`.  If you use a marker, the s3renity will start listing alphabetically from there.
@@ -166,8 +162,7 @@ s3renity
   .then(list => console.log(list))
   .catch(console.error);
 ```
-<br/>
-#### keys
+### keys
 keys(bucket, prefix[, marker])  
 
 Returns an array of keys for the given `bucket` and `prefix`.
@@ -177,8 +172,7 @@ s3renity
   .then(keys => console.log(keys))
   .catch(console.error)
 ```
-<br/>
-#### get
+### get
 get(bucket, key[, encoding[, transformer]])  
 
 Gets an object in s3, calling `toString(encoding` on objects.
@@ -201,8 +195,7 @@ s3renity
   .then(object => { /* do something with object */ }
   .catch(console.error);
 ```
-<br/>
-#### put
+### put
 put(bucket, key, object[, encoding])  
 
 Puts an object in s3.  Default encoding is `utf8`.
@@ -211,8 +204,7 @@ s3renity
   .put(bucket, key, 'hello world!')
   .then(console.log('done!').catch(console.error);
 ```
-<br/>
-#### copy
+### copy
 copy(bucket, key, targetBucket, targetKey)  
 
 Copies an object in s3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
@@ -221,8 +213,7 @@ s3renity
   .copy(sourceBucket, sourceKey, targetBucket, targetKey)
   .then(console.log('done!').catch(console.error);
 ```
-<br/>
-#### delete
+### delete
 delete(bucket, key)  
 
 Deletes an object in s3 (`s3://bucket/key`).
