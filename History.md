@@ -1,4 +1,9 @@
 
+2.2.3 / 2016-05-05
+==================
+
+  * fixed error handling bug and tightened up some code
+
 2.2.2 / 2016-04-28
 ==================
 
