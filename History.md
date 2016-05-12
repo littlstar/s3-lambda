@@ -1,4 +1,10 @@
 
+2.2.4 / 2016-05-12
+==================
+
+  * fixed incorrectly calling progress.tick() for show_progress
+  * cleaned some promise code up
+
 2.2.3 / 2016-05-05
 ==================
 
