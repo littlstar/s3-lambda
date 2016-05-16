@@ -1,4 +1,10 @@
 
+2.2.5 / 2016-05-16
+==================
+
+  * Merge pull request #25 from littlstar/reverse-option
+  * added option to reverse the order of the objects traversed in context
+
 2.2.4 / 2016-05-12
 ==================
 
