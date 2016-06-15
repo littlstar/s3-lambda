@@ -43,6 +43,33 @@ Perform sync or async functions over each file in a directory.
 - filter
 - join
 
+**First Step: Setting Context**  
+Before calling a batch function, you must tell s3renity what files to operate over. You do this by calling `context`, which returns a promise, so you can chain it with the batch request. The context function takes four arguments: **bucket**, **prefix**, **marker**, **limit**, and **reverse**.
+
+```javascript
+s3renity.context(
+  bucket, // the s3 bucket to use
+  prefix, // the prefix of the files to use - s3renity will operate over every file with this prefix
+  marker, // (optional, default null) start at this file/prefix
+  limit,  // (optional, default Infinity) limit the # of files operated over
+  reverse // (optional, default false) if true, operate over all files in reverse
+) // .forEach()...chain a batch function here
+
+// you can also provide an array of contexts like this
+const ctx1 = {
+  bucket: 'my-bucket',
+  prefix: 'path/to/files/1/'
+  // marker: 'path/to/files/1/somefile'
+};
+const ctx2 = {
+  bucket: 'my-bucket',
+  prefix: 'path/to/files/2/'
+  // marker: 'path/to/files/2/somefile'
+};
+s3renity.context([ctx1, ctx2]) // .forEach()...
+```
+
+
 ### forEach
 forEach(fn[, isasync])  
 
