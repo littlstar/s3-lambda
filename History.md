@@ -1,4 +1,11 @@
 
+2.2.6 / 2016-06-19
+==================
+
+  * removed unnecessary try-catch blocks
+  * added limit function to batch request
+  * Update README.md
+
 2.2.5 / 2016-05-16
 ==================
 
