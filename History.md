@@ -1,4 +1,9 @@
 
+2.2.11 / 2016-06-20
+===================
+
+  * removed unnecessary try-catch blocks and custom error (better to use stack)
+
 2.2.10 / 2016-06-20
 ===================
 
