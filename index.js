@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = require('./lib/S3renity');
+module.exports = require('./lib/s3renity');
