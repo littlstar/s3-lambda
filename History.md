@@ -1,4 +1,13 @@
 
+3.0.0 / 2016-07-13
+==================
+
+  * Merge pull request #29 from littlstar/fix-deferred-references
+  * code refactoring, creates new request now (again) per batch
+  * split out s3 wrapper to its own module
+  * switched the rest of the deferred references to promises
+  * big refactor
+
 2.2.11 / 2016-06-20
 ===================
 
