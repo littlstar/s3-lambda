@@ -322,6 +322,7 @@ test('s3renity.context.filter (async)', t => {
     });
   }, true)
   .then(() => {
+    console.log(fs.readdirSync(path));
     t.ok(fs.readdirSync(path) == answer, 'filter 3 files to 1');
   })
   .catch(e => console.error(e.stack));
