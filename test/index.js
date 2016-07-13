@@ -27,7 +27,7 @@ test('s3renity.keys', t => {
   let answer = keys;
   keys.forEach(key => fs.writeFileSync(`${path}/${key}`));
 
-  s3.keys(bucket, prefix).then(keys => {
+  s3.s3.keys(bucket, prefix).then(keys => {
     let correct = (keys[0] == answer[0] && keys[1] == answer[1] && keys[2] == answer[2]);
     t.ok(correct, 'keys');
   }).catch(e => console.error(e.stack));
@@ -43,7 +43,7 @@ test('s3renity.put', t => {
   let key = `${prefix}/${name}`;
   let filePath = `${path}/${name}`;
 
-  s3.put(bucket, key, body).then(() => {
+  s3.s3.put(bucket, key, body).then(() => {
       let output = fs.readFileSync(filePath);
       t.ok(output == 'hello world', 'put object');
     })
@@ -61,7 +61,7 @@ test('s3renity.get', t => {
   fs.writeFileSync(`${path}/${name}`, answer);
   let key = `${prefix}/${name}`;
 
-  s3.get(bucket, key).then(obj => {
+  s3.s3.get(bucket, key).then(obj => {
     t.ok(obj == answer, 'get object');
   });
 });
@@ -76,7 +76,7 @@ test('s3renity.delete (single)', t => {
 
   fs.writeFileSync(`${path}/${name}`, 'hello world');
 
-  s3.delete(bucket, key).then(() => {
+  s3.s3.delete(bucket, key).then(() => {
     t.ok(!fs.existsSync(`${path}/${name}`), 'delete single object');
   }).catch(console.error);
 });
@@ -90,7 +90,7 @@ test('s3renity.delete (batch)', t => {
   let keys = names.map(key => `${prefix}/${key}`);
   names.forEach(key => fs.writeFileSync(`${path}/${key}`));
 
-  s3.delete(bucket, keys).then(() => {
+  s3.s3.delete(bucket, keys).then(() => {
     let empty = names.filter(key => fs.existsSync(`${prefix}/${key}`)).length == 0;
     t.ok(empty, 'delete multiple objects');
   }).catch(console.error);
@@ -301,7 +301,7 @@ test('s3renity.context.filter (sync)', t => {
     t.ok(fs.readdirSync(path)[0] == answer, 'filter 3 files to 1');
   })
   .catch(e => {
-    console.log(e || e.stack, 'URR');
+    console.error(e || e.stack, 'URR');
   });
 });
 
