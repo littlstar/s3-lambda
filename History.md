@@ -1,4 +1,9 @@
 
+3.0.3 / 2016-07-21
+==================
+
+  * changed a showProgess property to a verbose property
+
 3.0.2 / 2016-07-20
 ==================
 
