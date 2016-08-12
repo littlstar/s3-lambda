@@ -1,6 +1,6 @@
 {
   "name": "s3renity",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Batch operations in S3 with concurrency control (forEach, map, reduce, filter, join)",
   "main": "index.js",
   "author": "Wells Johnston",
