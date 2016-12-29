@@ -30,7 +30,7 @@ s3renity
   .forEach(object => {
     // do something with object
   })
-  .then(console.log('done!'))
+  .then(_ => console.log('done!'))
   .catch(console.error);
 ```
 
