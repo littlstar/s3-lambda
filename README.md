@@ -1,5 +1,5 @@
 ## S3renity
-S3renity lets you run batch functions on [S3](https://aws.amazon.com/s3/) objects with concurrency control. Set the context to a directory or key prefix, then run familiar Array functions such as `forEach`, `map`, `reduce`, and `filter`. S3renity also provides a promise-based wrapper around the S3 api.
+S3renity enables you to run batch functions on [S3](https://aws.amazon.com/s3/) objects with concurrency control. Set the context to a directory or key prefix, then run familiar functions such as `forEach`, `map`, `reduce`, or `filter` on all those objects. S3renity is promise-based, so you can chain operations together, as well as interact with the base api with promises instead of callbacks.
 
 At Littlstar, we use S3renity for data cleaning, exploration, and pipelining.
 
