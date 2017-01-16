@@ -19,7 +19,9 @@
     "progress": "^1.1.8"
   },
   "devDependencies": {
-    "fs-extra": "^0.26.5",
+    "array-equal": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "rimraf": "^2.5.4",
     "tape": "^4.4.0"
   }
 }

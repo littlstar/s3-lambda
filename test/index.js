@@ -1,222 +1,278 @@
 'use strict'
 
-const test = require('tape');
-const fs = require('fs-extra');
+// Dependencies
 const s3renity = require(`${__dirname}/..`);
+const equals = require('array-equal')
+const mkdirp = require('mkdirp').sync
+const rimraf = require('rimraf').sync
+const test = require('tape');
+const path = require('path')
+const fs = require('fs')
 
+// Path variables
+const folder = 'buckets'
+const bucket = 's3renity'
+const prefix = 'files'
+const outputPrefix = 'output-files'
+const files = ['file1', 'file2', 'file3', 'file4']
+const localPath = path.resolve(__dirname, folder)
+const bucketPath = path.resolve(__dirname, folder, bucket)
+const prefixPath = path.resolve(__dirname, folder, bucket, prefix)
+const outputPrefixPath = path.resolve(__dirname, folder, bucket, outputPrefix)
+const filePaths = files.map(f => `${prefixPath}/${f}`)
+const outputPaths = files.map(f => `${outputPrefixPath}/${f}`)
+
+// S3renity object
 const s3 = new s3renity({
-  local_path: `${__dirname}/buckets/`,
-  verbose: false,
-  show_progress: false
+  localPath,
+  show_progress: false,
+  verbose: false
 });
 
-const bucket = 's3renity';
-const prefix = 'files1/';
-const prefix2 = 'files2/';
-const path = `${__dirname}/buckets/s3renity/${prefix}`;
-const path2 = `${__dirname}/buckets/s3renity/${prefix2}`;
-const outputPrefix = 'output-test/';
-const outputPath = `${__dirname}/buckets/s3renity/${outputPrefix}`;
+resetSandbox()
+
+function resetSandbox() {
+  rimraf(path.resolve(__dirname, 'buckets'))
+  mkdirp(prefixPath)
+  files.forEach(file => {
+    const filePath = path.resolve(__dirname, folder, bucketPath, prefixPath, file)
+    fs.writeFileSync(filePath, file)
+  })
+}
+
+/**
+ * Returns the contents of a file
+ */
+
+function readFile(path) {
+  return fs.readFileSync(path).toString().trim()
+}
+
+/**
+ * Returns an array of the contents of each file in a directory
+ */
+
+function readFiles(files) {
+  return files.map(readFile)
+}
+
+/**
+ * Returns true if all the files in an array exist
+ */
+
+function filesExist(paths) {
+  return paths.map(fileExists).every(f => f)
+}
+
+/**
+ * Returns true if file exists
+ */
+
+function fileExists(path) {
+  return fs.existsSync(path)
+}
+
+/**
+ * Returns true if two arrays contain the same objects
+ */
+
+function arraysEqual(arr1, arr2) {
+  return arr1.every((obj, index) => equals(obj, arr2[index]))
+}
+
+/**
+ * List files in a directory
+ */
+
+function readDir(dir) {
+  return fs.readdirSync(dir)
+}
+
+/**
+ * Test key listing function
+ * TODO test with endPrefix and marker
+ */
 
 test('s3renity.keys', t => {
-
-  reset();
   t.plan(1);
-
-  let keys = ['test1', 'test2', 'test3'];
-  let answer = keys;
-  keys.forEach(key => fs.writeFileSync(`${path}/${key}`));
-
-  s3.keys(bucket, prefix).then(keys => {
-    let correct = (keys[0] == answer[0] && keys[1] == answer[1] && keys[2] == answer[2]);
-    t.ok(correct, 'keys');
-  }).catch(e => console.error(e.stack));
-});
-
-test('s3renity.put', t => {
-
-  reset();
-  t.plan(1);
-
-  let body = 'hello world';
-  let name = 'test'
-  let key = `${prefix}/${name}`;
-  let filePath = `${path}/${name}`;
-
-  s3.put(bucket, key, body).then(() => {
-      let output = fs.readFileSync(filePath);
-      t.ok(output == 'hello world', 'put object');
+  let answer = files.map(f => `${prefix}/${f}`)
+  s3
+    .keys(bucket, prefix)
+    .then(keys => {
+      t.ok(equals(keys, answer), 'keys length matches')
     })
-    .catch(console.error);
+    .catch(e => console.error(e.stack));
 });
 
-test('s3renity.get', t => {
+/**
+ * Test S3 methods get, put, and delete
+ */
 
-  reset();
-  t.plan(1);
+test('s3renity.put, s3renity.get, s3renity.delete', t => {
 
-  let name = 'test';
-  let answer = 'hello world';
+  resetSandbox()
+  t.plan(3)
 
-  fs.writeFileSync(`${path}/${name}`, answer);
-  let key = `${prefix}/${name}`;
+  let file = files[0]
+  let key = `${prefix}/${file}`
+  let body = 'hello world'
+  let name = 'test'
 
-  s3.get(bucket, key).then(obj => {
-    t.ok(obj == answer, 'get object');
-  });
-});
-
-test('s3renity.delete (single)', t => {
-
-  reset();
-  t.plan(1);
-
-  let name = 'test';
-  let key = `${prefix}/${name}`;
-
-  fs.writeFileSync(`${path}/${name}`, 'hello world');
-
-  s3.delete(bucket, key).then(() => {
-    t.ok(!fs.existsSync(`${path}/${name}`), 'delete single object');
-  }).catch(console.error);
+  s3
+    .put(bucket, key, body)
+    .then(() => {
+      let fileContents = readFile(`${prefixPath}/${file}`)
+      t.ok(fileContents == body, 'put object')
+      s3.get(bucket, key).then(obj => {
+        t.ok(obj == body, 'get object')
+        s3.delete(bucket, key).then(() => {
+          t.ok(!fs.existsSync(`${key}`), 'delete object');
+        }).catch(console.error);
+      })
+        .catch(console.error)
+    })
+    .catch(console.error)
 });
 
 test('s3renity.delete (batch)', t => {
 
-  reset();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}/${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`));
+  const files = ['file2', 'file3', 'file4']
+  const keys = files.map(file => `${prefix}/${file}`)
 
-  s3.delete(bucket, keys).then(() => {
-    let empty = names.filter(key => fs.existsSync(`${prefix}/${key}`)).length == 0;
-    t.ok(empty, 'delete multiple objects');
+  s3.deleteObjects(bucket, keys).then(() => {
+    t.ok(!filesExist(keys), 'delete multiple objects');
   }).catch(console.error);
 });
 
 test('s3renity.context.forEach (sync)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
+  const objects = []
+  const answer = [ { object: 'file1', key: 'files/file1' },
+    { object: 'file2', key: 'files/file2' },
+    { object: 'file3', key: 'files/file3' },
+    { object: 'file4', key: 'files/file4' } ]
 
-  let results = [];
-
-  s3.context(bucket, prefix).forEach((obj, key) => {
-    results.push(key + obj);
-  }).then(() => {
-    let answers = keys.map((key, i) => key + names[i]);
-    let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
-    t.ok(success, 'forEach sync over 3 objects')
-  }).catch(e => console.error(e.stack));
+  s3
+    .context(bucket, prefix).forEach((obj, key) => {
+      objects.push({
+        object: obj,
+        key: key
+      })
+    })
+    .then(() => {
+      t.ok(arraysEqual(objects, answer), 'forEach sync')
+    })
+    .catch(e => console.error(e.stack));
 });
 
 test('s3renity.context.forEach (async)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
+  const objects = []
+  const answer = [
+    { object: 'file1', key: 'files/file1' },
+    { object: 'file2', key: 'files/file2' },
+    { object: 'file3', key: 'files/file3' },
+    { object: 'file4', key: 'files/file4' }
+  ]
 
-  let results = [];
-
-  s3.context(bucket, prefix).forEach((obj, key) => {
-    return new Promise((success, fail) => {
-      results.push(key + obj);
-      success();
+  s3
+    .context(bucket, prefix)
+    .forEach((obj, key) => {
+      return new Promise((success, fail) => {
+        objects.push({
+          object: obj,
+          key: key
+        })
+        success()
+      });
+    }, true).then(() => {
+      t.ok(arraysEqual(objects, answer), 'forEach async')
     });
-  }, true).then(() => {
-    let answers = keys.map((key, i) => key + names[i]);
-    let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
-    t.ok(success, 'forEach async over 3 objects')
-  });
 });
 
 test('s3renity.context.map (sync)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
+  const answer = [
+    'files/file1file1',
+    'files/file2file2',
+    'files/file3file3',
+    'files/file4file4'
+  ]
 
-  s3.context(bucket, prefix).map((obj, key) => {
-    return key + obj;
-  }).then(() => {
-    let answers = keys.map((key, i) => key + names[i]);
-    let results = [];
-    names.forEach(name => {
-      results.push(fs.readFileSync(`${path}/${name}`).toString());
-    });
-    let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
-    t.ok(success, 'map sync over 3 objects')
-  }).catch(console.error);
+  s3
+    .context(bucket, prefix)
+    .map((obj, key) => {
+      // update each object with the key prefixed
+      return key + obj;
+    }).then(() => {
+      t.ok(equals(answer, readFiles(filePaths)), 'map sync')
+    }).catch(console.error);
 });
 
 test('s3renity.context.map (async)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}${key}`, key));
+  const answer = [
+    'files/file1file1',
+    'files/file2file2',
+    'files/file3file3',
+    'files/file4file4'
+  ]
 
   s3.context(bucket, prefix).map((obj, key) => {
     return new Promise((success, fail) => {
       success(key + obj);
     });
   }, true).then(() => {
-    let answers = keys.map((key, i) => key + names[i]);
-    let results = [];
-    names.forEach(name => {
-      results.push(fs.readFileSync(`${path}/${name}`).toString());
-    });
-    let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
-    t.ok(success, 'map async over 3 objects')
+    t.ok(equals(answer, readFiles(filePaths)), 'map async over 3 objects')
   }).catch(console.error);
 });
 
 test('s3renity.context.output.map (sync)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}${key}`, key));
+  const answer = [
+    'files/file1file1',
+    'files/file2file2',
+    'files/file3file3',
+    'files/file4file4'
+  ]
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
     .map((obj, key) => {
       return key + obj;
     }).then(() => {
-      let answers = keys.map((key, i) => key + names[i]);
-      let results = [];
-      keys.forEach(key => {
-        results.push(fs.readFileSync(`${outputPath}${key}`).toString());
-      });
-      let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
-      t.ok(success, 'map sync over 3 objects')
+      t.ok(equals(answer, readFiles(outputPaths)), 'map sync over')
     }).catch(console.error);
 });
 
 test('s3renity.context.output.map (async)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}${key}`, key));
+  const answer = [
+    'files/file1file1',
+    'files/file2file2',
+    'files/file3file3',
+    'files/file4file4'
+  ]
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
@@ -225,25 +281,16 @@ test('s3renity.context.output.map (async)', t => {
         success(key + obj);
       });
     }, true).then(() => {
-      let answers = keys.map((key, i) => key + names[i]);
-      let results = [];
-      keys.forEach(key => {
-        results.push(fs.readFileSync(`${outputPath}${key}`).toString());
-      });
-      let success = answers[0] == results[0] && answers[1] == results[1] && answers[2] == results[2];
-      t.ok(success, 'map async over 3 objects')
+      t.ok(equals(answer, readFiles(outputPaths)), 'map async')
     }).catch(console.error);
 });
 
 test('s3renity.context.reduce (sync)', t => {
 
-  t.plan(1);
-  reset();
+  resetSandbox()
+  t.plan(1)
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}/${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
-  let answer = 'test1test2test3';
+  const answer = 'file1file2file3file4'
 
   s3.context(bucket, prefix)
     .reduce((prev, cur, key) => {
@@ -254,19 +301,16 @@ test('s3renity.context.reduce (sync)', t => {
       }
     })
     .then(result => {
-      t.ok(result == answer, 'reduce sync 3 objects');
+      t.ok(result == answer, 'reduce sync');
     }).catch(e => console.error(e.stack));
 });
 
 test('s3renity.context.reduce (async)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}/${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
-  let answer = 'test1test2test3';
+  const answer = 'file1file2file3file4'
 
   s3.context(bucket, prefix)
     .reduce((prev, cur, key) => {
@@ -279,108 +323,85 @@ test('s3renity.context.reduce (async)', t => {
       });
     }, null, true)
     .then(result => {
-      t.ok(result == answer, 'reduce async 3 objects');
+      t.ok(result == answer, 'reduce async');
     }).catch(e => console.error(e.stack));
 });
 
 test('s3renity.context.filter (sync)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}${key}`, key));
-  let answer = 'test1';
+  let answer = ['file1']
 
-  let d = s3.context(bucket, prefix)
+  s3.context(bucket, prefix)
     .filter(obj => {
-      return obj == 'test1';
+      return obj == 'file1';
     })
     .then(() => {
-      t.ok(fs.readdirSync(path)[0] == answer, 'filter 3 files to 1');
+      t.ok(equals(answer, readDir(prefixPath)), 'filter inplace (sync)');
     })
-    .catch(e => {
-      console.error(e || e.stack, 'URR');
-    });
+    .catch(e => console.error(e));
 });
 
 test('s3renity.context.filter (async)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}/${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
-  let answer = 'test1';
+  let answer = ['file1']
 
   s3.context(bucket, prefix)
     .filter(obj => {
       return new Promise((success, fail) => {
-        success(obj == 'test1');
+        success(obj == 'file1');
       });
     }, true)
     .then(() => {
-      t.ok(fs.readdirSync(path) == answer, 'filter 3 files to 1');
+      t.ok(equals(fs.readdirSync(prefixPath), answer), 'filter 3 inplace (async)');
     })
     .catch(e => console.error(e.stack));
 });
 
 test('s3renity.context.output.filter (sync)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}/${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
-  let answer = 'test1';
+  let answer = ['file1'];
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
     .filter(obj => {
-      return obj == 'test1';
+      return obj == 'file1';
     })
     .then(() => {
-      t.ok(fs.readdirSync(outputPath) == answer, 'filter 3 files to 1');
+      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (sync)');
     })
     .catch(e => console.error(e.stack));
 });
 
 test('s3renity.context.output.filter (async)', t => {
 
-  reset();
+  resetSandbox();
   t.plan(1);
 
-  let names = ['test1', 'test2', 'test3'];
-  let keys = names.map(key => `${prefix}/${key}`);
-  names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
-  let answer = 'test1';
+  let answer = ['file1']
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
     .filter(obj => {
       return new Promise((success, fail) => {
-        success(obj == 'test1');
+        success(obj == 'file1');
       });
     }, true)
     .then(() => {
-      t.ok(fs.readdirSync(outputPath) == answer, 'filter 3 files to 1');
+      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (async)');
     })
     .catch(e => console.error(e.stack));
 });
 
 test('end', t => {
-  reset();
-  fs.removeSync(`${__dirname}/buckets`);
+  rimraf(path.resolve(__dirname, 'buckets'))
   t.end();
 })
-
-function reset() {
-  fs.removeSync(path);
-  fs.removeSync(path2);
-  fs.removeSync(outputPath);
-  fs.mkdirsSync(path);
-  fs.mkdirsSync(path2);
-}
