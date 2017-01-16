@@ -376,36 +376,32 @@ test('s3renity.context.output.filter (sync)', t => {
       return obj == 'file1';
     })
     .then(() => {
-      t.ok(equals(fs.readdirSync(outputPrefixPath), answer), 'filter 3 with output (sync)');
+      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (sync)');
     })
     .catch(e => console.error(e.stack));
 });
 
-// test('s3renity.context.output.filter (async)', t => {
+test('s3renity.context.output.filter (async)', t => {
 
-//   reset();
-//   t.plan(1);
+  resetSandbox();
+  t.plan(1);
 
-//   let names = ['test1', 'test2', 'test3'];
-//   let keys = names.map(key => `${prefix}/${key}`);
-//   names.forEach(key => fs.writeFileSync(`${path}/${key}`, key));
-//   let answer = 'test1';
+  let answer = ['file1']
 
-//   s3.context(bucket, prefix)
-//     .output(bucket, outputPrefix)
-//     .filter(obj => {
-//       return new Promise((success, fail) => {
-//         success(obj == 'test1');
-//       });
-//     }, true)
-//     .then(() => {
-//       t.ok(fs.readdirSync(outputPath) == answer, 'filter 3 files to 1');
-//     })
-//     .catch(e => console.error(e.stack));
-// });
+  s3.context(bucket, prefix)
+    .output(bucket, outputPrefix)
+    .filter(obj => {
+      return new Promise((success, fail) => {
+        success(obj == 'file1');
+      });
+    }, true)
+    .then(() => {
+      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (async)');
+    })
+    .catch(e => console.error(e.stack));
+});
 
-// test('end', t => {
-//   reset();
-//   fs.removeSync(`${__dirname}/buckets`);
-//   t.end();
-// })
+test('end', t => {
+  rimraf(path.resolve(__dirname, 'buckets'))
+  t.end();
+})
