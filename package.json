@@ -34,6 +34,8 @@
     "tape": "^4.4.0"
   },
   "pre-commit": [
+    "lint",
+    "validate",
     "test"
   ]
 }
