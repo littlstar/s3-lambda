@@ -1,0 +1,24 @@
+{
+  "extends": "airbnb",
+  "parserOptions": {
+    "sourceType": "script"
+  },
+  "rules": {
+    "lines-around-comment": ["warn", {
+      "beforeLineComment": true,
+      "afterLineComment": false,
+      "beforeBlockComment": true,
+      "afterBlockComment": true
+    }],
+    "padded-blocks": ["off"],
+    "comma-dangle": ["error", "never"],
+    "no-plusplus": ["off"],
+    "no-param-reassign": ["off"],
+    "no-undef": ["off"],
+    "strict": ["error", "global"],
+    "semi": ["error", "never"]
+  },
+  "plugins": [
+    "import"
+  ]
+}

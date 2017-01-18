@@ -41,7 +41,6 @@ Perform sync or async functions over each file in a directory.
 - map
 - reduce
 - filter
-- join
 
 **First Step: Setting Context**  
 Before calling a batch function, you must tell s3renity what files to operate over. You do this by calling `context`, which returns a promise, so you can chain it with the batch request. The context function takes four arguments: **bucket**, **prefix**, **marker**, **limit**, and **reverse**.
@@ -158,17 +157,6 @@ s3renity
   .filter(filter)
   .then(console.log('done!'))
   .catch(console.error();
-```
-### join
-join(delimiter)  
-
-Joins objects in s3 to a single value.
-```javascript
-s3renity
-  .context(bucket, prefix)
-  .join('\n')
-  .then(result => { /* do something with result */ }
-  .catch(console.error);
 ```
 ## S3 Functions
 Promise-based wrapper around common S3 methods.

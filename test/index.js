@@ -1,11 +1,11 @@
 'use strict'
 
 // Dependencies
-const s3renity = require(`${__dirname}/..`);
+const s3renity = require(`${__dirname}/..`)
 const equals = require('array-equal')
 const mkdirp = require('mkdirp').sync
 const rimraf = require('rimraf').sync
-const test = require('tape');
+const test = require('tape')
 const path = require('path')
 const fs = require('fs')
 
@@ -27,14 +27,14 @@ const s3 = new s3renity({
   localPath,
   show_progress: false,
   verbose: false
-});
+})
 
 resetSandbox()
 
 function resetSandbox() {
   rimraf(path.resolve(__dirname, 'buckets'))
   mkdirp(prefixPath)
-  files.forEach(file => {
+  files.forEach((file) => {
     const filePath = path.resolve(__dirname, folder, bucketPath, prefixPath, file)
     fs.writeFileSync(filePath, file)
   })
@@ -93,87 +93,87 @@ function readDir(dir) {
  * TODO test with endPrefix and marker
  */
 
-test('s3renity.keys', t => {
-  t.plan(1);
-  let answer = files.map(f => `${prefix}/${f}`)
+test('s3renity.keys', (t) => {
+  t.plan(1)
+  const answer = files.map(f => `${prefix}/${f}`)
   s3
     .keys(bucket, prefix)
-    .then(keys => {
+    .then((keys) => {
       t.ok(equals(keys, answer), 'keys length matches')
     })
-    .catch(e => console.error(e.stack));
-});
+    .catch(e => console.error(e.stack))
+})
 
 /**
  * Test S3 methods get, put, and delete
  */
 
-test('s3renity.put, s3renity.get, s3renity.delete', t => {
+test('s3renity.put, s3renity.get, s3renity.delete', (t) => {
 
   resetSandbox()
   t.plan(3)
 
-  let file = files[0]
-  let key = `${prefix}/${file}`
-  let body = 'hello world'
-  let name = 'test'
+  const file = files[0]
+  const key = `${prefix}/${file}`
+  const body = 'hello world'
+  const name = 'test'
 
   s3
     .put(bucket, key, body)
     .then(() => {
-      let fileContents = readFile(`${prefixPath}/${file}`)
-      t.ok(fileContents == body, 'put object')
-      s3.get(bucket, key).then(obj => {
+      const fileContents = readFile(`${prefixPath}/${file}`)
+      t.ok(fileContents === body, 'put object')
+      s3.get(bucket, key).then((obj) => {
         t.ok(obj == body, 'get object')
         s3.delete(bucket, key).then(() => {
-          t.ok(!fs.existsSync(`${key}`), 'delete object');
-        }).catch(console.error);
+          t.ok(!fs.existsSync(`${key}`), 'delete object')
+        }).catch(console.error)
       })
         .catch(console.error)
     })
     .catch(console.error)
-});
+})
 
-test('s3renity.delete (batch)', t => {
+test('s3renity.delete (batch)', (t) => {
 
-  t.plan(1);
+  t.plan(1)
 
   const files = ['file2', 'file3', 'file4']
   const keys = files.map(file => `${prefix}/${file}`)
 
   s3.deleteObjects(bucket, keys).then(() => {
-    t.ok(!filesExist(keys), 'delete multiple objects');
-  }).catch(console.error);
-});
+    t.ok(!filesExist(keys), 'delete multiple objects')
+  }).catch(console.error)
+})
 
-test('s3renity.context.forEach (sync)', t => {
+test('s3renity.context.forEach (sync)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const objects = []
-  const answer = [ { object: 'file1', key: 'files/file1' },
+  const answer = [{ object: 'file1', key: 'files/file1' },
     { object: 'file2', key: 'files/file2' },
     { object: 'file3', key: 'files/file3' },
-    { object: 'file4', key: 'files/file4' } ]
+    { object: 'file4', key: 'files/file4' }]
 
   s3
     .context(bucket, prefix).forEach((obj, key) => {
       objects.push({
         object: obj,
-        key: key
+        key
       })
     })
     .then(() => {
       t.ok(arraysEqual(objects, answer), 'forEach sync')
     })
-    .catch(e => console.error(e.stack));
-});
+    .catch(e => console.error(e.stack))
+})
 
-test('s3renity.context.forEach (async)', t => {
+test('s3renity.context.forEach (async)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const objects = []
   const answer = [
@@ -185,23 +185,21 @@ test('s3renity.context.forEach (async)', t => {
 
   s3
     .context(bucket, prefix)
-    .forEach((obj, key) => {
-      return new Promise((success, fail) => {
-        objects.push({
-          object: obj,
-          key: key
-        })
-        success()
-      });
-    }, true).then(() => {
+    .forEach((obj, key) => new Promise((success, fail) => {
+      objects.push({
+        object: obj,
+        key
+      })
+      success()
+    }), true).then(() => {
       t.ok(arraysEqual(objects, answer), 'forEach async')
-    });
-});
+    })
+})
 
-test('s3renity.context.map (sync)', t => {
+test('s3renity.context.map (sync)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const answer = [
     'files/file1file1',
@@ -212,18 +210,18 @@ test('s3renity.context.map (sync)', t => {
 
   s3
     .context(bucket, prefix)
-    .map((obj, key) => {
+    .map((obj, key) =>
+
       // update each object with the key prefixed
-      return key + obj;
-    }).then(() => {
-      t.ok(equals(answer, readFiles(filePaths)), 'map sync')
-    }).catch(console.error);
-});
+       key + obj).then(() => {
+         t.ok(equals(answer, readFiles(filePaths)), 'map sync')
+       }).catch(console.error)
+})
 
-test('s3renity.context.map (async)', t => {
+test('s3renity.context.map (async)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const answer = [
     'files/file1file1',
@@ -232,19 +230,17 @@ test('s3renity.context.map (async)', t => {
     'files/file4file4'
   ]
 
-  s3.context(bucket, prefix).map((obj, key) => {
-    return new Promise((success, fail) => {
-      success(key + obj);
-    });
-  }, true).then(() => {
+  s3.context(bucket, prefix).map((obj, key) => new Promise((success, fail) => {
+    success(key + obj)
+  }), true).then(() => {
     t.ok(equals(answer, readFiles(filePaths)), 'map async over 3 objects')
-  }).catch(console.error);
-});
+  }).catch(console.error)
+})
 
-test('s3renity.context.output.map (sync)', t => {
+test('s3renity.context.output.map (sync)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const answer = [
     'files/file1file1',
@@ -255,17 +251,15 @@ test('s3renity.context.output.map (sync)', t => {
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
-    .map((obj, key) => {
-      return key + obj;
-    }).then(() => {
+    .map((obj, key) => key + obj).then(() => {
       t.ok(equals(answer, readFiles(outputPaths)), 'map sync over')
-    }).catch(console.error);
-});
+    }).catch(console.error)
+})
 
-test('s3renity.context.output.map (async)', t => {
+test('s3renity.context.output.map (async)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const answer = [
     'files/file1file1',
@@ -276,16 +270,14 @@ test('s3renity.context.output.map (async)', t => {
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
-    .map((obj, key) => {
-      return new Promise((success, fail) => {
-        success(key + obj);
-      });
-    }, true).then(() => {
+    .map((obj, key) => new Promise((success, fail) => {
+      success(key + obj)
+    }), true).then(() => {
       t.ok(equals(answer, readFiles(outputPaths)), 'map async')
-    }).catch(console.error);
-});
+    }).catch(console.error)
+})
 
-test('s3renity.context.reduce (sync)', t => {
+test('s3renity.context.reduce (sync)', (t) => {
 
   resetSandbox()
   t.plan(1)
@@ -295,113 +287,103 @@ test('s3renity.context.reduce (sync)', t => {
   s3.context(bucket, prefix)
     .reduce((prev, cur, key) => {
       if (!prev) {
-        return cur;
+        return cur
       } else {
-        return prev + cur;
+        return prev + cur
       }
     })
-    .then(result => {
-      t.ok(result == answer, 'reduce sync');
-    }).catch(e => console.error(e.stack));
-});
+    .then((result) => {
+      t.ok(result == answer, 'reduce sync')
+    }).catch(e => console.error(e.stack))
+})
 
-test('s3renity.context.reduce (async)', t => {
+test('s3renity.context.reduce (async)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
   const answer = 'file1file2file3file4'
 
   s3.context(bucket, prefix)
-    .reduce((prev, cur, key) => {
-      return new Promise((success, fail) => {
-        if (!prev) {
-          success(cur);
-        } else {
-          success(prev + cur);
-        }
-      });
-    }, null, true)
-    .then(result => {
-      t.ok(result == answer, 'reduce async');
-    }).catch(e => console.error(e.stack));
-});
+    .reduce((prev, cur, key) => new Promise((success, fail) => {
+      if (!prev) {
+        success(cur)
+      } else {
+        success(prev + cur)
+      }
+    }), null, true)
+    .then((result) => {
+      t.ok(result == answer, 'reduce async')
+    }).catch(e => console.error(e.stack))
+})
 
-test('s3renity.context.filter (sync)', t => {
+test('s3renity.context.filter (sync)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
-  let answer = ['file1']
+  const answer = ['file1']
 
   s3.context(bucket, prefix)
-    .filter(obj => {
-      return obj == 'file1';
-    })
+    .filter(obj => obj == 'file1')
     .then(() => {
-      t.ok(equals(answer, readDir(prefixPath)), 'filter inplace (sync)');
+      t.ok(equals(answer, readDir(prefixPath)), 'filter inplace (sync)')
     })
-    .catch(e => console.error(e));
-});
+    .catch(e => console.error(e))
+})
 
-test('s3renity.context.filter (async)', t => {
+test('s3renity.context.filter (async)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
-  let answer = ['file1']
+  const answer = ['file1']
 
   s3.context(bucket, prefix)
-    .filter(obj => {
-      return new Promise((success, fail) => {
-        success(obj == 'file1');
-      });
-    }, true)
+    .filter(obj => new Promise((success, fail) => {
+      success(obj == 'file1')
+    }), true)
     .then(() => {
-      t.ok(equals(fs.readdirSync(prefixPath), answer), 'filter 3 inplace (async)');
+      t.ok(equals(fs.readdirSync(prefixPath), answer), 'filter 3 inplace (async)')
     })
-    .catch(e => console.error(e.stack));
-});
+    .catch(e => console.error(e.stack))
+})
 
-test('s3renity.context.output.filter (sync)', t => {
+test('s3renity.context.output.filter (sync)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
-  let answer = ['file1'];
+  const answer = ['file1']
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
-    .filter(obj => {
-      return obj == 'file1';
-    })
+    .filter(obj => obj == 'file1')
     .then(() => {
-      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (sync)');
+      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (sync)')
     })
-    .catch(e => console.error(e.stack));
-});
+    .catch(e => console.error(e.stack))
+})
 
-test('s3renity.context.output.filter (async)', t => {
+test('s3renity.context.output.filter (async)', (t) => {
 
-  resetSandbox();
-  t.plan(1);
+  resetSandbox()
+  t.plan(1)
 
-  let answer = ['file1']
+  const answer = ['file1']
 
   s3.context(bucket, prefix)
     .output(bucket, outputPrefix)
-    .filter(obj => {
-      return new Promise((success, fail) => {
-        success(obj == 'file1');
-      });
-    }, true)
+    .filter(obj => new Promise((success, fail) => {
+      success(obj == 'file1')
+    }), true)
     .then(() => {
-      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (async)');
+      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (async)')
     })
-    .catch(e => console.error(e.stack));
-});
+    .catch(e => console.error(e.stack))
+})
 
-test('end', t => {
+test('end', (t) => {
   rimraf(path.resolve(__dirname, 'buckets'))
-  t.end();
+  t.end()
 })
