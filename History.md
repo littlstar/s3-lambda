@@ -1,4 +1,15 @@
 
+4.0.0 / 2017-01-23
+==================
+
+  * Added precommit hooks to lint and validate
+  * fix all linting errors. removed join function
+  * removed join
+  * reorganized the way s3 objects are handled
+  * implemented 'endPrefix', removed superfluous 'list' function
+  * fixed encoding settings (inherit from s3 class). fixed some file names/comments.
+  * bug fixes
+
 3.0.4 / 2016-08-12
 ==================
 
