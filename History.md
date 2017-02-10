@@ -1,8 +1,8 @@
 
-4.0.1 / 2017-02-09
+5.0.0 / 2017-02-09
 ==================
 
-  * S3renity is deprecated, moving to s3-lambda
+  * S3renity is deprecated, moved to s3-lambda
 
 4.0.0 / 2017-01-23
 ==================
