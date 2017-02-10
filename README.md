@@ -2,7 +2,7 @@
 
 `s3-lambda` enables you to run lambda functions over a context of [S3](https://aws.amazon.com/s3/) objects. It has a stateless architecture with concurrency control, allowing you to process a large number of files very quickly. This is useful for quickly prototyping complex data jobs without an infrastructure like Hadoop or Spark.
 
-At Littlstar, we use `s3-lambda` for all sorts of data pipelining and analysis.
+At Littlstar, we use `s3-lambda` for all sorts of data pipelining and analytics.
 
 ## Install
 ```bash
@@ -44,7 +44,7 @@ Perform sync or async functions over each file in a directory.
 - filter
 
 **First Step: Setting Context**  
-Before calling a batch function, you must tell s3-lambda what files to operate over. You do this by calling `context`, which returns a promise, so you can chain it with the batch request. The context function takes four arguments: **bucket**, **prefix**, **marker**, **limit**, and **reverse**.
+Before calling a batch function, you must tell `s3-lambda` what files to operate over. You do this by calling `context`, which returns a promise, so you can chain it with the batch request. The context function takes four arguments: **bucket**, **prefix**, **marker**, **limit**, and **reverse**.
 
 ```javascript
 lambda.context(
@@ -171,7 +171,7 @@ Promise-based wrapper around common S3 methods.
 ### list
 list(bucket, prefix[, marker])  
 
-List all keys in `s3://bucket/prefix`.  If you use a marker, s3-lambda will start listing alphabetically from there.
+List all keys in `s3://bucket/prefix`.  If you use a marker, `s3-lambda` will start listing alphabetically from there.
 ```javascript
 lambda
   .list(bucket, prefix)
