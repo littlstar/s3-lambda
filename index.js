@@ -1,5 +1,5 @@
 'use strict'
 
-const s3renity = require('./lib/S3renity')
+const S3Lambda = require('./lib/S3Lambda')
 
-module.exports = s3renity
+module.exports = S3Lambda
