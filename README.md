@@ -15,19 +15,21 @@ const S3Lambda = require('s3-lambda');
 
 // example options
 const lambda = new S3Lambda({
-  access_key_id: 'aws-access-key',
-  secret_access_key: 'aws-secret-key',
-  show_progress: true,
-  verbose: true,
-  max_retries: 10,
-  timeout: 1000
+  accessKeyId: 'aws-access-key',       // Optional. (falls back on local AWS credentials)
+  secretAccessKey: 'aws-secret-key',   // Optional. (falls back on local AWS credentials) 
+  showProgress: true,                  // Optional. Show progress bar in stdout
+  verbose: true,                       // Optional. Show all S3 operations in stdout (GET, PUT, DELETE)
+  max_retries: 10,                     // Optional. Maximum request retries on an S3 object. Defaults to 10.
+  timeout: 5000                        // Optional. Amount of time for request to timeout. Defaults to 1000 (5s)
 });
 
-const bucket = 'my-bucket';
-const prefix = 'path/to/files/';
+const context = {
+  bucket: 'my-bucket',
+  prefix: 'path/to/files/'
+}
 
 lambda
-  .context(bucket, prefix)
+  .context(context)
   .forEach(object => {
     // do something with object
   })
@@ -35,52 +37,70 @@ lambda
   .catch(console.error);
 ```
 
-## Batch Functions
-Perform sync or async functions over each file in a directory.
-- forEach
+## Setting Context
+Before initiating a lambda expression, you must tell `s3-lambda` what files to operate over by calling `context`. A context is defined with an options object with the following properties: **bucket**, **prefix**, **marker**, **limit**, and **reverse**.
+
+```javascript
+lambda.context({
+  bucket: 'my-bucket',       // The S3 bucket to use
+  prefix: 'prefix/',         // The prefix of the files to use - s3-lambda will operate over every file with this prefix.
+  endPrefix: 'prefix/file3', // Optional. End at this prefix. Defaults to null
+  marker: 'prefix/file1',    // Optional. Start at this prefix. Defaults to null.
+  limit: 1000,               // Optional. Limit the # of files operated over. Default is Infinity.
+  reverse: false             // Optional. If true, operate over all files in reverse. Defaults to false.
+})
+```
+You can also provide an array of context options, which will tell `ls-lambda` to operate over all the files in each.
+```javascript
+const ctx1 = {
+  bucket: 'my-bucket',
+  prefix: 'path/to/files/',
+  marker: 'path/to/logs/2017'
+}
+const ctx2 = {
+  bucket: 'my-other-bucket',
+  prefix: 'path/to/other/logs/',
+  limit: 100
+}
+
+lambda.context([ctx1, ctx2])
+```
+
+## Modifiers
+After setting context, you can chain several other functions that modify the operation. Each returns a `Request` object, so they can be chained. All of these are optional.
+### .concurrency(c) 
+{Number} Set the request concurrency level (default is `Infinity`).
+
+### .transform(f)
+{Function} Sets the transformation function to use when getting objects. The function takes the object as an argument, and should return the transformed object.  
+**Example:** unzipping compressed S3 files before each operation
+```javascript
+const zlib = require('zlib')
+
+lambda
+  .context(context)
+  .transform((object) => {
+    return zlib.gunzipSync(object).toString()
+  })
+  .each(...)
+```
+### .encode(e)
+{String} Sets the encoding to use when getting objects.
+### limit(l)
+{Number} Limit the number of files operated over.
+### reverse(r)
+{Boolean} Reverse the order of files operated over.
+### async() 
+Lets the resolver know that your function is async (returns a Promise).
+
+## Lambda Functions
+Perform synchronous or asynchronous functions over each file in the set context.
 - each
+- forEach
 - map
 - reduce
 - filter
 
-**First Step: Setting Context**  
-Before calling a batch function, you must tell `s3-lambda` what files to operate over. You do this by calling `context`, which returns a promise, so you can chain it with the batch request. The context function takes four arguments: **bucket**, **prefix**, **marker**, **limit**, and **reverse**.
-
-```javascript
-lambda.context(
-  bucket, // the s3 bucket to use
-  prefix, // the prefix of the files to use - s3-lambda will operate over every file with this prefix
-  marker, // (optional, default null) start at this file/prefix
-  limit,  // (optional, default Infinity) limit the # of files operated over
-  reverse // (optional, default false) if true, operate over all files in reverse
-) // .forEach()...chain a batch function here
-
-// you can also provide an array of contexts like this
-const ctx1 = {
-  bucket: 'my-bucket',
-  prefix: 'path/to/files/1/'
-  // marker: 'path/to/files/1/somefile'
-};
-const ctx2 = {
-  bucket: 'my-bucket',
-  prefix: 'path/to/files/2/'
-  // marker: 'path/to/files/2/somefile'
-};
-lambda.context([ctx1, ctx2]) // .forEach()...
-```
-
-
-### forEach
-forEach(fn[, isasync])  
-
-Iterates over each file in a s3 directory and performs `func`.  If `isasync` is true, `func` should return a Promise.
-```javascript
-lambda
-  .context(bucket, prefix)
-  .forEach(object => { /* do something with object */ })
-  .then(_ => console.log('done!')
-  .catch(console.error);
-```
 ### each
 each(fn[, isasync])  
 
@@ -94,10 +114,22 @@ lambda
   .then(_ => console.log('done!')
   .catch(console.error);
 ```
+
+### forEach
+forEach(fn[, isasync])  
+
+Iterates over each file in a S3 directory and performs `func`.  If `isasync` is true, `func` should return a Promise.
+```javascript
+lambda
+  .context(bucket, prefix)
+  .forEach(object => { /* do something with object */ })
+  .then(_ => console.log('done!')
+  .catch(console.error);
+```
 ### map
 map(fn[, isasync])  
 
-**Destructive**. Maps `fn` over each file in an s3 directory, replacing each file with what is returned
+**Destructive**. Maps `fn` over each file in an S3 directory, replacing each file with what is returned
 from the mapper function. If `isasync` is true, `fn` should return a Promise. 
 ```javascript
 const addSmiley = object => object + ':)';
@@ -139,7 +171,7 @@ lambda
 ### filter
 filter(func[, isasync])  
 
-**Destructive**.  Filters (deletes) files in s3. `func` should return `true` to keep the object, and `false` to delete it. If `isasync` is true, `func` returns a Promise.
+**Destructive**.  Filters (deletes) files in S3. `func` should return `true` to keep the object, and `false` to delete it. If `isasync` is true, `func` returns a Promise.
 ```javascript
 // filters empty files
 const fn = object => object.length > 0;
@@ -191,7 +223,7 @@ lambda
 ### get
 get(bucket, key[, encoding[, transformer]])  
 
-Gets an object in s3, calling `toString(encoding` on objects.
+Gets an object in S3, calling `toString(encoding` on objects.
 ```javascript
 lambda
   .get(bucket, key)
@@ -214,7 +246,7 @@ lambda
 ### put
 put(bucket, key, object[, encoding])  
 
-Puts an object in s3.  Default encoding is `utf8`.
+Puts an object in S3.  Default encoding is `utf8`.
 ```javascript
 lambda
   .put(bucket, key, 'hello world!')
@@ -223,7 +255,7 @@ lambda
 ### copy
 copy(bucket, key, targetBucket, targetKey)  
 
-Copies an object in s3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
+Copies an object in S3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/targetKey`.
 ```javascript
 lambda
   .copy(sourceBucket, sourceKey, targetBucket, targetKey)
@@ -232,7 +264,7 @@ lambda
 ### delete
 delete(bucket, key)  
 
-Deletes an object in s3 (`s3://bucket/key`).
+Deletes an object in S3 (`s3://bucket/key`).
 ```javascript
 lambda
   .delete(bucket, key)

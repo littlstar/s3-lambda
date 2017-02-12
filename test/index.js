@@ -157,8 +157,13 @@ test('S3Lambda.context.forEach (sync)', (t) => {
     { object: 'file3', key: 'files/file3' },
     { object: 'file4', key: 'files/file4' }]
 
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
   lambda
-    .context(bucket, prefix).forEach((obj, key) => {
+    .context(context).forEach((obj, key) => {
       objects.push({
         object: obj,
         key
@@ -183,8 +188,13 @@ test('S3Lambda.context.forEach (async)', (t) => {
     { object: 'file4', key: 'files/file4' }
   ]
 
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
   lambda
-    .context(bucket, prefix)
+    .context(context)
     .forEach((obj, key) => new Promise((success, fail) => {
       objects.push({
         object: obj,
@@ -208,8 +218,13 @@ test('S3Lambda.context.map (sync)', (t) => {
     'files/file4file4'
   ]
 
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
   lambda
-    .context(bucket, prefix)
+    .context(context)
     .map((obj, key) =>
 
       // update each object with the key prefixed
@@ -230,7 +245,14 @@ test('S3Lambda.context.map (async)', (t) => {
     'files/file4file4'
   ]
 
-  lambda.context(bucket, prefix).map((obj, key) => new Promise((success, fail) => {
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
+    .map((obj, key) => new Promise((success, fail) => {
     success(key + obj)
   }), true).then(() => {
     t.ok(equals(answer, readFiles(filePaths)), 'map async over 3 objects')
@@ -249,7 +271,13 @@ test('S3Lambda.context.output.map (sync)', (t) => {
     'files/file4file4'
   ]
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
     .output(bucket, outputPrefix)
     .map((obj, key) => key + obj).then(() => {
       t.ok(equals(answer, readFiles(outputPaths)), 'map sync over')
@@ -268,7 +296,13 @@ test('S3Lambda.context.output.map (async)', (t) => {
     'files/file4file4'
   ]
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
     .output(bucket, outputPrefix)
     .map((obj, key) => new Promise((success, fail) => {
       success(key + obj)
@@ -284,7 +318,13 @@ test('S3Lambda.context.reduce (sync)', (t) => {
 
   const answer = 'file1file2file3file4'
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
     .reduce((prev, cur, key) => {
       if (!prev) {
         return cur
@@ -304,7 +344,13 @@ test('S3Lambda.context.reduce (async)', (t) => {
 
   const answer = 'file1file2file3file4'
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
     .reduce((prev, cur, key) => new Promise((success, fail) => {
       if (!prev) {
         success(cur)
@@ -323,8 +369,13 @@ test('S3Lambda.context.filter (sync)', (t) => {
   t.plan(1)
 
   const answer = ['file1']
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
 
-  lambda.context(bucket, prefix)
+  lambda
+    .context(context)
     .filter(obj => obj == 'file1')
     .then(() => {
       t.ok(equals(answer, readDir(prefixPath)), 'filter inplace (sync)')
@@ -339,7 +390,13 @@ test('S3Lambda.context.filter (async)', (t) => {
 
   const answer = ['file1']
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
     .filter(obj => new Promise((success, fail) => {
       success(obj == 'file1')
     }), true)
@@ -356,7 +413,13 @@ test('S3Lambda.context.output.filter (sync)', (t) => {
 
   const answer = ['file1']
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
     .output(bucket, outputPrefix)
     .filter(obj => obj == 'file1')
     .then(() => {
@@ -372,7 +435,12 @@ test('S3Lambda.context.output.filter (async)', (t) => {
 
   const answer = ['file1']
 
-  lambda.context(bucket, prefix)
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda.context(context)
     .output(bucket, outputPrefix)
     .filter(obj => new Promise((success, fail) => {
       success(obj == 'file1')
