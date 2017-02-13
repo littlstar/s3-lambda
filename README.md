@@ -111,7 +111,7 @@ lambda
   .context(bucket, prefix)
   .concurrency(5) // operates on 5 objects at a time
   .each(object => console.log(object))
-  .then(_ => console.log('done!')
+  .then(_ => console.log('done!'))
   .catch(console.error);
 ```
 
@@ -123,7 +123,7 @@ Iterates over each file in a S3 directory and performs `func`.  If `isasync` is 
 lambda
   .context(bucket, prefix)
   .forEach(object => { /* do something with object */ })
-  .then(_ => console.log('done!')
+  .then(_ => console.log('done!'))
   .catch(console.error);
 ```
 ### map
@@ -149,7 +149,7 @@ lambda
   .context(bucket, prefix)
   .output(outputBucket, outputPrefix)
   .map(addSmiley)
-  .then(console.log('done!')
+  .then(console.log('done!'))
   .catch(console.error)
 ```
 ### reduce
@@ -179,7 +179,7 @@ const fn = object => object.length > 0;
 lambda
   .context(bucket, prefix)
   .filter(fn)
-  .then(_ => console.log('done!')
+  .then(_ => console.log('done!'))
   .catch(console.error);
 ```
 Just like in `map`, you can make this *non-destructive* by specifying an `output` directory.
@@ -227,7 +227,7 @@ Gets an object in S3, calling `toString(encoding` on objects.
 ```javascript
 lambda
   .get(bucket, key)
-  .then(object => { /* do something with object */ }
+  .then(object => { /* do something with object */ })
   .catch(console.error);
 ```
 Optionally you can supply your own transformer function to use when retrieving objects.
@@ -240,7 +240,7 @@ const transformer = object => {
 
 lambda
   .get(bucket, key, null, transformer)
-  .then(object => { /* do something with object */ }
+  .then(object => { /* do something with object */ })
   .catch(console.error);
 ```
 ### put
@@ -250,7 +250,7 @@ Puts an object in S3.  Default encoding is `utf8`.
 ```javascript
 lambda
   .put(bucket, key, 'hello world!')
-  .then(console.log('done!').catch(console.error);
+  .then(console.log('done!')).catch(console.error);
 ```
 ### copy
 copy(bucket, key, targetBucket, targetKey)  
@@ -259,7 +259,7 @@ Copies an object in S3 from `s3://sourceBucket/sourceKey` to `s3://targetBucket/
 ```javascript
 lambda
   .copy(sourceBucket, sourceKey, targetBucket, targetKey)
-  .then(console.log('done!').catch(console.error);
+  .then(console.log('done!')).catch(console.error);
 ```
 ### delete
 delete(bucket, key)  
@@ -268,5 +268,5 @@ Deletes an object in S3 (`s3://bucket/key`).
 ```javascript
 lambda
   .delete(bucket, key)
-  .then(console.log('done!').catch(console.error);
+  .then(console.log('done!')).catch(console.error);
 ```
