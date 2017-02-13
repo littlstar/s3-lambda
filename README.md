@@ -20,7 +20,7 @@ const lambda = new S3Lambda({
   showProgress: true,                  // Optional. Show progress bar in stdout
   verbose: true,                       // Optional. Show all S3 operations in stdout (GET, PUT, DELETE)
   max_retries: 10,                     // Optional. Maximum request retries on an S3 object. Defaults to 10.
-  timeout: 5000                        // Optional. Amount of time for request to timeout. Defaults to 1000 (5s)
+  timeout: 10000                        // Optional. Amount of time for request to timeout. Defaults to 10000 (10s)
 });
 
 const context = {
