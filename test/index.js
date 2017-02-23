@@ -2,7 +2,6 @@
 
 // Dependencies
 const S3Lambda = require(`${__dirname}/..`)
-const equals = require('array-equal')
 const mkdirp = require('mkdirp').sync
 const rimraf = require('rimraf').sync
 const test = require('tape')
@@ -73,14 +72,6 @@ function fileExists(path) {
 }
 
 /**
- * Returns true if two arrays contain the same objects
- */
-
-function arraysEqual(arr1, arr2) {
-  return arr1.every((obj, index) => equals(obj, arr2[index]))
-}
-
-/**
  * List files in a directory
  */
 
@@ -99,7 +90,7 @@ test('S3Lambda.keys', (t) => {
   lambda
     .keys(bucket, prefix)
     .then((keys) => {
-      t.ok(equals(keys, answer), 'keys length matches')
+      t.deepEqual(keys, answer, 'keys length matches')
     })
     .catch(e => console.error(e.stack))
 })
@@ -122,11 +113,11 @@ test('S3Lambda.put, S3Lambda.get, S3Lambda.delete', (t) => {
     .put(bucket, key, body)
     .then(() => {
       const fileContents = readFile(`${prefixPath}/${file}`)
-      t.ok(fileContents === body, 'put object')
+      t.equal(fileContents, body, 'put object')
       lambda.get(bucket, key).then((obj) => {
-        t.ok(obj == body, 'get object')
+        t.equal(obj, body, 'get object')
         lambda.delete(bucket, key).then(() => {
-          t.ok(!fs.existsSync(`${key}`), 'delete object')
+          t.notOk(fs.existsSync(`${key}`), 'delete object')
         }).catch(console.error)
       })
         .catch(console.error)
@@ -142,7 +133,7 @@ test('S3Lambda.delete (batch)', (t) => {
   const keys = files.map(file => `${prefix}/${file}`)
 
   lambda.deleteObjects(bucket, keys).then(() => {
-    t.ok(!filesExist(keys), 'delete multiple objects')
+    t.notOk(filesExist(keys), 'delete multiple objects')
   }).catch(console.error)
 })
 
@@ -170,7 +161,7 @@ test('S3Lambda.context.forEach (sync)', (t) => {
       })
     })
     .then(() => {
-      t.ok(arraysEqual(objects, answer), 'forEach sync')
+      t.deepEqual(objects, answer, 'forEach sync')
     })
     .catch(e => console.error(e.stack))
 })
@@ -202,7 +193,9 @@ test('S3Lambda.context.forEach (async)', (t) => {
       })
       success()
     }), true).then(() => {
-      t.ok(arraysEqual(objects, answer), 'forEach async')
+      t.deepEqual(objects, answer, 'forEach async')
+    })
+})
 
 test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
 
@@ -259,7 +252,7 @@ test('S3Lambda.context.map (sync)', (t) => {
 
       // update each object with the key prefixed
        key + obj).then(() => {
-         t.ok(equals(answer, readFiles(filePaths)), 'map sync')
+         t.deepEqual(answer, readFiles(filePaths), 'map sync')
        }).catch(console.error)
 })
 
@@ -285,7 +278,7 @@ test('S3Lambda.context.map (async)', (t) => {
     .map((obj, key) => new Promise((success, fail) => {
     success(key + obj)
   }), true).then(() => {
-    t.ok(equals(answer, readFiles(filePaths)), 'map async over 3 objects')
+    t.deepEqual(answer, readFiles(filePaths), 'map async over 3 objects')
   }).catch(console.error)
 })
 
@@ -310,7 +303,7 @@ test('S3Lambda.context.output.map (sync)', (t) => {
     .context(context)
     .output(bucket, outputPrefix)
     .map((obj, key) => key + obj).then(() => {
-      t.ok(equals(answer, readFiles(outputPaths)), 'map sync over')
+      t.deepEqual(answer, readFiles(outputPaths), 'map sync over')
     }).catch(console.error)
 })
 
@@ -337,7 +330,7 @@ test('S3Lambda.context.output.map (async)', (t) => {
     .map((obj, key) => new Promise((success, fail) => {
       success(key + obj)
     }), true).then(() => {
-      t.ok(equals(answer, readFiles(outputPaths)), 'map async')
+      t.deepEqual(answer, readFiles(outputPaths), 'map async')
     }).catch(console.error)
 })
 
@@ -363,7 +356,7 @@ test('S3Lambda.context.reduce (sync)', (t) => {
       }
     })
     .then((result) => {
-      t.ok(result == answer, 'reduce sync')
+      t.equal(result, answer, 'reduce sync')
     }).catch(e => console.error(e.stack))
 })
 
@@ -389,7 +382,7 @@ test('S3Lambda.context.reduce (async)', (t) => {
       }
     }), null, true)
     .then((result) => {
-      t.ok(result == answer, 'reduce async')
+      t.equal(result, answer, 'reduce async')
     }).catch(e => console.error(e.stack))
 })
 
@@ -408,7 +401,7 @@ test('S3Lambda.context.filter (sync)', (t) => {
     .context(context)
     .filter(obj => obj == 'file1')
     .then(() => {
-      t.ok(equals(answer, readDir(prefixPath)), 'filter inplace (sync)')
+      t.deepEqual(answer, readDir(prefixPath), 'filter inplace (sync)')
     })
     .catch(e => console.error(e))
 })
@@ -431,7 +424,7 @@ test('S3Lambda.context.filter (async)', (t) => {
       success(obj == 'file1')
     }), true)
     .then(() => {
-      t.ok(equals(fs.readdirSync(prefixPath), answer), 'filter 3 inplace (async)')
+      t.deepEqual(fs.readdirSync(prefixPath), answer, 'filter 3 inplace (async)')
     })
     .catch(e => console.error(e.stack))
 })
@@ -453,7 +446,7 @@ test('S3Lambda.context.output.filter (sync)', (t) => {
     .output(bucket, outputPrefix)
     .filter(obj => obj == 'file1')
     .then(() => {
-      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (sync)')
+      t.deepEqual(readDir(outputPrefixPath), answer, 'filter to output (sync)')
     })
     .catch(e => console.error(e.stack))
 })
@@ -476,7 +469,7 @@ test('S3Lambda.context.output.filter (async)', (t) => {
       success(obj == 'file1')
     }), true)
     .then(() => {
-      t.ok(equals(readDir(outputPrefixPath), answer), 'filter to output (async)')
+      t.deepEqual(readDir(outputPrefixPath), answer, 'filter to output (async)')
     })
     .catch(e => console.error(e.stack))
 })
