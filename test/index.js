@@ -203,6 +203,36 @@ test('S3Lambda.context.forEach (async)', (t) => {
       success()
     }), true).then(() => {
       t.ok(arraysEqual(objects, answer), 'forEach async')
+
+test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
+
+  resetSandbox()
+  t.plan(1)
+
+  const objects = []
+  const answer = [
+    { object: 'FILE1', key: 'files/file1' },
+    { object: 'FILE2', key: 'files/file2' },
+    { object: 'FILE3', key: 'files/file3' },
+    { object: 'FILE4', key: 'files/file4' }
+  ]
+
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
+    .transform(obj => obj.Body.toString('utf8').toUpperCase())
+    .forEach((obj, key) => new Promise((success, fail) => {
+      objects.push({
+        object: obj,
+        key
+      })
+      success()
+    }), true).then(() => {
+      t.deepEqual(objects, answer, 'forEach async')
     })
 })
 

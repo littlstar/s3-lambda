@@ -68,11 +68,11 @@ lambda.context([ctx1, ctx2])
 
 ## Modifiers
 After setting context, you can chain several other functions that modify the operation. Each returns a `Request` object, so they can be chained. All of these are optional.
-### .concurrency(c) 
+### .concurrency(c)
 {Number} Set the request concurrency level (default is `Infinity`).
 
 ### .transform(f)
-{Function} Sets the transformation function to use when getting objects. The function takes the object as an argument, and should return the transformed object.  
+{Function} Sets the transformation function to use when getting objects. This transformer will be called with the raw object that is returned by the [`S3#getObject()`](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getObject-property) method in the AWS SDK, and should return the transformed object.  When a transformer function is provided, objects are not automatically converted to strings, and the `encoding` parameter is ignored.  
 **Example:** unzipping compressed S3 files before each operation
 ```javascript
 const zlib = require('zlib')
@@ -80,17 +80,17 @@ const zlib = require('zlib')
 lambda
   .context(context)
   .transform((object) => {
-    return zlib.gunzipSync(object).toString()
+    return zlib.gunzipSync(object.Body).toString('utf8')
   })
   .each(...)
 ```
 ### .encode(e)
-{String} Sets the encoding to use when getting objects.
+{String} Sets the string encoding to use when getting objects.  This setting is ignored if a transformer function is used.
 ### limit(l)
 {Number} Limit the number of files operated over.
 ### reverse(r)
 {Boolean} Reverse the order of files operated over.
-### async() 
+### async()
 Lets the resolver know that your function is async (returns a Promise).
 
 ## Lambda Functions
@@ -130,7 +130,7 @@ lambda
 map(fn[, isasync])  
 
 **Destructive**. Maps `fn` over each file in an S3 directory, replacing each file with what is returned
-from the mapper function. If `isasync` is true, `fn` should return a Promise. 
+from the mapper function. If `isasync` is true, `fn` should return a Promise.
 ```javascript
 const addSmiley = object => object + ':)'
 
@@ -230,12 +230,14 @@ lambda
   .then(object => { /* do something with object */ })
   .catch(console.error)
 ```
-Optionally you can supply your own transformer function to use when retrieving objects.
+
+Optionally you can supply your own transformer function to use when retrieving objects.  This transformer will be called with the raw object that is returned by the [`S3#getObject()`](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getObject-property) method in the AWS SDK, and should return the transformed object.  When a transformer function is provided, objects are not automatically converted to strings, and the `encoding` parameter is ignored.
+
 ```javascript
 const zlib = require('zlib')
 
 const transformer = object => {
-  return zlib.gunzipSync(object).toString('utf8')
+  return zlib.gunzipSync(object.Body).toString('utf8')
 }
 
 lambda
@@ -243,6 +245,7 @@ lambda
   .then(object => { /* do something with object */ })
   .catch(console.error)
 ```
+
 ### put
 put(bucket, key, object[, encoding])  
 
