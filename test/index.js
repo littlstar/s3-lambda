@@ -169,7 +169,7 @@ test('S3Lambda.context.forEach (sync)', (t) => {
 test('S3Lambda.context.forEach (async)', (t) => {
 
   resetSandbox()
-  t.plan(1)
+  t.plan(10)
 
   const objects = []
   const answer = [
@@ -179,20 +179,31 @@ test('S3Lambda.context.forEach (async)', (t) => {
     { object: 'file4', key: 'files/file4' }
   ]
 
-  const context = {
+  const opts = {
     bucket: bucket,
     prefix: prefix
   }
 
-  lambda
-    .context(context)
-    .forEach((obj, key) => new Promise((success, fail) => {
-      objects.push({
-        object: obj,
-        key
-      })
-      success()
+  let concurrentOperations = 0
+
+  const context = lambda
+    .context(opts)
+    .concurrency(4)
+
+  context.forEach((obj, key) => new Promise((success) => {
+      t.equal(concurrentOperations, 0, 'forEach concurrency <= 1')
+      concurrentOperations++
+      setTimeout(() => {
+        t.equal(concurrentOperations, 1, 'forEach concurrency <= 1')
+        objects.push({
+          object: obj,
+          key
+        })
+        concurrentOperations--
+        success()
+      }, 10)
     }), true).then(() => {
+      t.equal(context.opts.concurrency, 4)
       t.deepEqual(objects, answer, 'forEach async')
     })
 })
