@@ -44,8 +44,8 @@ Before initiating a lambda expression, you must tell `s3-lambda` what files to o
 lambda.context({
   bucket: 'my-bucket',       // The S3 bucket to use
   prefix: 'prefix/',         // The prefix of the files to use - s3-lambda will operate over every file with this prefix.
-  endPrefix: 'prefix/file3', // Optional. End at this prefix. Defaults to null
-  marker: 'prefix/file1',    // Optional. Start at this prefix. If it is a full file path, starts with next file. Defaults to null.
+  marker: 'prefix/file1',    // Optional. Start at the first file with this prefix. If it is a full file path, starts with next file. Defaults to null.
+  endPrefix: 'prefix/file3', // Optional. Process files up to (not including) this prefix. Defaults to null.
   limit: 1000,               // Optional. Limit the # of files operated over. Default is Infinity.
   reverse: false             // Optional. If true, operate over all files in reverse. Defaults to false.
 })
