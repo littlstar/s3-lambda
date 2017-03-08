@@ -259,6 +259,7 @@ test('S3Lambda.context.map (sync)', (t) => {
 
   lambda
     .context(context)
+    .inplace()
     .map((obj, key) =>
 
       // update each object with the key prefixed
@@ -286,6 +287,7 @@ test('S3Lambda.context.map (async)', (t) => {
 
   lambda
     .context(context)
+    .inplace()
     .map((obj, key) => new Promise((success, fail) => {
     success(key + obj)
   }), true).then(() => {
@@ -410,6 +412,7 @@ test('S3Lambda.context.filter (sync)', (t) => {
 
   lambda
     .context(context)
+    .inplace()
     .filter(obj => obj == 'file1')
     .then(() => {
       t.deepEqual(answer, readDir(prefixPath), 'filter inplace (sync)')
@@ -431,6 +434,7 @@ test('S3Lambda.context.filter (async)', (t) => {
 
   lambda
     .context(context)
+    .inplace()
     .filter(obj => new Promise((success, fail) => {
       success(obj == 'file1')
     }), true)
