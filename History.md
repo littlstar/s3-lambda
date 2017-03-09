@@ -1,4 +1,12 @@
 
+5.1.0 / 2017-03-09
+==================
+
+  * add inplace option for destructive actions and make it necessary
+  * forEach should not permanently overwrite the context's concurrency
+  * Use tape's built-in assertions for comparisons in tests
+  * Pass transformer and encoding from context to s3
+
 5.0.2 / 2017-02-12
 ==================
   * Updated options object for context

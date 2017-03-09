@@ -1,6 +1,6 @@
 {
   "name": "s3-lambda",
-  "version": "5.0.2",
+  "version": "5.1.0",
   "description": "Lambda functions over S3 objects with concurrency control (forEach, map, reduce, filter)",
   "main": "index.js",
   "author": "Wells Johnston",
