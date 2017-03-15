@@ -24,7 +24,7 @@ const outputPaths = files.map(f => `${outputPrefixPath}/${f}`)
 // s3-lambda object
 const lambda = new S3Lambda({
   localPath,
-  show_progress: false,
+  showProgress: false,
   verbose: false
 })
 
@@ -191,21 +191,21 @@ test('S3Lambda.context.forEach (async)', (t) => {
     .concurrency(4)
 
   context.forEach((obj, key) => new Promise((success) => {
-      t.equal(concurrentOperations, 0, 'forEach concurrency <= 1')
-      concurrentOperations++
-      setTimeout(() => {
-        t.equal(concurrentOperations, 1, 'forEach concurrency <= 1')
-        objects.push({
-          object: obj,
-          key
-        })
-        concurrentOperations--
-        success()
-      }, 10)
-    }), true).then(() => {
-      t.equal(context.opts.concurrency, 4)
-      t.deepEqual(objects, answer, 'forEach async')
-    })
+    t.equal(concurrentOperations, 0, 'forEach concurrency <= 1')
+    concurrentOperations++
+    setTimeout(() => {
+      t.equal(concurrentOperations, 1, 'forEach concurrency <= 1')
+      objects.push({
+        object: obj,
+        key
+      })
+      concurrentOperations--
+      success()
+    }, 10)
+  }), true).then(() => {
+    t.equal(context.opts.concurrency, 4)
+    t.deepEqual(objects, answer, 'forEach async')
+  })
 })
 
 test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
@@ -263,9 +263,9 @@ test('S3Lambda.context.map (sync)', (t) => {
     .map((obj, key) =>
 
       // update each object with the key prefixed
-       key + obj).then(() => {
-         t.deepEqual(answer, readFiles(filePaths), 'map sync')
-       }).catch(console.error)
+      key + obj).then(() => {
+        t.deepEqual(answer, readFiles(filePaths), 'map sync')
+      }).catch(console.error)
 })
 
 test('S3Lambda.context.map (async)', (t) => {
@@ -289,10 +289,10 @@ test('S3Lambda.context.map (async)', (t) => {
     .context(context)
     .inplace()
     .map((obj, key) => new Promise((success, fail) => {
-    success(key + obj)
-  }), true).then(() => {
-    t.deepEqual(answer, readFiles(filePaths), 'map async over 3 objects')
-  }).catch(console.error)
+      success(key + obj)
+    }), true).then(() => {
+      t.deepEqual(answer, readFiles(filePaths), 'map async over 3 objects')
+    }).catch(console.error)
 })
 
 test('S3Lambda.context.output.map (sync)', (t) => {
@@ -352,22 +352,17 @@ test('S3Lambda.context.reduce (sync)', (t) => {
   resetSandbox()
   t.plan(1)
 
-  const answer = 'file1file2file3file4'
+  const answer = 20
 
   const context = {
     bucket: bucket,
     prefix: prefix
   }
 
+  // Add the length of the contents of each file, starting at 0
   lambda
     .context(context)
-    .reduce((prev, cur, key) => {
-      if (!prev) {
-        return cur
-      } else {
-        return prev + cur
-      }
-    })
+    .reduce((acc, cur, key) => acc + cur.length , 0)
     .then((result) => {
       t.equal(result, answer, 'reduce sync')
     }).catch(e => console.error(e.stack))
@@ -378,22 +373,19 @@ test('S3Lambda.context.reduce (async)', (t) => {
   resetSandbox()
   t.plan(1)
 
-  const answer = 'file1file2file3file4'
+  const answer = 20
 
   const context = {
     bucket: bucket,
     prefix: prefix
   }
 
+  // Add the length of the contents of each file, starting at 0
   lambda
     .context(context)
     .reduce((prev, cur, key) => new Promise((success, fail) => {
-      if (!prev) {
-        success(cur)
-      } else {
-        success(prev + cur)
-      }
-    }), null, true)
+        success(prev + cur.length)
+    }), 0, true)
     .then((result) => {
       t.equal(result, answer, 'reduce async')
     }).catch(e => console.error(e.stack))
