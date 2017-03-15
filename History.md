@@ -1,4 +1,11 @@
 
+5.1.2 / 2017-03-15
+==================
+
+  * fixed concurrency in reduce (used to be forced to 1)
+  * cleaned code
+  * improved documentation
+
 5.1.1 / 2017-03-13
 ==================
 
