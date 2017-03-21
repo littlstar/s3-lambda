@@ -215,10 +215,10 @@ test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
 
   const objects = []
   const answer = [
-    { object: 'FILE1', key: 'files/file1' },
-    { object: 'FILE2', key: 'files/file2' },
-    { object: 'FILE3', key: 'files/file3' },
-    { object: 'FILE4', key: 'files/file4' }
+    { object: 'FILE1 files/file1', key: 'files/file1' },
+    { object: 'FILE2 files/file2', key: 'files/file2' },
+    { object: 'FILE3 files/file3', key: 'files/file3' },
+    { object: 'FILE4 files/file4', key: 'files/file4' }
   ]
 
   const context = {
@@ -228,7 +228,7 @@ test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
 
   lambda
     .context(context)
-    .transform(obj => obj.Body.toString('utf8').toUpperCase())
+    .transform((obj, key) => obj.Body.toString('utf8').toUpperCase() + ' ' + key)
     .forEach((obj, key) => new Promise((success, fail) => {
       objects.push({
         object: obj,
