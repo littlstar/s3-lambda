@@ -208,6 +208,37 @@ test('S3Lambda.context.forEach (async)', (t) => {
   })
 })
 
+test('S3Lambda.context.exclude and S3Lambda.context.forEach (async)', (t) => {
+
+  resetSandbox()
+  t.plan(1)
+
+  const objects = []
+  const answer = [
+    { object: 'file1', key: 'files/file1' },
+    { object: 'file3', key: 'files/file3' },
+    { object: 'file4', key: 'files/file4' }
+  ]
+
+  const context = {
+    bucket: bucket,
+    prefix: prefix
+  }
+
+  lambda
+    .context(context)
+    .exclude(key => /file2/.test(key))
+    .forEach((obj, key) => new Promise((success, fail) => {
+      objects.push({
+        object: obj,
+        key
+      })
+      success()
+    }), true).then(() => {
+      t.deepEqual(objects, answer, 'forEach async with exclude')
+    })
+})
+
 test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
 
   resetSandbox()
@@ -236,7 +267,7 @@ test('S3Lambda.context.transform and S3Lambda.context.forEach (async)', (t) => {
       })
       success()
     }), true).then(() => {
-      t.deepEqual(objects, answer, 'forEach async')
+      t.deepEqual(objects, answer, 'forEach async with transform')
     })
 })
 

@@ -71,6 +71,16 @@ After setting context, you can chain several other functions that modify the ope
 ### .concurrency(c)
 {Number} Set the request concurrency level (default is `Infinity`).
 
+### .exclude(e)
+{Function} Sets the exclude function to use before getting objects from S3. This function will be called with the key and should return `true` if the object should be excluded.  
+**Example:** exclude png files
+```javascript
+lambda
+  .context(context)
+  .exclude(key => /.png$/.test(key))
+  .each(...)
+```
+
 ### .transform(f)
 {Function} Sets the transformation function to use when getting objects. This transformer will be called with the raw object that is returned by the [`S3#getObject()`](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getObject-property) method in the AWS SDK and the key, and should return the transformed object.  When a transformer function is provided, objects are not automatically converted to strings, and the `encoding` parameter is ignored.
 **Example:** unzipping compressed S3 files before each operation
