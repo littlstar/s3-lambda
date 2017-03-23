@@ -345,7 +345,7 @@ test('S3Lambda.context.output.map (sync)', (t) => {
 
   lambda
     .context(context)
-    .output(bucket, outputPrefix)
+    .output(bucket, outputPrefix, (key) => {return key.replace('-', '/')})
     .map((obj, key) => key + obj).then(() => {
       t.deepEqual(answer, readFiles(outputPaths), 'map sync over')
     }).catch(console.error)
@@ -481,7 +481,7 @@ test('S3Lambda.context.output.filter (sync)', (t) => {
 
   lambda
     .context(context)
-    .output(bucket, outputPrefix)
+    .output(bucket, outputPrefix, (key) => {return key.replace('-', '/')})
     .filter(obj => obj == 'file1')
     .then(() => {
       t.deepEqual(readDir(outputPrefixPath), answer, 'filter to output (sync)')
