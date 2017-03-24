@@ -13,6 +13,7 @@ const folder = 'buckets'
 const bucket = 'S3Lambda'
 const prefix = 'files'
 const outputPrefix = 'output-files'
+// const files = ['file1', 'file2', 'file3', 'file4']
 const files = ['file1', 'file2', 'file3', 'file4']
 const localPath = path.resolve(__dirname, folder)
 const bucketPath = path.resolve(__dirname, folder, bucket)
@@ -342,10 +343,10 @@ test('S3Lambda.context.output.map (sync)', (t) => {
     bucket: bucket,
     prefix: prefix
   }
-
+  const files = ['file1big-momma', 'file2big-momma', 'file3big-momma', 'file4big-momma']
   lambda
     .context(context)
-    .output(bucket, outputPrefix, (key) => {return key.replace('-', '/')})
+    .output(bucket, outputPrefix, (key) => {return key.concat('big-momma')})
     .map((obj, key) => key + obj).then(() => {
       t.deepEqual(answer, readFiles(outputPaths), 'map sync over')
     }).catch(console.error)
@@ -370,7 +371,7 @@ test('S3Lambda.context.output.map (async)', (t) => {
 
   lambda
     .context(context)
-    .output(bucket, outputPrefix)
+    .output(bucket, outputPrefix, (key) => {return key.concat('/big-momma')})
     .map((obj, key) => new Promise((success, fail) => {
       success(key + obj)
     }), true).then(() => {
@@ -481,7 +482,7 @@ test('S3Lambda.context.output.filter (sync)', (t) => {
 
   lambda
     .context(context)
-    .output(bucket, outputPrefix, (key) => {return key.replace('-', '/')})
+    .output(bucket, outputPrefix, (key) => {return key.concat('/big-momma')})
     .filter(obj => obj == 'file1')
     .then(() => {
       t.deepEqual(readDir(outputPrefixPath), answer, 'filter to output (sync)')
@@ -502,7 +503,7 @@ test('S3Lambda.context.output.filter (async)', (t) => {
   }
 
   lambda.context(context)
-    .output(bucket, outputPrefix)
+    .output(bucket, outputPrefix, (key) => {return key.concat('/big-momma')})
     .filter(obj => new Promise((success, fail) => {
       success(obj == 'file1')
     }), true)
