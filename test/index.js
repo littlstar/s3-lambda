@@ -13,14 +13,12 @@ const folder = 'buckets'
 const bucket = 'S3Lambda'
 const prefix = 'files'
 const outputPrefix = 'output-files'
-// const files = ['file1', 'file2', 'file3', 'file4']
 const files = ['file1', 'file2', 'file3', 'file4']
 const localPath = path.resolve(__dirname, folder)
 const bucketPath = path.resolve(__dirname, folder, bucket)
 const prefixPath = path.resolve(__dirname, folder, bucket, prefix)
 const outputPrefixPath = path.resolve(__dirname, folder, bucket, outputPrefix)
 const filePaths = files.map(f => `${prefixPath}/${f}`)
-const outputPaths = files.map(f => `${outputPrefixPath}/${f}`)
 
 // s3-lambda object
 const lambda = new S3Lambda({
@@ -305,6 +303,9 @@ test('S3Lambda.context.map (async)', (t) => {
   resetSandbox()
   t.plan(1)
 
+  // Tests rename function
+  const outputPaths = files.map(f => `${outputPrefixPath}/${f}ab`)
+
   const answer = [
     'files/file1file1',
     'files/file2file2',
@@ -332,6 +333,8 @@ test('S3Lambda.context.output.map (sync)', (t) => {
   resetSandbox()
   t.plan(1)
 
+  const outputPaths = files.map(f => `${outputPrefixPath}/${f}ab`)
+
   const answer = [
     'files/file1file1',
     'files/file2file2',
@@ -343,10 +346,10 @@ test('S3Lambda.context.output.map (sync)', (t) => {
     bucket: bucket,
     prefix: prefix
   }
-  const files = ['file1big-momma', 'file2big-momma', 'file3big-momma', 'file4big-momma']
+
   lambda
     .context(context)
-    .output(bucket, outputPrefix, (key) => {return key.concat('big-momma')})
+    .output(bucket, outputPrefix, (key) => key.concat('ab'))
     .map((obj, key) => key + obj).then(() => {
       t.deepEqual(answer, readFiles(outputPaths), 'map sync over')
     }).catch(console.error)
@@ -371,7 +374,7 @@ test('S3Lambda.context.output.map (async)', (t) => {
 
   lambda
     .context(context)
-    .output(bucket, outputPrefix, (key) => {return key.concat('/big-momma')})
+    .output(bucket, outputPrefix, (key) => key.concat('ab'))
     .map((obj, key) => new Promise((success, fail) => {
       success(key + obj)
     }), true).then(() => {
@@ -416,7 +419,7 @@ test('S3Lambda.context.reduce (async)', (t) => {
   lambda
     .context(context)
     .reduce((prev, cur, key) => new Promise((success, fail) => {
-        success(prev + cur.length)
+      success(prev + cur.length)
     }), 0, true)
     .then((result) => {
       t.equal(result, answer, 'reduce async')
@@ -449,7 +452,8 @@ test('S3Lambda.context.filter (async)', (t) => {
   resetSandbox()
   t.plan(1)
 
-  const answer = ['file1']
+  // Tests rename output
+  const answer = ['file1ab']
 
   const context = {
     bucket: bucket,
@@ -473,7 +477,7 @@ test('S3Lambda.context.output.filter (sync)', (t) => {
   resetSandbox()
   t.plan(1)
 
-  const answer = ['file1']
+  const answer = ['file1ab']
 
   const context = {
     bucket: bucket,
@@ -482,7 +486,7 @@ test('S3Lambda.context.output.filter (sync)', (t) => {
 
   lambda
     .context(context)
-    .output(bucket, outputPrefix, (key) => {return key.concat('/big-momma')})
+    .output(bucket, outputPrefix, (key) => key.concat('ab'))
     .filter(obj => obj == 'file1')
     .then(() => {
       t.deepEqual(readDir(outputPrefixPath), answer, 'filter to output (sync)')
@@ -503,7 +507,7 @@ test('S3Lambda.context.output.filter (async)', (t) => {
   }
 
   lambda.context(context)
-    .output(bucket, outputPrefix, (key) => {return key.concat('/big-momma')})
+    .output(bucket, outputPrefix, (key) => key.concat('ab'))
     .filter(obj => new Promise((success, fail) => {
       success(obj == 'file1')
     }), true)
