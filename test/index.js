@@ -360,6 +360,8 @@ test('S3Lambda.context.output.map (async)', (t) => {
   resetSandbox()
   t.plan(1)
 
+  const outputPaths = files.map(f => `${outputPrefixPath}/${f}ab`)
+
   const answer = [
     'files/file1file1',
     'files/file2file2',
@@ -453,7 +455,7 @@ test('S3Lambda.context.filter (async)', (t) => {
   t.plan(1)
 
   // Tests rename output
-  const answer = ['file1ab']
+  const answer = ['file1']
 
   const context = {
     bucket: bucket,
@@ -499,7 +501,7 @@ test('S3Lambda.context.output.filter (async)', (t) => {
   resetSandbox()
   t.plan(1)
 
-  const answer = ['file1']
+  const answer = ['file1ab']
 
   const context = {
     bucket: bucket,
