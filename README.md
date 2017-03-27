@@ -142,7 +142,7 @@ map(fn[, isasync])
 Maps `fn` over each file in an S3 directory, replacing each file with what is returned
 from the mapper function.   If `isasync` is true, `fn` should return a Promise.
 
-This is a **destructive** action, meaning what you return from `fn` will change the S3 object itself. For your protection, you must specify `inplace()` to map over the existing files. Alternatively, you can use `output()` to output the results of the mapper function elsewhere (as demonstrated below). 
+This is a **destructive** action, meaning what you return from `fn` will change the S3 object itself. For your protection, you must specify `inplace()` to map over the existing files. Alternatively, you can use `output()` to output the results of the mapper function elsewhere (as demonstrated below). You can pass a third argument (a function) to rename the output key (bucket + prefix). 
 ```javascript
 const addSmiley = object => object + ':)'
 
@@ -160,7 +160,7 @@ const outputPrefix = 'path/to/output/'
 
 lambda
   .context(bucket, prefix)
-  .output(outputBucket, outputPrefix)
+  .output(outputBucket, outputPrefix, (key) => key.replace('-', '/'))
   .map(addSmiley)
   .then(console.log('done!'))
   .catch(console.error)
@@ -186,7 +186,7 @@ filter(func[, isasync])
 
 **Destructive**.  Filters (deletes) files in S3. `func` should return `true` to keep the object, and `false` to delete it. If `isasync` is true, `func` returns a Promise.
 
-This is a **destructive** action, meaning if `fn` is `false`, the object will be deleted from S3. For your protection, you must specify `inplace()` to filter the existing files. Alternatively, you can use `output()` to output the results of the filter function elsewhere (as demonstrated below). 
+This is a **destructive** action, meaning if `fn` is `false`, the object will be deleted from S3. For your protection, you must specify `inplace()` to filter the existing files. Alternatively, you can use `output()` to output the results of the filter function elsewhere (as demonstrated below). As with map, you can pass a function to output to rename the output key. 
 
 ```javascript
 // filters empty files
@@ -203,7 +203,7 @@ Make this *non-destructive* by specifying an `output` directory.
 ```javascript
 lambda
   .context(bucket, prefix)
-  .output(outputBucket, outputPrefix)
+  .output(outputBucket, outputPrefix, (key) => key.replace('-', '/'))
   .filter(filter)
   .then(console.log('done!'))
   .catch(console.error()
