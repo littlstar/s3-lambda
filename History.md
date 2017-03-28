@@ -1,4 +1,9 @@
 
+5.1.6 / 2017-03-28
+==================
+
+  * added better defensive code around transformer
+
 5.1.5 / 2017-03-28
 ==================
 
