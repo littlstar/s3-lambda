@@ -46,6 +46,7 @@ lambda.context({
   prefix: 'prefix/',         // The prefix of the files to use - s3-lambda will operate over every file with this prefix.
   marker: 'prefix/file1',    // Optional. Start at the first file with this prefix. If it is a full file path, starts with next file. Defaults to null.
   endPrefix: 'prefix/file3', // Optional. Process files up to (not including) this prefix. Defaults to null.
+  match: /2017/i, // Optional. Process files matching this regex / string. Defaults to null.
   limit: 1000,               // Optional. Limit the # of files operated over. Default is Infinity.
   reverse: false             // Optional. If true, operate over all files in reverse. Defaults to false.
 })
@@ -142,7 +143,7 @@ map(fn[, isasync])
 Maps `fn` over each file in an S3 directory, replacing each file with what is returned
 from the mapper function.   If `isasync` is true, `fn` should return a Promise.
 
-This is a **destructive** action, meaning what you return from `fn` will change the S3 object itself. For your protection, you must specify `inplace()` to map over the existing files. Alternatively, you can use `output()` to output the results of the mapper function elsewhere (as demonstrated below). You can pass a third argument (a function) to rename the output key (bucket + prefix). 
+This is a **destructive** action, meaning what you return from `fn` will change the S3 object itself. For your protection, you must specify `inplace()` to map over the existing files. Alternatively, you can use `output()` to output the results of the mapper function elsewhere (as demonstrated below). You can pass a third argument (a function) to rename the output key (bucket + prefix).
 ```javascript
 const addSmiley = object => object + ':)'
 
@@ -186,7 +187,7 @@ filter(func[, isasync])
 
 **Destructive**.  Filters (deletes) files in S3. `func` should return `true` to keep the object, and `false` to delete it. If `isasync` is true, `func` returns a Promise.
 
-This is a **destructive** action, meaning if `fn` is `false`, the object will be deleted from S3. For your protection, you must specify `inplace()` to filter the existing files. Alternatively, you can use `output()` to output the results of the filter function elsewhere (as demonstrated below). As with map, you can pass a function to output to rename the output key. 
+This is a **destructive** action, meaning if `fn` is `false`, the object will be deleted from S3. For your protection, you must specify `inplace()` to filter the existing files. Alternatively, you can use `output()` to output the results of the filter function elsewhere (as demonstrated below). As with map, you can pass a function to output to rename the output key.
 
 ```javascript
 // filters empty files
