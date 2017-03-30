@@ -19,6 +19,7 @@ const lambda = new S3Lambda({
   secretAccessKey: 'aws-secret-key',   // Optional. (falls back on local AWS credentials)
   showProgress: true,                  // Optional. Show progress bar in stdout
   verbose: true,                       // Optional. Show all S3 operations in stdout (GET, PUT, DELETE)
+  signatureVersion: 'v4',                       // Optional. Signature Version used in Authentication. Defaults to "v4"
   maxRetries: 10,                      // Optional. Maximum request retries on an S3 object. Defaults to 10.
   timeout: 10000                       // Optional. Amount of time for request to timeout. Defaults to 10000 (10s)
 })
