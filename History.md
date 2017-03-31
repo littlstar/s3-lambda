@@ -1,4 +1,11 @@
 
+5.1.7 / 2017-03-31
+==================
+
+  * Add Match Option in Context
+  * Add Support for signatureVersion v4. Can be set in Config Object.
+  * ignore empty objects (including folder prefixes) when listing keys
+
 5.1.6 / 2017-03-28
 ==================
 
