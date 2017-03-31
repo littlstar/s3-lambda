@@ -19,7 +19,7 @@ const lambda = new S3Lambda({
   secretAccessKey: 'aws-secret-key',   // Optional. (falls back on local AWS credentials)
   showProgress: true,                  // Optional. Show progress bar in stdout
   verbose: true,                       // Optional. Show all S3 operations in stdout (GET, PUT, DELETE)
-  signatureVersion: 'v4',                       // Optional. Signature Version used in Authentication. Defaults to "v4"
+  signatureVersion: 'v4',              // Optional. Signature Version used in Authentication. Defaults to "v4"
   maxRetries: 10,                      // Optional. Maximum request retries on an S3 object. Defaults to 10.
   timeout: 10000                       // Optional. Amount of time for request to timeout. Defaults to 10000 (10s)
 })
@@ -47,7 +47,7 @@ lambda.context({
   prefix: 'prefix/',         // The prefix of the files to use - s3-lambda will operate over every file with this prefix.
   marker: 'prefix/file1',    // Optional. Start at the first file with this prefix. If it is a full file path, starts with next file. Defaults to null.
   endPrefix: 'prefix/file3', // Optional. Process files up to (not including) this prefix. Defaults to null.
-  match: /2017/i, // Optional. Process files matching this regex / string. Defaults to null.
+  match: /2017/i,            // Optional. Process files matching this regex / string. Defaults to null.
   limit: 1000,               // Optional. Limit the # of files operated over. Default is Infinity.
   reverse: false             // Optional. If true, operate over all files in reverse. Defaults to false.
 })
