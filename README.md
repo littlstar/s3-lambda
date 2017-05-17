@@ -1,5 +1,7 @@
 ## s3-lambda
 
+**Disclaimer** This module does *not* interact with the AWS Lambda service; the name `s3-lambda` is referring to lambda functions in computer science, and all s3 file processing happens locally.
+
 `s3-lambda` enables you to run lambda functions over a context of [S3](https://aws.amazon.com/s3/) objects. It has a stateless architecture with concurrency control, allowing you to process a large number of files very quickly. This is useful for quickly prototyping complex data jobs without an infrastructure like Hadoop or Spark.
 
 At Littlstar, we use `s3-lambda` for all sorts of data pipelining and analytics.
